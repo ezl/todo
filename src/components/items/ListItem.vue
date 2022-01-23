@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center">
+  <div class="flex items-start">
     <div>
       <Checkbox v-model="item.completed"  />
     </div>

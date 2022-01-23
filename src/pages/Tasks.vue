@@ -1,13 +1,13 @@
 <template>
-  <div class="w-6/12 mt-10 mx-auto">
+  <div class="w-6/12 mt-16 mx-auto">
     <div>
-        <TagGroup />
+      <TagGroup />
     </div>
     <div class="mt-5">
-        <ListItemForm />
-        <div>
-            <ListItem v-for="(item, index) in listItems" :key="index" :item="item" />
-        </div>
+      <ListItemForm />
+      <div>
+        <ListItem v-for="(item, index) in items" :key="index" :item="item" class="mt-3" />
+      </div>
     </div>
   </div>
 </template>
@@ -16,6 +16,7 @@
 import ListItemForm from '@/components/items/ListItemForm';
 import ListItem from '@/components/items/ListItem';
 import TagGroup from '@/components/tags/TagGroup';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   components: {
@@ -24,14 +25,20 @@ export default {
     TagGroup
   },
   data() {
-    return {
-      listItems: [
-          {
-              completed: false,
-              name: 'Finish reading that bool'
-          }
-      ]
-    };
+    return {};
+  },
+  methods: {
+    ...mapActions({
+      getItems: 'items/getItems'
+    })
+  },
+  computed: {
+    ...mapGetters({
+      items: 'items/items'
+    })
+  },
+  mounted() {
+    this.getItems();
   }
 };
 </script>

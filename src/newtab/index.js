@@ -4,7 +4,7 @@ import router from '../router'
 import store from '../store'
 import '@/assets/css/main.css'
 
-window.browser = chrome || browser
+window.browser = require("webextension-polyfill");
 
 new Vue({
   el: '#app',
