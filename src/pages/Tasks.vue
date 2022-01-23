@@ -3,7 +3,7 @@
     <div>
       <TagGroup />
     </div>
-    <div class="mt-5">
+    <div class="mt-8">
       <ListItemForm />
       <div>
         <ListItem v-for="(item, index) in items" :key="index" :item="item" class="mt-3" />
