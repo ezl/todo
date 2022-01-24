@@ -1,0 +1,11 @@
+{
+    "name": "Todo list",
+    "version": "0.0.1",
+    "description": "description",
+    "permissions": [
+        "storage"
+    ],
+    "chrome_url_overrides": {
+        "newtab": "newtab.html"
+    }
+}
