@@ -10,6 +10,9 @@ npm run build
 ```
 This command will create a dist folder containing 2 subfolders, chrome and firefox
 
+# Download 
+You can download latest version for both Chrome and Firefox [here](https://drive.google.com/file/d/1JNlrRQj_fzuvzL_FBCygg4p9gEyQ9-xo/view)
+
 # Installation
 
 ## Chrome 
@@ -19,5 +22,5 @@ This command will create a dist folder containing 2 subfolders, chrome and firef
 
 ## Firefox
 1. Open Firefox then go to about:debugging#/runtime/this-firefox
-2. Click on Load Temporary Add-on, finally select and import firefox extension folder
+2. Click on Load Temporary Add-on, and finally go to firefox extension folder then select manifest.json file to import it
 > If you cannot see "Load Temporary Add-on" button, go to about:config and set devtools.aboutdebugging.new-enabled to true
