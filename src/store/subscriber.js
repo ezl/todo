@@ -14,6 +14,10 @@ store.subscribe(mutation => {
 });
 
 const onItemAdded = async item => {
+  // "item" is currently a reactive object
+  // We must convert it back to a normal object before saving
+  item = JSON.parse(JSON.stringify(item))
+
   const { items } = await browser.storage.local.get({ items: [] });
   items.push(item);
 
