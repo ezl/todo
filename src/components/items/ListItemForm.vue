@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center">
+  <div class="flex items-start">
     <div>
       <Checkbox v-model="completed" @click="refocusInput" />
     </div>
@@ -30,7 +30,9 @@ export default {
       addItem: 'items/addItem'
     }),
     async submit() {
-      if (this.body == '') return;
+      if (this.body.trim().length == 0) {
+        return
+      }
 
       try {
         await this.addItem({
