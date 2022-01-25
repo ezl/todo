@@ -2,6 +2,9 @@ import store from '@/store';
 
 store.subscribe(mutation => {
   switch (mutation.type) {
+    case 'items/SET_ITEMS':
+      onItemsUpdated(mutation.payload);
+      break;
     case 'items/ADD_ITEM':
       onItemAdded(mutation.payload);
       break;
@@ -12,6 +15,12 @@ store.subscribe(mutation => {
       break;
   }
 });
+
+const onItemsUpdated = async items => {
+  // We need to convert items to a normal object before saving
+  items = JSON.parse(JSON.stringify(items));
+  browser.storage.local.set({ items });
+};
 
 const onItemAdded = async item => {
   // "item" is currently a reactive object

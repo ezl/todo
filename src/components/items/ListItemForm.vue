@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-start">
+  <div class="flex items-start py-1 px-2">
     <div>
       <Checkbox v-model="completed" @click="refocusInput" />
     </div>

@@ -49,7 +49,7 @@ export default {
         id: uuidv4(),
         name,
         completed,
-        order: 1, // will come handy when sorting
+        order: 0,
         createdAt: moment.utc().valueOf()
       };
 
@@ -72,11 +72,18 @@ export default {
         id,
         updatedProperties
       });
-    }
+    },
+    async updateItems({ commit }, items) {
+      if (items === undefined) {
+        throw 'items param is required';
+      }
+
+      commit('SET_ITEMS', items);
+    },
   },
   getters: {
     items(state) {
-      return state.items;
+      return state.items.sort()
     }
   }
 };
