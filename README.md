@@ -11,7 +11,7 @@ npm run build
 This command will create a dist folder containing 2 subfolders, chrome and firefox
 
 # Download 
-You can download latest version for both Chrome and Firefox [here](https://drive.google.com/file/d/1JNlrRQj_fzuvzL_FBCygg4p9gEyQ9-xo/view)
+You can download latest version for both Chrome and Firefox [here](https://drive.google.com/file/d/1o-cRk5DNJ25XvNjwIc4CESB3ZsFT5gZd/view?usp=sharing)
 
 # Installation
 
