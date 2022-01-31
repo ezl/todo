@@ -4,6 +4,12 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
+
+body.apply-transition, 
+body.apply-transition  * {
+    transition: background-color 300ms ease-in-out, color 40ms ease-out;
+}
+
 body{
     font-family: 'Roboto', sans-serif;
 }

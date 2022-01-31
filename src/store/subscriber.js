@@ -6,10 +6,16 @@ store.subscribe(mutation => {
       onItemsUpdated(mutation.payload);
       break;
     case 'items/ADD_ITEM':
-      onItemAdded(mutation.payload);
+      onItemAdded(mutation.payload.item);
       break;
     case 'items/UPDATE_ITEM':
       onItemUpdated(mutation.payload);
+      break;
+    case 'items/DELETE_ITEM':
+      onItemDeleted(mutation.payload);
+      break;
+    case 'settings/SET_SETTINGS':
+      onSettingsUpdated(mutation.payload);
       break;
     default:
       break;
@@ -25,7 +31,7 @@ const onItemsUpdated = async items => {
 const onItemAdded = async item => {
   // "item" is currently a reactive object
   // We must convert it back to a normal object before saving
-  item = JSON.parse(JSON.stringify(item))
+  item = JSON.parse(JSON.stringify(item));
 
   const { items } = await browser.storage.local.get({ items: [] });
   items.push(item);
@@ -54,4 +60,18 @@ const onItemUpdated = async ({ id, updatedProperties }) => {
 
   items.splice(index, 1, item);
   await browser.storage.local.set({ items });
+};
+
+const onSettingsUpdated = settings => {
+  // make sure to convert it to a normal object
+  settings = JSON.parse(JSON.stringify(settings));
+  browser.storage.local.set({ settings });
+};
+
+const onItemDeleted = async id => {
+  let { items } = await browser.storage.local.get({ items: [] });
+
+  items = items.filter(item => item.id !== id);
+
+  browser.storage.local.set({ items });
 };

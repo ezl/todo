@@ -1,6 +1,6 @@
 <template>
-  <span class="text-gray-400 cursor-pointer hover:text-primary">
-    <svg width="23" height="24" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <span class="text-gray-400 cursor-pointer dark:hover:text-yellow p-2 hover:bg-slate-200 dark:hover:bg-inherit">
+    <svg width="20" height="22" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M4.75 9C4.75 4.99594 7.99594 1.75 12 1.75C16.0041 1.75 19.25 4.99594 19.25 9V15.8013C19.25 16.1002 19.3517 16.3903 19.5385 16.6237L21.0254 18.4823C21.5953 19.1947 21.0881 20.25 20.1758 20.25H3.82418C2.91189 20.25 2.4047 19.1947 2.9746 18.4823L4.4615 16.6237C4.64825 16.3903 4.75 16.1002 4.75 15.8013V9Z"
         stroke="currentColor"

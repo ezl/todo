@@ -42,7 +42,9 @@ export default {
 
         this.body = '';
         this.completed = false;
-      } catch (error) {}
+      } catch (error) {
+        console.error(error)
+      }
     },
     refocusInput() {
       // For smoother user experience, bring focus back to the input whenever the user toggles the completion checkbox.

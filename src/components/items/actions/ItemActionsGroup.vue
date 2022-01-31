@@ -31,13 +31,13 @@ export default {
 </script>
 
 <style>
-.item-actions-wrapper{
-    width: 288px;
+.item-actions-wrapper {
+  width: 288px;
 }
 
 .action-labels {
   top: -106px;
-  width: 224px;
-  left: 34px;
+  width: 210px;
+  left: 42px;
 }
 </style>

@@ -5,7 +5,7 @@
     @keydown.enter="submit"
     ref="input"
     type="text"
-    class="overflow-hidden bg-transparent w-full text-gray-200 focus:outline-none caret-yellow-300 px-2 placeholder:text-gray-500 resize-none"
+    class="overflow-hidden bg-transparent w-full text-dark-jungle-green dark:text-gray-200 focus:outline-none caret-black dark:caret-yellow px-2 placeholder:text-gray-500 resize-none"
     placeholder="Start typing to create a list item..."
     rows="1"
   ></textarea>

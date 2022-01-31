@@ -1,7 +1,7 @@
 <template>
   <div @click="toggle" class="cursor-pointer">
-    <checkbox-blank-outline-icon :size="21" class="text-gray-200" v-if="!checked" />
-    <checkbox-outline-icon :size="21" class="text-gray-200" v-else />
+    <checkbox-blank-outline-icon :size="21" class="text-gray-600 dark:text-gray-200" v-if="!checked" />
+    <checkbox-outline-icon :size="21" class="text-gray-600 dark:text-gray-200" v-else />
   </div>
 </template>
 

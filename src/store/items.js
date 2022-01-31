@@ -10,9 +10,8 @@ export default {
     SET_ITEMS(state, items) {
       state.items = items;
     },
-    ADD_ITEM(state, item) {
-      // Using unshift instead of push because we need to add the new items at the very beginning of items array
-      state.items.unshift(item);
+    ADD_ITEM(state, { item, placement }) {
+      placement == 'top' ? state.items.unshift(item) : state.items.push(item);
     },
     UPDATE_ITEM(state, { id, updatedProperties }) {
       let itemToUpdateIndex;
@@ -32,15 +31,25 @@ export default {
       itemToUpdate = { ...itemToUpdate, ...updatedProperties };
 
       state.items.splice(itemToUpdateIndex, 1, itemToUpdate);
+    },
+    DELETE_ITEM(state, id){
+      state.items = state.items.filter(item => item.id !== id)
     }
   },
   actions: {
-    async getItems({ commit }) {
-      const { items } = await browser.storage.local.get({ items: [] });
+    async getItems({ commit, rootGetters }) {
+      let { items } = await browser.storage.local.get({ items: [] });
+
+      if(rootGetters['settings/settings'].completed_preference == 'strikethrough_until_refresh'){
+        items = items.filter(item => {
+          console.log(item)
+          return item.completed != true
+        })
+      }
 
       commit('SET_ITEMS', items);
     },
-    async addItem({ commit }, { name, completed }) {
+    async addItem({ commit, rootGetters }, { name, completed }) {
       if (name === undefined || completed === undefined) {
         throw 'name and completed properties are missing';
       }
@@ -53,7 +62,12 @@ export default {
         createdAt: moment.utc().valueOf()
       };
 
-      commit('ADD_ITEM', item);
+      const placement = rootGetters['settings/settings'].new_item_placement;
+
+      commit('ADD_ITEM', {
+        item,
+        placement
+      });
     },
     async updateItem({ commit }, { id, updatedProperties }) {
       if (id === undefined) {
@@ -80,10 +94,17 @@ export default {
 
       commit('SET_ITEMS', items);
     },
+    async deleteItem({ commit }, id) {
+      if (id === undefined) {
+        throw 'item id required';
+      }
+
+      commit('DELETE_ITEM', id);
+    },
   },
   getters: {
     items(state) {
-      return state.items.sort()
+      return state.items.sort();
     }
   }
 };
