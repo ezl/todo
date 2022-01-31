@@ -11,7 +11,7 @@ npm run build
 This command will create a dist folder containing 2 subfolders, chrome and firefox
 
 # Download 
-You can download latest version for both Chrome and Firefox [here](https://drive.google.com/file/d/1o-cRk5DNJ25XvNjwIc4CESB3ZsFT5gZd/view?usp=sharing)
+You can download latest version for both Chrome and Firefox [here](https://drive.google.com/file/d/1YfkAhFD0tj27MURjBcWcvs5QW1Wt6Z4A/view)
 
 # Installation
 
@@ -21,6 +21,6 @@ You can download latest version for both Chrome and Firefox [here](https://drive
 3. Finally import the extension by clicking on "Load unpacked" button, then selecting Chrome extension folder
 
 ## Firefox
-1. Open Firefox then go to about:debugging#/runtime/this-firefox
-2. Click on Load Temporary Add-on, and finally go to firefox extension folder then select manifest.json file to import it
-> If you cannot see "Load Temporary Add-on" button, go to about:config and set devtools.aboutdebugging.new-enabled to true
+1. Go to about:addons
+2. Click on the gear icon then select “Install Add-on from file”
+3. Import the xpi file
