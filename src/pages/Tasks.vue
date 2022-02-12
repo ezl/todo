@@ -18,7 +18,7 @@
 import ListItemForm from '@/components/items/ListItemForm';
 import ListItem from '@/components/items/ListItem';
 import TagGroup from '@/components/tags/TagGroup';
-import { mapActions, mapGetters } from 'vuex';
+import Item from '@/models/Item';
 import draggable from 'vuedraggable';
 
 export default {
@@ -33,31 +33,28 @@ export default {
       drag: false
     };
   },
-  methods: {
-    ...mapActions({
-      getItems: 'items/getItems',
-      updateItems: 'items/updateItems'
-    })
-  },
+  methods: {},
   computed: {
-    ...mapGetters({
-      items: 'items/items'
-    }),
+    items() {
+      return Item.query()
+        .with('tags')
+        .get()
+        .sort((a, b) => a.order - b.order);
+    },
     list: {
       get() {
         return this.items;
       },
-      set(value) {
-        const reorderedItems = value.map((item, index) => {
-          item.order = index;
-          return item;
+      set(items) {
+        items.forEach((item, index) => {
+          item.order = index + 1
+          item.$save()
         });
-        this.updateItems(reorderedItems);
       }
     }
   },
   mounted() {
-    this.getItems();
+    Item.fetch();
   }
 };
 </script>

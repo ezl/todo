@@ -21,7 +21,7 @@
 import Checkbox from '@/components/inputs/Checkbox';
 import Input from '@/components/inputs/Input';
 import TagsSuggestionPopup from '@/components/tags/TagsSuggestionPopup';
-import { mapActions } from 'vuex';
+import Item from '@/models/Item';
 
 export default {
   components: {
@@ -38,26 +38,16 @@ export default {
     };
   },
   methods: {
-    ...mapActions({
-      addItem: 'items/addItem'
-    }),
     async submit() {
       if (this.body.trim().length == 0) {
         return;
       }
 
-      try {
-        await this.addItem({
-          name: this.body,
-          completed: this.completed
-        });
+      await Item.add(this.body, this.completed);
 
-        this.body = '';
-        this.completed = false;
-        this.suggestionsPopupCoordinates = null;
-      } catch (error) {
-        console.error(error);
-      }
+      this.body = '';
+      this.completed = false;
+      this.suggestionsPopupCoordinates = null;
     },
     onTagSelected(tag) {
       this.$refs.input.focus();
@@ -75,7 +65,7 @@ export default {
     },
     userIsTypingATag() {
       // retrieve current caret position
-      const currentCaretOffset = this.$refs.input.getCurrentCaretPosition()
+      const currentCaretOffset = this.$refs.input.getCurrentCaretPosition();
       // get all words that precede current caret position, and ignore words that come after that
       const words = this.body.substring(0, currentCaretOffset).split(' ');
       // the word that the user is currently typing
@@ -102,7 +92,7 @@ export default {
 
       // we need to merge all text nodes into a single node
       this.$refs.input.$el.normalize();
-      
+
       this.$refs.input.saveCurrentCaretPosition();
       this.body = this.$refs.input.$el.innerText;
     },

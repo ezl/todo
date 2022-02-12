@@ -34,8 +34,8 @@
       <div class="mt-6">
         <label for="new-item-placement">Default new item placement:</label>
         <select
-          @change="onChangeSettings"
-          v-model="currentSettngs.new_item_placement"
+          @change="onSettingsChanged"
+          v-model="currentSettings.new_item_placement"
           id="new-item-placement"
           class="py-2 px-3 rounded-md bg-bright-gray dark:bg-dark-charcoal w-full mt-2"
         >
@@ -46,8 +46,8 @@
       <div class="mt-6">
         <label for="theme">Appearance:</label>
         <select
-          @change="onChangeSettings"
-          v-model="currentSettngs.theme"
+          @change="onSettingsChanged"
+          v-model="currentSettings.theme"
           id="theme"
           class="py-2 px-3 rounded-md bg-bright-gray dark:bg-dark-charcoal w-full mt-2"
         >
@@ -58,8 +58,8 @@
       <div class="mt-6">
         <label for="completed-preference">Completed Preference:</label>
         <select
-          @change="onChangeSettings"
-          v-model="currentSettngs.completed_preference"
+          @change="onSettingsChanged"
+          v-model="currentSettings.completed_preference"
           id="completed-preference"
           class="py-2 px-3 rounded-md bg-bright-gray dark:bg-dark-charcoal w-full mt-2"
         >
@@ -81,7 +81,7 @@
 <script>
 import PencilOutlineIcon from 'vue-material-design-icons/PencilOutline';
 import ChevronRightIcon from 'vue-material-design-icons/ChevronRight';
-import { mapActions, mapGetters } from 'vuex';
+import Setting from '@/models/Setting';
 
 export default {
   components: {
@@ -91,20 +91,22 @@ export default {
   data() {
     return {
       open: false,
-      currentSettngs: {}
+      currentSettings: {}
     };
   },
   methods: {
-    ...mapActions({
-      getSettings: 'settings/getSettings',
-      updateSettings: 'settings/updateSettings'
-    }),
     toggleMenu() {
       this.open = !this.open;
     },
-    async onChangeSettings() {
-      await this.updateSettings(this.settings);
-      this.currentSettngs = this.settings;
+    async onSettingsChanged() {
+      await Setting.update({
+        where: this.settings.id,
+        data: {
+          ...this.currentSettings
+        }
+      });
+
+      this.currentSettings = {...this.settings};
       this.updateTheme();
     },
     updateTheme() {
@@ -120,9 +122,9 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      settings: 'settings/settings'
-    })
+    settings() {
+      return Setting.query().first();
+    }
   },
   async mounted() {
     // close the menu when user clicks outside
@@ -136,8 +138,9 @@ export default {
       this.open = false;
     });
 
-    await this.getSettings();
-    this.currentSettngs = this.settings;
+    await Setting.fetch();
+    this.currentSettings = {...this.settings}
+
     this.updateTheme();
 
     // Using setTimeout to avoid applying transitions when we switch to the user's preferred theme on page load
