@@ -79,6 +79,8 @@ export default class Item extends BaseModel {
     if (newItemOrder === 0) {
       await this.updateOrders();
     }
+
+    return item
   }
 
   static async updateOrders() {

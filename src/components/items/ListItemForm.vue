@@ -22,6 +22,7 @@ import Checkbox from '@/components/inputs/Checkbox';
 import Input from '@/components/inputs/Input';
 import TagsSuggestionPopup from '@/components/tags/TagsSuggestionPopup';
 import Item from '@/models/Item';
+import Tag from '@/models/Tag';
 
 export default {
   components: {
@@ -43,7 +44,21 @@ export default {
         return;
       }
 
-      await Item.add(this.body, this.completed);
+      const item = await Item.add(this.body, this.completed);
+
+      // Extract all tag names that the user typed into the input
+      const includedTagNames = this.extractInsertedTags();
+      // Retrieve corresponding tags, and create the ones that don't exist
+      const tags = await this.findOrCreateTags(includedTagNames);
+      // Attach these tags to the item we just created
+      if (tags.length) {
+        Item.insertOrUpdate({
+          data: {
+            id: item.id,
+            tags
+          }
+        });
+      }
 
       this.body = '';
       this.completed = false;
@@ -114,6 +129,41 @@ export default {
         x: rect.right,
         y: rect.top + window.scrollY
       };
+    },
+    extractInsertedTags() {
+      const tags = [];
+      const matches = this.body.match(/#\w+/g);
+
+      if (!matches) return tags;
+
+      for (let index = 0; index < matches.length; index++) {
+        tags.push(matches[index]);
+      }
+
+      return tags;
+    },
+    async findOrCreateTags(names) {
+      const tags = [];
+
+      for (let index = 0; index < names.length; index++) {
+        const name = names[index];
+
+        let tag = Tag.query()
+          .where('name', names[index])
+          .first();
+
+        if (!tag) {
+          const res = await Tag.insert({
+            data: { name }
+          });
+
+          tag = res.tags[0];
+        }
+
+        tags.push(tag);
+      }
+
+      return tags;
     }
   },
   mounted() {
