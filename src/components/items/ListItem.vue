@@ -6,7 +6,7 @@
         <Checkbox v-model="item.completed" @click="onCompletionStatusChanged" />
       </div>
       <div class="ml-3 w-full text-dark-jungle-green dark:text-gray-300 break-all">
-        <span :class="{ 'line-through': item.completed }">{{ item.body }}</span>
+        <ListItemBody :item="item" />
       </div>
     </div>
   </div>
@@ -17,11 +17,14 @@ import Checkbox from '@/components/inputs/Checkbox';
 import ItemActionsGroup from './actions/ItemActionsGroup';
 import Item from '@/models/Item';
 import Setting from '@/models/Setting';
+import ListItemBody from '@/components/items/ListItemBody';
+
 
 export default {
   components: {
     Checkbox,
-    ItemActionsGroup
+    ItemActionsGroup,
+    ListItemBody
   },
   props: {
     item: {
