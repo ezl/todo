@@ -138,7 +138,7 @@ export default {
       this.open = false;
     });
 
-    await Setting.fetch();
+
     this.currentSettings = {...this.settings}
 
     this.updateTheme();

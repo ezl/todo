@@ -14,7 +14,7 @@ export default class Setting extends BaseModel {
     };
   }
 
-  static async fetch() {
+  static async restore() {
     const settings = await LocalStorageHelper.getSettings();
     let entities
 

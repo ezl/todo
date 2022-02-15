@@ -1,9 +1,9 @@
 <template>
   <div class="w-9/12 mt-16">
     <div class="ml-72">
-      <TagGroup />
+      <TagGroup @select="onSelectedTagsChanged" />
     </div>
-    <div class="mt-8">
+    <div class="mt-4">
       <ListItemForm class="ml-72" />
       <draggable :animation="100" :disabled="false" v-model="list" handle=".handle" @start="drag = true" @end="drag = false">
         <transition-group type="transition" name="items">
@@ -30,31 +30,41 @@ export default {
   },
   data() {
     return {
-      drag: false
+      drag: false,
+      selectedTagsIds: []
     };
   },
-  methods: {},
+  methods: {
+    onSelectedTagsChanged(selectedTagsIds) {
+      this.selectedTagsIds = selectedTagsIds
+    }
+  },
   computed: {
     items() {
-      return Item.query()
+      let items = Item.query()
         .with('tags')
         .get()
-        .sort((a, b) => a.order - b.order);
+        .sort((a, b) => a.order - b.order)
+
+        if(items && this.selectedTagsIds.length){
+          items = items.filter(item => {
+            return item.tags.some(tag => this.selectedTagsIds.includes(tag.id))
+          })
+        }
+
+        return items
     },
     list: {
       get() {
-        return this.items;
+        return this.items
       },
       set(items) {
         items.forEach((item, index) => {
-          item.order = index + 1
-          item.$save()
+          item.order = index + 1;
+          item.$save();
         });
       }
     }
-  },
-  mounted() {
-    Item.fetch();
   }
 };
 </script>

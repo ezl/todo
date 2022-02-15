@@ -9,4 +9,8 @@ export default class BaseModel extends Model {
   static afterUpdate(model) {
     LocalStorageHelper.update(this.entity);
   }
+
+  static afterDelete(model) {
+    LocalStorageHelper.update(this.entity);
+  }
 }

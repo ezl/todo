@@ -1,11 +1,12 @@
 <template>
-  <div class="flex">
-    <Tag v-for="(tag, index) in tags" :key="index" :tag="tag" />
+  <div class="flex flex-wrap">
+    <Tag @click="onTagClicked(tag)" v-for="tag in tags" :key="tag.id" :tag="tag" :selected="isSelected(tag)"/>
   </div>
 </template>
 
 <script>
 import Tag from '@/components/tags/tag';
+import TagModel from '@/models/Tag';
 
 export default {
   components: {
@@ -13,8 +14,29 @@ export default {
   },
   data() {
     return {
-      tags: ['#web3', 'programming', '#webdev', 'cryptocurrency']
+      selectedTagsIds: []
     };
+  },
+  computed: {
+    tags() {
+      return TagModel.all();
+    }
+  },
+  methods: {
+    onTagClicked(tag) {
+      if (this.selectedTagsIds.includes(tag.id)) {
+        this.selectedTagsIds = this.selectedTagsIds.filter(id => id != tag.id);
+      } else {
+        this.selectedTagsIds.push(tag.id);
+      }
+
+      this.$emit('select', this.selectedTagsIds)
+    },
+    isSelected(tag) {
+      if (this.selectedTagsIds.includes(tag.id)) return true;
+
+      return false;
+    }
   }
 };
 </script>

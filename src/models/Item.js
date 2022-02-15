@@ -20,7 +20,7 @@ export default class Item extends BaseModel {
     };
   }
 
-  static async fetch() {
+  static async restore() {
     let items = await LocalStorageHelper.getItems();
     const setting = Setting.query().first();
 

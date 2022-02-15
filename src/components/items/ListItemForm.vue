@@ -161,11 +161,7 @@ export default {
           .first();
 
         if (!tag) {
-          const res = await Tag.insert({
-            data: { name }
-          });
-
-          tag = res.tags[0];
+          tag = await Tag.add(name)
         }
 
         tags.push(tag);
