@@ -66,6 +66,7 @@ export default {
     },
     onTagSelected(tag) {
       this.$refs.input.focus();
+      this.hideTagAssignmentGuide();
       this.autoCompleteTagRemainingCharacters(tag.name);
       this.suggestionsPopupCoordinates = null;
     },
@@ -74,8 +75,15 @@ export default {
         if (!this.suggestionsPopupCoordinates) {
           this.suggestionsPopupCoordinates = this.getCaretAbsolutePosition();
         }
+
+        if (this.tagThatIsBeingTyped.length === 1) {
+          this.$nextTick(this.showTagAssignmentGuide);
+        } else {
+          this.$nextTick(this.hideTagAssignmentGuide);
+        }
       } else {
         this.suggestionsPopupCoordinates = null;
+        this.$nextTick(this.hideTagAssignmentGuide);
       }
     },
     userIsTypingATag() {
@@ -164,6 +172,24 @@ export default {
       }
 
       return tags;
+    },
+    showTagAssignmentGuide() {
+      if (document.querySelector('#tag-assignment-guide')) return;
+      // Don’t show if the caret is not at the end
+      if(this.$refs.input.getCurrentCaretPosition() !== this.body.length) return
+
+      const span = document.createElement('span');
+      span.innerText = '  type to create a new tag';
+      span.id = 'tag-assignment-guide';
+      span.className = 'dark:text-white text-black opacity-60';
+      this.$refs.input.$el.appendChild(span);
+    },
+    hideTagAssignmentGuide() {
+      const span = document.querySelector('#tag-assignment-guide');
+
+      if (span) {
+        span.parentElement.removeChild(span);
+      }
     }
   },
   mounted() {
@@ -172,6 +198,7 @@ export default {
       if (this.$refs.input === e.target) return;
 
       this.suggestionsPopupCoordinates = null;
+      this.hideTagAssignmentGuide();
     });
   }
 };
