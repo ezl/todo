@@ -1,12 +1,12 @@
 <template>
-  <div
+  <span
     contenteditable="true"
     data-placeholder="Start typing to create a list item..."
     @input="change"
     @keydown.enter="submit"
     ref="input"
-    class="cursor-text whitespace-pre-wrap overflow-hidden bg-transparent w-full text-dark-jungle-green dark:text-gray-200 focus:outline-none caret-black dark:caret-yellow px-2 "
-  ></div>
+    class="block cursor-text whitespace-pre-wrap overflow-hidden bg-transparent w-full text-dark-jungle-green dark:text-gray-200 focus:outline-none caret-black dark:caret-yellow px-2 "
+  ></span>
 </template>
 
 <script>
@@ -97,6 +97,6 @@ export default {
 <style>
 [contenteditable='true']:empty:before {
   content: attr(data-placeholder);
-  @apply text-gray-500;
+  @apply dark:text-white text-black opacity-60;
 }
 </style>
