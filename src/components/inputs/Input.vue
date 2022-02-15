@@ -77,10 +77,18 @@ export default {
 
       return position;
     },
+    discardPastedTextFormatting() {
+      this.$refs.input.addEventListener('paste', e => {
+        e.preventDefault();
+        const str = e.clipboardData.getData('text/plain');
+        document.execCommand('insertHTML', false, str);
+      });
+    }
   },
   mounted() {
     this.initialInputHeight = window.getComputedStyle(this.$refs.input, null).getPropertyValue('height');
     this.$refs.input.innerHTML = this.value;
+    this.discardPastedTextFormatting();
   },
   watch: {
     value: {
