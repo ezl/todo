@@ -1,11 +1,11 @@
 <template>
   <div class="w-9/12 mt-16">
     <div class="flex">
-      <div class="action-labels flex flex-shrink-0 justify-between pl-16 pr-6 mt-2 italic dark:text-white text-black opacity-60">
-        <span class="text-xs text-gray-400">drag</span>
-        <span class="text-xs text-gray-400">select</span>
-        <span class="text-xs text-gray-400">pomo</span>
+      <div class="action-labels flex flex-shrink-0 justify-between mt-2 pl-16 pr-4 italic dark:text-white text-black opacity-60">
         <span class="text-xs text-gray-400">snooze</span>
+        <span class="text-xs text-gray-400">pomo</span>
+        <span class="text-xs text-gray-400">select</span>
+        <span class="text-xs text-gray-400">drag</span>
       </div>
       <TagGroup @select="onSelectedTagsChanged" />
     </div>
@@ -81,7 +81,7 @@ export default {
 }
 
 .action-labels {
- width: 288px;
- visibility: hidden;
+  width: 288px;
+  visibility: hidden;
 }
 </style>

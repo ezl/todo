@@ -1,9 +1,9 @@
 <template>
-  <div class="item-actions-wrapper flex-shrink-0 flex justify-between items-start pl-16 pr-6 relative">
-    <DragAction />
-    <SelectAction />
-    <RunPomodoroAction />
+  <div class="item-actions-wrapper flex-shrink-0 flex justify-between items-start pl-16 pr-4 relative">
     <SnoozeAction />
+    <RunPomodoroAction />
+    <SelectAction />
+    <DragAction />
   </div>
 </template>
 
