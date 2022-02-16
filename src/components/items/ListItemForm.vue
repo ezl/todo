@@ -8,6 +8,7 @@
     </div>
     <TagsSuggestionPopup
       ref="suggestionsPopup"
+      :tags="tagSuggestions"
       v-if="suggestionsPopupCoordinates"
       :x="suggestionsPopupCoordinates.x"
       :y="suggestionsPopupCoordinates.y"
@@ -161,7 +162,7 @@ export default {
           .first();
 
         if (!tag) {
-          tag = await Tag.add(name)
+          tag = await Tag.add(name);
         }
 
         tags.push(tag);
@@ -172,10 +173,12 @@ export default {
     showTagAssignmentGuide() {
       if (document.querySelector('#tag-assignment-guide')) return;
       // Don’t show if the caret is not at the end
-      if(this.$refs.input.getCurrentCaretPosition() !== this.body.length) return
+      if (this.$refs.input.getCurrentCaretPosition() !== this.body.length) return;
+
+      const label = this.tagSuggestions.length === 0 ? 'type to create a new tag...' : 'type to add a tag...'
 
       const span = document.createElement('span');
-      span.innerText = '  type to create a new tag';
+      span.innerText = `  ${label}`;
       span.id = 'tag-assignment-guide';
       span.className = 'dark:text-white text-black opacity-60';
       this.$refs.input.$el.appendChild(span);
@@ -186,6 +189,17 @@ export default {
       if (span) {
         span.parentElement.removeChild(span);
       }
+    }
+  },
+  computed: {
+    tagSuggestions() {
+      let tags = Tag.all();
+
+      if (tags) {
+        tags = tags.filter(tag => tag.name.toLowerCase().includes(this.tagThatIsBeingTyped.toLowerCase())).slice(0, 8);
+      }
+
+      return tags;
     }
   },
   mounted() {
