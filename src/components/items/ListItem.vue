@@ -19,7 +19,6 @@ import Item from '@/models/Item';
 import Setting from '@/models/Setting';
 import ListItemBody from '@/components/items/ListItemBody';
 
-
 export default {
   components: {
     Checkbox,
@@ -57,9 +56,13 @@ export default {
     },
     onMouseEnter() {
       if (this.dragging === false) this.showActions = true;
+
+      document.querySelector('.action-labels').style.visibility = 'visible';
     },
     onMouseLeave() {
       if (this.dragging === false) this.showActions = false;
+
+      document.querySelector('.action-labels').style.visibility = 'hidden';
     }
   }
 };

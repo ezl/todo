@@ -1,16 +1,9 @@
 <template>
-  <div class="item-actions-wrapper flex-shrink-0 flex justify-between items-start px-10 relative">
+  <div class="item-actions-wrapper flex-shrink-0 flex justify-between items-start pl-16 pr-6 relative">
     <DragAction />
     <SelectAction />
     <RunPomodoroAction />
     <SnoozeAction />
-
-    <div class="action-labels flex justify-between absolute">
-      <span class="text-xs text-gray-400">drag</span>
-      <span class="text-xs text-gray-400">select</span>
-      <span class="text-xs text-gray-400">pomo</span>
-      <span class="text-xs text-gray-400">snooze</span>
-    </div>
   </div>
 </template>
 
@@ -33,11 +26,5 @@ export default {
 <style>
 .item-actions-wrapper {
   width: 288px;
-}
-
-.action-labels {
-  top: -106px;
-  width: 210px;
-  left: 42px;
 }
 </style>

@@ -1,6 +1,12 @@
 <template>
   <div class="w-9/12 mt-16">
-    <div class="ml-72">
+    <div class="flex">
+      <div class="action-labels flex flex-shrink-0 justify-between pl-16 pr-6 mt-2 italic dark:text-white text-black opacity-60">
+        <span class="text-xs text-gray-400">drag</span>
+        <span class="text-xs text-gray-400">select</span>
+        <span class="text-xs text-gray-400">pomo</span>
+        <span class="text-xs text-gray-400">snooze</span>
+      </div>
       <TagGroup @select="onSelectedTagsChanged" />
     </div>
     <div class="mt-4">
@@ -36,7 +42,7 @@ export default {
   },
   methods: {
     onSelectedTagsChanged(selectedTagsIds) {
-      this.selectedTagsIds = selectedTagsIds
+      this.selectedTagsIds = selectedTagsIds;
     }
   },
   computed: {
@@ -44,19 +50,19 @@ export default {
       let items = Item.query()
         .with('tags')
         .get()
-        .sort((a, b) => a.order - b.order)
+        .sort((a, b) => a.order - b.order);
 
-        if(items && this.selectedTagsIds.length){
-          items = items.filter(item => {
-            return item.tags.some(tag => this.selectedTagsIds.includes(tag.id))
-          })
-        }
+      if (items && this.selectedTagsIds.length) {
+        items = items.filter(item => {
+          return item.tags.some(tag => this.selectedTagsIds.includes(tag.id));
+        });
+      }
 
-        return items
+      return items;
     },
     list: {
       get() {
-        return this.items
+        return this.items;
       },
       set(items) {
         items.forEach((item, index) => {
@@ -72,5 +78,10 @@ export default {
 <style>
 [draggable='true'] {
   opacity: 0.5;
+}
+
+.action-labels {
+ width: 288px;
+ visibility: hidden;
 }
 </style>
