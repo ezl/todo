@@ -55,6 +55,10 @@ const buildConfig = env => {
               }
             }
           ]
+        },
+        {
+          test: /\.svg$/,
+          use: ['babel-loader', 'vue-svg-loader']
         }
       ]
     },
@@ -97,9 +101,9 @@ const buildConfig = env => {
 const buildManifestFile = (buffer, browser) => {
   const baseManifest = JSON.parse(buffer.toString());
   const icons = {
-    16: 'images/icon_16.png',
-    48: 'images/icon_48.png',
-    128: 'images/icon_128.png'
+    16: 'images/extension-icons/icon_16.png',
+    48: 'images/extension-icons/icon_48.png',
+    128: 'images/extension-icons/icon_128.png'
   };
 
   baseManifest.icons = {
