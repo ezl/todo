@@ -8,14 +8,10 @@ const buildConfig = env => {
 
   const entry = {
     newtab: './src/newtab/index.js',
-    'background-scripts/main': './src/background-scripts/main.js',
-    sw: './src/sw.js'
   };
 
   if (env.browser === 'firefox') {
     browser = 'firefox';
-    // Exclude service worker when building for Fiefox
-    delete entry['sw'];
   }
 
   const outputPath = `dist/${browser}`;
@@ -91,7 +87,11 @@ const buildConfig = env => {
             transform(content, absoluteFrom) {
               return buildManifestFile(content, browser);
             }
-          }
+          },
+          {
+            from: './src/assets/images/extension-icons',
+            to: 'images'
+          },
         ]
       })
     ]
@@ -118,18 +118,10 @@ const buildManifestFile = (buffer, browser) => {
         }
       };
 
-      baseManifest.background = {
-        service_worker: 'sw.js'
-      };
-
       baseManifest.manifest_version = 3;
       break;
 
     case 'firefox':
-      baseManifest.background = {
-        scripts: ['background-scripts/main.js']
-      };
-
       baseManifest.browser_action = {
         default_icon: {
           ...icons
