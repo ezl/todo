@@ -1,18 +1,15 @@
 <template>
-  <div @click="toggle" class="cursor-pointer">
-    <checkbox-blank-outline-icon :size="21" class="text-gray-600 dark:text-gray-200" v-if="!checked" />
-    <checkbox-outline-icon :size="21" class="text-gray-600 dark:text-gray-200" v-else />
+  <div @click="toggle" :class="{'bg-primary checked': checked}" class="cursor-pointer checkbox flex items-center justify-center">
+    <CheckIcon v-if="checked"/>
   </div>
 </template>
 
 <script>
-import CheckboxBlankOutlineIcon from 'vue-material-design-icons/CheckboxBlankOutline';
-import CheckboxOutlineIcon from 'vue-material-design-icons/CheckboxOutline';
+import CheckIcon from '@/assets/images/icons/check.svg';
 
 export default {
   components: {
-    CheckboxBlankOutlineIcon,
-    CheckboxOutlineIcon
+    CheckIcon,
   },
   props: {
     value: {
@@ -41,3 +38,17 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.checkbox {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #a4a4a7;
+  border-radius: 2px;
+}
+
+.checkbox.checked{
+    @apply border-primary;
+    color: #fff;
+}
+</style>

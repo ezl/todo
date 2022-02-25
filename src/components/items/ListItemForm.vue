@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-start py-1 px-2">
     <div>
-      <Checkbox v-model="completed" />
+      <Checkbox v-model="completed" class="opacity-60" />
     </div>
     <div class="ml-1 w-full">
       <Input v-model="body" @submit="submit" @input="onChange" ref="input" />
