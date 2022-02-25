@@ -4,22 +4,42 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 
 const buildConfig = env => {
-  let browser = 'chrome';
-
-  const entry = {
-    newtab: './src/newtab/index.js',
-  };
-
-  if (env.browser === 'firefox') {
-    browser = 'firefox';
+  if (!env.target) {
+    throw 'Target is required';
   }
 
-  const outputPath = `dist/${browser}`;
+  const target = env.target;
+  const outputPath = `dist/`;
+  const copyPluginOptions = {
+    patterns: [
+      {
+        from: './src/assets/images/favicon.ico',
+        to: 'favicon.ico'
+      }
+    ]
+  };
+
+  if (target !== 'web') {
+    copyPluginOptions.patterns.push({
+      from: './src/base-manifest.json',
+      to: 'manifest.json',
+      transform(content, absoluteFrom) {
+        return buildManifestFile(content, target);
+      }
+    });
+
+    copyPluginOptions.patterns.push({
+      from: './src/assets/images/extension-icons',
+      to: 'images'
+    });
+  }
 
   return {
     mode: 'development',
     devtool: 'cheap-module-source-map',
-    entry,
+    entry: {
+      index: './src/newtab/index.js'
+    },
     resolve: {
       alias: {
         '@': path.resolve('./src')
@@ -76,24 +96,11 @@ const buildConfig = env => {
       new VueLoaderPlugin(),
       new HtmlWebpackPlugin({
         template: './src/newtab/index.html',
-        filename: 'newtab.html',
-        chunks: ['newtab']
+        filename: 'index.html',
+        chunks: ['index'],
+        title : target === 'web' ? 'Bad to do' : 'New tab',
       }),
-      new CopyPlugin({
-        patterns: [
-          {
-            from: './src/base-manifest.json',
-            to: 'manifest.json',
-            transform(content, absoluteFrom) {
-              return buildManifestFile(content, browser);
-            }
-          },
-          {
-            from: './src/assets/images/extension-icons',
-            to: 'images'
-          },
-        ]
-      })
+      new CopyPlugin(copyPluginOptions)
     ]
   };
 };

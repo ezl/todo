@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack-dev-server",
-    "build": "webpack --env browser=chrome && webpack --env browser=firefox"
+    "build:chrome": "webpack --env target=chrome --mode production",
+    "build:firefox": "webpack --env target=firefox --mode production",
+    "build:web": "webpack --env target=web --mode production"
   },
   "keywords": [],
   "author": "",

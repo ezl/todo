@@ -12,25 +12,25 @@ export default class LocalStorageHelper {
   }
 
   static async getItems() {
-    let { items } = await browser.storage.local.get({ items: [] });
+    let items = await this.getValue({ items: []})
 
     return items;
   }
 
   static async getTags() {
-    let { tags } = await browser.storage.local.get({ tags: [] });
+    let tags = await this.getValue({ tags: [] });
 
     return tags;
   }
 
   static async getItemTagRelationships() {
-    let { itemTagRelationships } = await browser.storage.local.get({ itemTagRelationships: [] });
+    let itemTagRelationships = await this.getValue({ itemTagRelationships: [] });
 
     return itemTagRelationships;
   }
 
   static async getSettings() {
-    let { settings } = await browser.storage.local.get({ settings: {} });
+    let settings  = await this.getValue({ settings: {} });
 
     return settings;
   }
@@ -62,7 +62,7 @@ export default class LocalStorageHelper {
       json.push(item.$toJson());
     });
 
-    await browser.storage.local.set({
+    await this.setValue({
       items: json
     });
   }
@@ -75,7 +75,7 @@ export default class LocalStorageHelper {
       json.push(tag.$toJson());
     });
 
-    await browser.storage.local.set({
+    await this.setValue({
       tags: json
     });
   }
@@ -85,7 +85,7 @@ export default class LocalStorageHelper {
 
     const json = setting.$toJson();
 
-    await browser.storage.local.set({
+    await this.setValue({
       settings: json
     });
   }
@@ -98,8 +98,43 @@ export default class LocalStorageHelper {
       json.push(itemTagRelationship.$toJson());
     });
 
-    await browser.storage.local.set({
+    await this.setValue({
       itemTagRelationships: json
     });
+  }
+
+  static async setValue(value){
+    if(typeof value !== 'object'){
+      throw '"value" must be an object'
+    }
+
+    if(typeof browser !== 'undefined' && browser.storage){
+      await browser.storage.local.set(value);
+    }else{
+      const key = Object.keys(value)[0]
+
+      localStorage.setItem(key, JSON.stringify(value[key]));
+    }
+  }
+
+  static async getValue(value){
+    if(typeof value !== 'object'){
+      throw '"value" must be an object'
+    }
+
+    const key = Object.keys(value)[0]
+    const defaultValue = value[key]
+
+    if(typeof browser !== 'undefined' && browser.storage){
+      const result = await browser.storage.local.get(value);
+
+      return result[key]
+    }else{
+      const result = localStorage.getItem(key)
+
+      if(result !== null) return JSON.parse(result)
+
+      return defaultValue
+    }
   }
 }
