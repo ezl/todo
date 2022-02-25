@@ -13,7 +13,7 @@
       <ListItemForm class="ml-72" />
       <draggable :animation="100" :disabled="false" v-model="list" handle=".handle" @start="drag = true" @end="drag = false">
         <transition-group type="transition" name="items">
-          <ListItem v-for="item in items" :key="item.id" :item="item" class="mt-3" :dragging="drag" />
+          <ListItem v-for="item in items" :key="item.id" :item="item" class="mt-" :dragging="drag" />
         </transition-group>
       </draggable>
     </div>

@@ -5,7 +5,7 @@
     @input="change"
     @keydown.enter="submit"
     ref="input"
-    class="block cursor-text whitespace-pre-wrap overflow-hidden bg-transparent w-full text-dark-jungle-green dark:text-gray-200 focus:outline-none caret-black dark:caret-yellow px-2 "
+    class="block cursor-text whitespace-pre-wrap overflow-hidden bg-transparent w-full text-dark-jungle-green dark:text-gray-200 focus:outline-none caret-black dark:caret-yellow p-2 "
   ></span>
 </template>
 
@@ -102,9 +102,22 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+[contenteditable='true']{
+  border-radius: 10px;
+}
+
+[contenteditable='true']:focus{
+  background: #F2F2F2;
+}
+
+.dark [contenteditable='true']:focus{
+  background: #141317;
+}
+
 [contenteditable='true']:empty:before {
   content: attr(data-placeholder);
-  @apply dark:text-white text-black opacity-60;
+  @apply dark:text-white text-black opacity-60 ml-1;
+
 }
 </style>

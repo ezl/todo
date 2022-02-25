@@ -1,9 +1,9 @@
 <template>
-  <div class="flex items-start py-1 px-2">
+  <div class="flex items-center justify-center py-1 px-2">
     <div>
       <Checkbox v-model="completed" class="opacity-60" />
     </div>
-    <div class="ml-1 w-full">
+    <div class="ml-4 w-full">
       <Input v-model="body" @submit="submit" @input="onChange" ref="input" />
     </div>
     <TagsSuggestionPopup

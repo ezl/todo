@@ -5,7 +5,7 @@
       <div>
         <Checkbox v-model="item.completed" @click="onCompletionStatusChanged" />
       </div>
-      <div class="ml-3 w-full text-dark-jungle-green dark:text-gray-300 break-all">
+      <div class="ml-6 w-full text-dark-jungle-green dark:text-gray-300 break-all">
         <ListItemBody :item="item" />
       </div>
     </div>
