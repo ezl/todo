@@ -1,7 +1,7 @@
 <template>
   <div class="w-9/12 mt-16">
     <div class="flex">
-      <div class="action-labels flex flex-shrink-0 justify-between mt-2 pl-16 pr-5 italic dark:text-white text-black opacity-60">
+      <div class="action-labels flex flex-shrink-0 justify-between items-center pl-16 pr-5 italic dark:text-white text-black opacity-60">
         <span class="text-xs text-gray-400">snooze</span>
         <span class="text-xs text-gray-400">pomo</span>
         <span class="text-xs text-gray-400">select</span>

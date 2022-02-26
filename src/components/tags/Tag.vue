@@ -1,5 +1,11 @@
 <template>
-  <span @click="onClick" :class="dynamicClassList" class="px-3 py-1 mr-2 mb-3 block cursor-pointer hover:bg-cultured dark:hover:bg-dark-charcoal">
+  <span
+    @click="onClick"
+    @mouseenter="onMouseEnter"
+    @mouseleave="onMouseLeave"
+    :class="{ selected: selected }"
+    class="px-3 py-1 mr-2 block cursor-pointer"
+  >
     {{ tag.name }}
   </span>
 </template>
@@ -16,17 +22,46 @@ export default {
       default: false
     }
   },
-  computed: {
-    dynamicClassList(){
-      if(!this.selected) return []
-
-      return ['bg-cultured', 'dark:bg-dark-charcoal']
-    }
-  },
   methods: {
-    onClick(e){
-      this.$emit('click', e)
+    onClick(e) {
+      this.$emit('click', e);
+      this.$el.classList.remove('hover-state');
+    },
+    onMouseEnter() {
+      this.$el.classList.add('hover-state');
+    },
+    onMouseLeave() {
+      this.$el.classList.remove('hover-state');
     }
   }
 };
 </script>
+
+<style scoped>
+span {
+  border-width: 2px;
+  border-style: solid;
+  border-color: transparent;
+  border-radius: 2px;
+}
+
+span.hover-state {
+  border-color: #e9e9e9;
+}
+
+span.selected {
+  background: rgba(28, 27, 34, 0.1);
+}
+
+.dark span.selected {
+  background: #303031;
+}
+
+.dark span.hover-state {
+  border-color: #303031;
+}
+
+.dark span.hover-state {
+  border-color: #303031;
+}
+</style>

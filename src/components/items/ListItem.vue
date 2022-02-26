@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-start items-center list-item-wrapper" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave">
     <ItemActionsGroup :class="{ visible: showActions, invisible: !showActions }" />
-    <div class="list-item-content flex items-center py-1 px-2  rounded.lg">
+    <div class="list-item-content flex items-center py-1 rounded.lg">
       <div>
         <Checkbox v-model="item.completed" @click="onCompletionStatusChanged" :class="{'!border-primary': showActions}"/>
       </div>

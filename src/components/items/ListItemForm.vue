@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center justify-center py-1 pl-2 list-item-form">
+  <div class="flex items-center justify-center py-1 list-item-form">
     <div>
       <Checkbox v-model="completed" class="opacity-60" />
     </div>
