@@ -1,7 +1,7 @@
 <template>
   <div class="w-9/12 mt-16">
     <div class="flex">
-      <div class="action-labels flex flex-shrink-0 justify-between mt-2 pl-16 pr-4 italic dark:text-white text-black opacity-60">
+      <div class="action-labels flex flex-shrink-0 justify-between mt-2 pl-16 pr-5 italic dark:text-white text-black opacity-60">
         <span class="text-xs text-gray-400">snooze</span>
         <span class="text-xs text-gray-400">pomo</span>
         <span class="text-xs text-gray-400">select</span>
@@ -9,11 +9,11 @@
       </div>
       <TagGroup @select="onSelectedTagsChanged" />
     </div>
-    <div class="mt-4">
-      <ListItemForm class="ml-72" />
+    <div class="mt-4 list-items-container">
+      <ListItemForm />
       <draggable :animation="100" :disabled="false" v-model="list" handle=".handle" @start="drag = true" @end="drag = false">
         <transition-group type="transition" name="items">
-          <ListItem v-for="item in items" :key="item.id" :item="item" class="mt-" :dragging="drag" />
+          <ListItem v-for="item in items" :key="item.id" :item="item" :dragging="drag" />
         </transition-group>
       </draggable>
     </div>
@@ -83,5 +83,9 @@ export default {
 .action-labels {
   width: 288px;
   visibility: hidden;
+}
+
+.list-items-container{
+  margin-left: 50px;
 }
 </style>

@@ -5,7 +5,7 @@
     @input="change"
     @keydown.enter="submit"
     ref="input"
-    class="block cursor-text whitespace-pre-wrap overflow-hidden bg-transparent w-full text-dark-jungle-green dark:text-gray-200 focus:outline-none caret-black dark:caret-yellow p-2 "
+    class="block cursor-text whitespace-pre-wrap overflow-hidden bg-transparent w-full text-dark-jungle-green dark:text-gray-200 focus:outline-none caret-black dark:caret-primary p-2 "
   ></span>
 </template>
 

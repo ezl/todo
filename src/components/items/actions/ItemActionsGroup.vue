@@ -1,5 +1,5 @@
 <template>
-  <div class="item-actions-wrapper flex-shrink-0 flex justify-between items-start pl-16 pr-4 relative">
+  <div class="item-actions-wrapper flex-shrink-0 flex justify-between items-center">
     <SnoozeAction />
     <RunPomodoroAction />
     <SelectAction />
@@ -25,6 +25,8 @@ export default {
 
 <style>
 .item-actions-wrapper {
-  width: 288px;
+  width: 238px;
+  padding-left: 25px;
+  padding-right: 27px;
 }
 </style>

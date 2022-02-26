@@ -1,9 +1,9 @@
 <template>
   <div class="flex justify-start items-center list-item-wrapper" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave">
     <ItemActionsGroup :class="{ visible: showActions, invisible: !showActions }" />
-    <div class="list-item-content hover:bg-lotion dark:hover:bg-dark-gunmetal flex items-start py-1 px-2  rounded.lg">
+    <div class="list-item-content flex items-center py-1 px-2  rounded.lg">
       <div>
-        <Checkbox v-model="item.completed" @click="onCompletionStatusChanged" />
+        <Checkbox v-model="item.completed" @click="onCompletionStatusChanged" :class="{'!border-primary': showActions}"/>
       </div>
       <div class="ml-6 w-full text-dark-jungle-green dark:text-gray-300 break-all">
         <ListItemBody :item="item" />
@@ -67,3 +67,17 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.list-item-wrapper{
+  transition: none;
+}
+
+.list-item-wrapper:hover{
+  background: #F2F2F2;
+}
+
+.dark .list-item-wrapper:hover{
+  background: #24222B;
+}
+</style>

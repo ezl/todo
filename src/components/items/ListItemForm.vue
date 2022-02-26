@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center justify-center py-1 px-2">
+  <div class="flex items-center justify-center py-1 pl-2 list-item-form">
     <div>
       <Checkbox v-model="completed" class="opacity-60" />
     </div>
@@ -175,7 +175,7 @@ export default {
       // Don’t show if the caret is not at the end
       if (this.$refs.input.getCurrentCaretPosition() !== this.body.length) return;
 
-      const label = this.tagSuggestions.length === 0 ? 'type to create a new tag...' : 'type to add a tag...'
+      const label = this.tagSuggestions.length === 0 ? 'type to create a new tag...' : 'type to add a tag...';
 
       const span = document.createElement('span');
       span.innerText = `  ${label}`;
@@ -213,3 +213,9 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.list-item-form {
+  margin-left: 238px;
+}
+</style>
