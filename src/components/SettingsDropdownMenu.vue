@@ -1,6 +1,6 @@
 <template>
   <div ref="container" class="relative settings-dropdown-menu">
-    <button @click="toggleMenu" class="p-2 rounded-lg bg-bright-gray dark:bg-dark-charcoal text-black dark:text-gray-400 z-20 relative">
+    <button @click="toggleMenu" class="p-2 rounded-lg hover:bg-bright-gray dark:hover:bg-dark-charcoal text-black dark:text-gray-400 z-20 relative">
       <SettingsIcon />
     </button>
     <div
