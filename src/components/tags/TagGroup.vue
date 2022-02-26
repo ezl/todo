@@ -19,7 +19,7 @@ export default {
   },
   computed: {
     tags() {
-      return TagModel.all();
+      return TagModel.query().has('items').get();
     }
   },
   methods: {
