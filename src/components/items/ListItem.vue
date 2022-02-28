@@ -1,15 +1,16 @@
 <template>
-  <div class="flex justify-start items-center list-item-wrapper" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave">
+  <div class="flex justify-start items-center list-item-wrapper" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave" @keydown="onKeyDown">
     <ItemActionsGroup :class="{ visible: showActions, invisible: !showActions }" />
     <div :class="{ 'w-full': !editing }" class="list-item-content flex items-center py-1 rounded.lg">
       <div>
         <Checkbox v-model="item.completed" @click="onCompletionStatusChanged" :class="{ '!border-primary': showActions }" />
       </div>
-      <div v-show="!editing" @click="startEditing" class="ml-6 w-full text-dark-jungle-green dark:text-gray-300 break-normal">
+      <div v-show="!editing && !shouldBeDeleted" @click="startEditing" class="ml-6 w-full text-dark-jungle-green dark:text-gray-300 break-normal">
         <ListItemBody :item="item" />
       </div>
     </div>
-    <Input v-if="editing" v-model="body" @submit="submit" ref="input" class="ml-4" input-classes="px-3 p-1" />
+    <Input v-if="editing && !shouldBeDeleted" v-model="body" @submit="submit" ref="input" class="ml-4" input-classes="px-3 p-1" />
+    <p v-if="shouldBeDeleted" class="bg-blue-500 text-white ml-4 px-3 p-1 w-full">{{ body }}</p>
   </div>
 </template>
 
@@ -41,7 +42,8 @@ export default {
     return {
       showActions: false,
       editing: false,
-      body: this.item.body
+      body: this.item.body,
+      shouldBeDeleted: false
     };
   },
   computed: {
@@ -56,7 +58,7 @@ export default {
     async save() {
       this.item.body = this.body;
       await this.item.$save();
-      await this.item.updateTags()      
+      await this.item.updateTags();
     },
     onCompletionStatusChanged() {
       // delete it straight away after completion, if user prefers that
@@ -81,10 +83,20 @@ export default {
       this.editing = true;
       this.$emit('started-editing', this.item.id);
     },
-    stopEditing() {
-      this.save();
+    async stopEditing() {
+      if (this.shouldBeDeleted) {
+        await this.item.$delete();
+      } else {
+        this.save();
+      }
+
       this.editing = false;
       this.$emit('finished-editing');
+    },
+    onKeyDown(e) {
+      if (e.keyCode == 46) {
+        this.shouldBeDeleted = true;
+      }
     }
   }
 };

@@ -48,7 +48,7 @@ export default {
     onStartedEditingItem(itemId) {
       if (this.itemBeingEditedId) {
         const itemComponentRef = this.$refs[`item-${this.itemBeingEditedId}`][0];
-        itemComponentRef.editing = false;
+        itemComponentRef.stopEditing()
       }
 
       this.itemBeingEditedId = itemId;
