@@ -1,11 +1,5 @@
 <template>
-  <span
-    @click="onClick"
-    @mouseenter="onMouseEnter"
-    @mouseleave="onMouseLeave"
-    :class="{ selected: selected }"
-    class="px-3 py-1 mr-2 block cursor-pointer"
-  >
+  <span @click="onClick" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave" :class="{ selected: tag.toggled }" class="px-3 py-1 mr-2 block cursor-pointer">
     {{ tag.name }}
   </span>
 </template>
@@ -16,15 +10,13 @@ export default {
     tag: {
       required: true,
       type: Object
-    },
-    selected: {
-      type: Boolean,
-      default: false
     }
   },
   methods: {
     onClick(e) {
-      this.$emit('click', e);
+      this.tag.toggled = !this.tag.toggled;
+      this.tag.$save();
+
       this.$el.classList.remove('hover-state');
     },
     onMouseEnter() {

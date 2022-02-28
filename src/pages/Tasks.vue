@@ -7,7 +7,7 @@
         <span class="text-xs text-gray-400">select</span>
         <span class="text-xs text-gray-400">drag</span>
       </div>
-      <TagGroup @select="onSelectedTagsChanged" />
+      <TagGroup />
     </div>
     <div class="mt-4 list-items-container">
       <ListItemForm />
@@ -25,6 +25,7 @@ import ListItemForm from '@/components/items/ListItemForm';
 import ListItem from '@/components/items/ListItem';
 import TagGroup from '@/components/tags/TagGroup';
 import Item from '@/models/Item';
+import Tag from '@/models/Tag';
 import draggable from 'vuedraggable';
 
 export default {
@@ -42,9 +43,6 @@ export default {
     };
   },
   methods: {
-    onSelectedTagsChanged(selectedTagsIds) {
-      this.selectedTagsIds = selectedTagsIds;
-    },
     onStartedEditingItem(itemId) {
       if (this.itemBeingEditedId) {
         const itemComponentRef = this.$refs[`item-${this.itemBeingEditedId}`][0];
@@ -64,13 +62,16 @@ export default {
         .get()
         .sort((a, b) => a.order - b.order);
 
-      if (items && this.selectedTagsIds.length) {
+      if (items && this.toggledTagsIds.length) {
         items = items.filter(item => {
-          return item.tags.some(tag => this.selectedTagsIds.includes(tag.id));
+          return item.tags.some(tag => this.toggledTagsIds.includes(tag.id));
         });
       }
 
       return items;
+    },
+    toggledTagsIds(){
+      return Tag.query().where('toggled', true).get().map(t => t.id)
     },
     list: {
       get() {

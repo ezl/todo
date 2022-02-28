@@ -13,7 +13,7 @@
       <SearchIcon />
     </button>
     <div @mouseenter="hoveringOverTags = true" @mouseleave="hoveringOverTags = false" class="flex flex-wrap ml-4">
-      <Tag @click="onTagClicked(tag)" v-for="tag in tags" :key="tag.id" :tag="tag" :class="dynamicTagsWrapperClasses" :selected="isSelected(tag)" />
+      <Tag v-for="tag in tags" :key="tag.id" :tag="tag" :class="dynamicTagsWrapperClasses" />
     </div>
   </div>
 </template>
@@ -32,7 +32,6 @@ export default {
   },
   data() {
     return {
-      selectedTagsIds: [],
       hoveringOverTags: false,
       hoveringOverTagSettingsBtn: false
     };
@@ -58,22 +57,6 @@ export default {
       if (this.hoveringOverTagSettingsBtn) classList.push('hover-state');
 
       return classList;
-    }
-  },
-  methods: {
-    onTagClicked(tag) {
-      if (this.selectedTagsIds.includes(tag.id)) {
-        this.selectedTagsIds = this.selectedTagsIds.filter(id => id != tag.id);
-      } else {
-        this.selectedTagsIds.push(tag.id);
-      }
-
-      this.$emit('select', this.selectedTagsIds);
-    },
-    isSelected(tag) {
-      if (this.selectedTagsIds.includes(tag.id)) return true;
-
-      return false;
     }
   }
 };
