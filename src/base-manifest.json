@@ -1,6 +1,6 @@
 {
-    "name": "Todo list",
-    "version": "0.0.1",
+    "name": "Bad to do",
+    "version": "0.0.2",
     "description": "description",
     "permissions": [
         "storage"
