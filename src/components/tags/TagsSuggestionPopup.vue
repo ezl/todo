@@ -1,6 +1,6 @@
 <template>
   <ul id="tags-suggestion-popup" class=" shadow-md absolute bg-lotion dark:bg-dark-gunmetal rounded-md overflow-hidden" :style="style">
-    <li v-if="!tags.length && query != '#'">
+    <li v-if="!tags.length && query != '#'" class="tag-suggestion">
       <span class="flex flex items-center uppercase px-4 py-1 text-sm">Create tag</span>
       <span @click="createTag" class="px-4 py-1 cursor-pointer flex items-center bg-bright-gray dark:bg-dark-charcoal text-black dark:text-white">
         {{ query }}
@@ -11,7 +11,7 @@
       :key="index"
       @click="onSelectTag(tag)"
       :class="getDynamicClassList(index)"
-      class="cursor-pointer px-4 py-1 flex items-center text-black dark:text-white"
+      class="cursor-pointer px-4 py-1 flex items-center text-black dark:text-white tag-suggestion"
     >
       {{ tag.name }}
     </li>

@@ -73,6 +73,8 @@ export default class Item extends BaseModel {
 
     await item.$save();
 
+    item.updateTags();
+
     // Re-arrange items positions/orders if an item is to be placed at the bottom (position 1),
     // move the new item from temp position 0 to 1, then move up the item that was at position 1 to 2 and so on
 
@@ -80,7 +82,7 @@ export default class Item extends BaseModel {
       await this.updateOrders();
     }
 
-    return item
+    return item;
   }
 
   static async updateOrders() {
@@ -92,6 +94,54 @@ export default class Item extends BaseModel {
       const item = items[index];
       item.order = index + 1;
       await item.$save();
+    }
+  }
+
+  extractTagsFromBody() {
+    const tags = [];
+    const matches = this.body.match(/#\w+/g);
+
+    if (!matches) return tags;
+
+    for (let index = 0; index < matches.length; index++) {
+      tags.push(matches[index]);
+    }
+
+    return tags;
+  }
+
+  async updateTags() {
+    // remove current tags
+    const currentAttachedTags = Tag.query().whereHas('items', query => query.where('id', this.id)).get()
+    for (let index = 0; index < currentAttachedTags.length; index++) {
+      const id = currentAttachedTags[index].id
+     
+      const relations =  ItemTag.query().where('item_id', this.id).where('tag_id', id).get()
+      relations.forEach(relation => relation.$delete());
+      
+    }
+
+    // Extract all tag names from the body of this list ite
+    const tagNames = this.extractTagsFromBody();
+
+    // Retrieve corresponding tags, and create the ones that don't exist
+    let tags = await Tag.findOrCreateTags(tagNames);
+
+    // remove duplicates, we dont need to assign the same tag multiple times to an item
+    const uniqueTags = []
+    tags.forEach(tag => {
+      const isDuplicate = uniqueTags.some(t => t.id === tag.id)
+      if(!isDuplicate) uniqueTags.push(tag)
+    });
+
+    // Attach update tags to this item
+    if (uniqueTags.length) {
+      await Item.insertOrUpdate({
+        data: {
+          id: this.id,
+          tags: uniqueTags
+        }
+      });
     }
   }
 

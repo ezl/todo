@@ -13,7 +13,7 @@
       <ListItemForm />
       <draggable :animation="100" :disabled="false" v-model="list" handle=".handle" @start="drag = true" @end="drag = false">
         <transition-group type="transition" name="items">
-          <ListItem v-for="item in items" :key="item.id" :item="item" :dragging="drag" />
+          <ListItem v-for="item in items" :key="item.id" :item="item" :dragging="drag" :ref="`item-${item.id}`" @started-editing="onStartedEditingItem" @finished-editing="onFinishedEditingItem" />
         </transition-group>
       </draggable>
     </div>
@@ -37,13 +37,25 @@ export default {
   data() {
     return {
       drag: false,
-      selectedTagsIds: []
+      selectedTagsIds: [],
+      itemBeingEditedId: null
     };
   },
   methods: {
     onSelectedTagsChanged(selectedTagsIds) {
       this.selectedTagsIds = selectedTagsIds;
-    }
+    },
+    onStartedEditingItem(itemId) {
+      if (this.itemBeingEditedId) {
+        const itemComponentRef = this.$refs[`item-${this.itemBeingEditedId}`][0];
+        itemComponentRef.editing = false;
+      }
+
+      this.itemBeingEditedId = itemId;
+    },
+    onFinishedEditingItem() {
+      this.itemBeingEditedId = null;
+    },
   },
   computed: {
     items() {
@@ -71,6 +83,18 @@ export default {
         });
       }
     }
+  },
+  mounted() {
+    document.body.addEventListener('click', e => {
+      if (!this.itemBeingEditedId) return;
+
+      const itemComponentRef = this.$refs[`item-${this.itemBeingEditedId}`][0];
+
+      if (itemComponentRef.$el.contains(e.target)) return;
+      if (e.target.matches('.tag-suggestion')) return;
+      itemComponentRef.stopEditing()
+      this.itemBeingEditedId = null;
+    });
   }
 };
 </script>
@@ -85,7 +109,7 @@ export default {
   visibility: hidden;
 }
 
-.list-items-container{
+.list-items-container {
   margin-left: 50px;
 }
 </style>

@@ -39,4 +39,24 @@ export default class Tag extends BaseModel {
       data: [...tags]
     });
   }
+
+  static async findOrCreateTags(names){
+    const tags = [];
+
+    for (let index = 0; index <  names.length; index++) {
+      const name = names[index];
+
+      let tag = this.query()
+        .where('name', names[index])
+        .first();
+
+      if (!tag) {
+        tag = await this.add(name);
+      }
+
+      tags.push(tag);
+    }
+
+    return tags;
+  }
 }
