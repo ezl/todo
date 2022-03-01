@@ -84,7 +84,7 @@ export default {
       this.$emit('started-editing', this.item.id);
     },
     async stopEditing() {
-      if (this.shouldBeDeleted) {
+      if (this.shouldBeDeleted || this.body.trim().length === 0) {
         await this.item.$delete();
       } else {
         this.save();
