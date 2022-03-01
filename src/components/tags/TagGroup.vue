@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import Tag from '@/components/tags/tag';
+import Tag from '@/components/tags/Tag';
 import TagModel from '@/models/Tag';
 import SearchIcon from '@/assets/images/icons/search.svg';
 import SettingsSmallIcon from '@/assets/images/icons/settings-small.svg';
