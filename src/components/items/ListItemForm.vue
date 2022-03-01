@@ -4,7 +4,7 @@
       <Checkbox v-model="completed" class="opacity-60" />
     </div>
     <div class="ml-4 w-full">
-      <Input v-model="body" @submit="submit" ref="input" />
+      <Input v-model="body" @submit="submit" ref="input" placeholder-text="Start typing to create a list item..." />
     </div>
   </div>
 </template>

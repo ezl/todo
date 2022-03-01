@@ -2,7 +2,7 @@
   <div class="w-full">
     <span
       contenteditable="true"
-      data-placeholder="Start typing to create a list item..."
+      :data-placeholder="placeholderText"
       @input="change"
       @keydown.enter="submit"
       ref="input"
@@ -34,7 +34,10 @@ export default {
       type: String,
       required: true
     },
-    inputClasses: {}
+    inputClasses: {},
+    placeholderText: {
+      type: String,
+    }
   },
   data() {
     return {
