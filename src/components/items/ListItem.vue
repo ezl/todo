@@ -1,8 +1,8 @@
 <template>
-  <div class="flex justify-start items-center list-item-wrapper" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave" @keydown="onKeyDown">
-    <ItemActionsGroup :class="{ visible: showActions, invisible: !showActions }" />
-    <div :class="{ 'w-full': !editing }" class="list-item-content flex items-center py-1 rounded.lg">
-      <div>
+  <div class="flex justify-start items-start list-item-wrapper" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave" @keydown="onKeyDown">
+    <ItemActionsGroup :class="{ visible: showActions, invisible: !showActions }" class="pt-1"/>
+    <div :class="{ 'w-full': !editing }" class="list-item-content flex items-start py-1 rounded.lg">
+      <div class="pt-1">
         <Checkbox v-model="item.completed" @click="onCompletionStatusChanged" :class="{ '!border-primary': showActions }" />
       </div>
       <div v-show="!editing && !shouldBeDeleted" @click="startEditing" class="ml-6 w-full text-dark-jungle-green dark:text-gray-300 break-normal">
