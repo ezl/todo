@@ -1,10 +1,10 @@
 <template>
-  <div class="flex items-center justify-center py-1 list-item-form">
-    <div>
+  <div class="flex items-top py-1 list-item-form">
+    <div class="pt-1">
       <Checkbox v-model="completed" class="opacity-60" />
     </div>
-    <div class="ml-4 w-full">
-      <Input v-model="body" @submit="submit" ref="input" placeholder-text="Start typing to create a list item..." />
+    <div class="w-full">
+      <Input v-model="body" @submit="submit" ref="input" placeholder-text="Start typing to create a list item..." class="ml-4" input-classes="px-3 p-1"/>
     </div>
   </div>
 </template>
