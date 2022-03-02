@@ -36,7 +36,19 @@ export default {
 
       this.body = '';
       this.completed = false;
-    },
+    }
+  },
+  mounted() {
+    document.addEventListener('click', e => {
+      // Always keep the input to create new list item focused if there are no other active inputs
+      const inputSelectors = ['input', 'textarea', '[contenteditable="true"]', 'select'];
+      for (let index = 0; index < inputSelectors.length; index++) {
+        const selector = inputSelectors[index];
+        if (document.activeElement.matches(selector)) return;
+      }
+
+      this.$refs.input.focus();
+    });
   }
 };
 </script>
