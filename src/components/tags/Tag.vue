@@ -1,5 +1,5 @@
 <template>
-  <span @click="onClick" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave" :class="{ selected: tag.toggled }" class="px-3 py-1 mr-2 block cursor-pointer">
+  <span @click="onClick" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave" :class="{ selected: tag.toggled }" class="px-3 py-1 mr-2 block cursor-pointer tag">
     {{ tag.name }}
   </span>
 </template>

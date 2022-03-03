@@ -1,18 +1,32 @@
 <template>
   <div class="w-9/12 mt-16">
-    <div class="flex">
-      <div class="action-labels flex flex-shrink-0 justify-between items-center pl-32 pr-5 italic dark:text-white text-black opacity-60">
+    <div class="flex ">
+      <div class="action-labels flex flex-shrink-0 justify-between items-center pl-32 pr-5 italic dark:text-white text-black opacity-60 h-8">
         <span class="text-xs text-gray-400">snooze</span>
         <span class="text-xs text-gray-400">select</span>
         <span class="text-xs text-gray-400">drag</span>
       </div>
-      <TagGroup />
+      <div class="flex relative items-start	w-full">
+        <div class="absolute -left-12 hover:opacity-100 opacity-60">
+          <TagMenu />
+        </div>
+        <SearchInput v-model="listItemSearchQuery" :results-count="items.length" />
+        <TagGroup class="ml-3" />
+      </div>
     </div>
-    <div class="mt-4 list-items-container">
+    <div class="mt-8 list-items-container">
       <ListItemForm />
       <draggable :animation="100" :disabled="false" v-model="list" handle=".handle" @start="drag = true" @end="drag = false">
         <transition-group type="transition" name="items">
-          <ListItem v-for="item in items" :key="item.id" :item="item" :dragging="drag" :ref="`item-${item.id}`" @started-editing="onStartedEditingItem" @finished-editing="onFinishedEditingItem" />
+          <ListItem
+            v-for="item in items"
+            :key="item.id"
+            :item="item"
+            :dragging="drag"
+            :ref="`item-${item.id}`"
+            @started-editing="onStartedEditingItem"
+            @finished-editing="onFinishedEditingItem"
+          />
         </transition-group>
       </draggable>
     </div>
@@ -26,33 +40,38 @@ import TagGroup from '@/components/tags/TagGroup';
 import Item from '@/models/Item';
 import Tag from '@/models/Tag';
 import draggable from 'vuedraggable';
+import TagMenu from '@/components/tags/TagMenu';
+import SearchInput from '@/components/inputs/SearchInput';
 
 export default {
   components: {
     ListItemForm,
     ListItem,
     TagGroup,
-    draggable
+    draggable,
+    TagMenu,
+    SearchInput
   },
   data() {
     return {
       drag: false,
       selectedTagsIds: [],
-      itemBeingEditedId: null
+      itemBeingEditedId: null,
+      listItemSearchQuery: ''
     };
   },
   methods: {
     onStartedEditingItem(itemId) {
       if (this.itemBeingEditedId) {
         const itemComponentRef = this.$refs[`item-${this.itemBeingEditedId}`][0];
-        itemComponentRef.stopEditing()
+        itemComponentRef.stopEditing();
       }
 
       this.itemBeingEditedId = itemId;
     },
     onFinishedEditingItem() {
       this.itemBeingEditedId = null;
-    },
+    }
   },
   computed: {
     items() {
@@ -67,10 +86,17 @@ export default {
         });
       }
 
+      if (this.listItemSearchQuery != '') {
+        items = items.filter(item => item.body.toLowerCase().includes(this.listItemSearchQuery.toLowerCase()));
+      }
+
       return items;
     },
-    toggledTagsIds(){
-      return Tag.query().where('toggled', true).get().map(t => t.id)
+    toggledTagsIds() {
+      return Tag.query()
+        .where('toggled', true)
+        .get()
+        .map(t => t.id);
     },
     list: {
       get() {
@@ -82,7 +108,7 @@ export default {
           item.$save();
         });
       }
-    }
+    },
   },
   mounted() {
     document.body.addEventListener('click', e => {
@@ -92,7 +118,7 @@ export default {
 
       if (itemComponentRef.$el.contains(e.target)) return;
       if (e.target.matches('.tag-suggestion')) return;
-      itemComponentRef.stopEditing()
+      itemComponentRef.stopEditing();
       this.itemBeingEditedId = null;
     });
   }
