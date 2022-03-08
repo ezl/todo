@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center">
-    <button @click="show" class="text-primary z-10 relative h-10">
+    <button @click="show" :class="{'text-primary': expand}" class="text-gray-400 hover:text-primary z-10 relative h-10">
       <SearchIcon />
     </button>
     <div :class="{ show: expand }" class="search-input-wrapper flex items-center">
