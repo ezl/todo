@@ -13,12 +13,12 @@
       <div class="pt-1">
         <Checkbox v-model="item.completed" @click="onCompletionStatusChanged" :class="{ '!border-primary': showActions }" />
       </div>
-      <div v-show="!editing && !shouldBeDeleted" @click="startEditing" class="ml-6 w-full text-dark-jungle-green dark:text-gray-300 break-all">
+      <div v-show="!editing && !shouldBeDeleted" @click="startEditing" class="ml-6 w-full text-dark-jungle-green dark:text-gray-300">
         <ListItemBody :item="item" />
       </div>
     </div>
-    <Input v-if="editing && !shouldBeDeleted" v-model="body" @submit="submit" ref="input" class="ml-4" input-classes="px-3 p-1 break-all" />
-    <p v-if="shouldBeDeleted" class="bg-blue-500 text-white ml-4 px-3 p-1 w-full break-all">{{ body }}</p>
+    <Input v-if="editing && !shouldBeDeleted" v-model="body" @submit="submit" ref="input" class="ml-4" input-classes="px-3 p-1" />
+    <p v-if="shouldBeDeleted" class="bg-blue-500 text-white ml-4 px-3 p-1 w-full">{{ body }}</p>
   </div>
 </template>
 
