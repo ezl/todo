@@ -13,12 +13,14 @@
       <div class="pt-1">
         <Checkbox v-model="item.completed" @click="onCompletionStatusChanged" :class="{ '!border-primary': showActions }" />
       </div>
-      <div v-show="!editing && !shouldBeDeleted" @click="startEditing" class="ml-6 w-full text-dark-jungle-green dark:text-gray-300">
-        <ListItemBody :item="item" />
+      <div :class="{'editing': editing && !shouldBeDeleted, 'bg-blue-500': shouldBeDeleted}" class="list-item-body ml-3 w-full text-dark-jungle-green dark:text-gray-300 px-3 p-1">
+        <div v-show="!editing && !shouldBeDeleted" @click="startEditing">
+          <ListItemBody :item="item" />
+        </div>
+        <Input v-if="editing && !shouldBeDeleted" v-model="body" @submit="submit" ref="input" input-classes="" />
+        <p v-if="shouldBeDeleted" class="bg-blue-500 text-white w-full">{{ body }}</p>
       </div>
     </div>
-    <Input v-if="editing && !shouldBeDeleted" v-model="body" @submit="submit" ref="input" class="ml-4" input-classes="px-3 p-1" />
-    <p v-if="shouldBeDeleted" class="bg-blue-500 text-white ml-4 px-3 p-1 w-full">{{ body }}</p>
   </div>
 </template>
 
@@ -129,6 +131,14 @@ export default {
 
 .dark .list-item-wrapper:hover {
   background: #24222b;
+}
+
+.list-item-body.editing {
+  background: #f2f2f2;
+}
+
+.dark .list-item-body.editing {
+  background: #141317;
 }
 
 @media only screen and (max-width: 768px) {

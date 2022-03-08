@@ -277,6 +277,6 @@ export default {
 
 [contenteditable='true']:empty:before {
   content: attr(data-placeholder);
-  @apply dark:text-white text-black opacity-60 ml-1;
+  @apply dark:text-white text-black opacity-60;
 }
 </style>

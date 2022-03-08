@@ -9,7 +9,7 @@
         @submit="submit"
         ref="input"
         placeholder-text="Start typing to create a list item..."
-        class="ml-2 md:ml-4"
+        class="ml-2 md:ml-3"
         input-classes="p-2 md:px-3 md:p-1"
       />
     </div>
