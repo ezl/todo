@@ -8,7 +8,7 @@
     </button>
     <div
       v-if="open"
-      class="dropdown-body z-20 p-5 inset-x-0 inset-y-0 absolute md:w-80 bg-lotion dark:bg-dark-gunmetal p-3 shadow-[1.95px_1.95px_3.6px_rgba(0,0,0,0.11)] rounded-lg top-0 -left-80 text-sm"
+      class="dropdown-body z-20 p-5 inset-x-0 inset-y-0 md:bottom-auto absolute md:w-80 bg-lotion dark:bg-dark-gunmetal p-3 shadow-[1.95px_1.95px_3.6px_rgba(0,0,0,0.11)] rounded-lg top-0 -left-80 text-sm"
     >
       <div class="mt-8">
         <label>Email Address:</label>
