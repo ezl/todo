@@ -1,6 +1,6 @@
 <template>
-  <div class="item-actions-wrapper flex-shrink-0 flex justify-between items-center">
-    <SnoozeAction />
+  <div class="flex-shrink-0 flex justify-between items-center">
+    <SnoozeAction  class="hidden md:inline"/>
     <SelectAction />
     <DragAction />
   </div>
@@ -19,11 +19,3 @@ export default {
   }
 };
 </script>
-
-<style>
-.item-actions-wrapper {
-  width: 238px;
-  padding-left: 86.6px;
-  padding-right: 27px;
-}
-</style>

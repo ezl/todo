@@ -1,11 +1,14 @@
 <template>
-  <div ref="container" class="relative settings-dropdown-menu">
-    <button @click="toggleMenu" class="p-2 rounded-lg hover:bg-bright-gray dark:hover:bg-dark-charcoal text-black dark:text-gray-400 z-20 relative">
+  <div ref="container" class="md:relative settings-dropdown-menu">
+    <button
+      @click="toggleMenu"
+      class="z-30 p-2 rounded-lg hover:bg-bright-gray dark:hover:bg-dark-charcoal text-black dark:text-gray-400 absolute top-0 right-0 md:relative"
+    >
       <SettingsIcon />
     </button>
     <div
       v-if="open"
-      class="dropdown-body p-5 absolute w-80 bg-lotion dark:bg-dark-gunmetal p-3 shadow-[1.95px_1.95px_3.6px_rgba(0,0,0,0.11)] rounded-lg top-0 -left-80 z-10 text-sm"
+      class="dropdown-body z-20 p-5 inset-x-0 inset-y-0 absolute md:w-80 bg-lotion dark:bg-dark-gunmetal p-3 shadow-[1.95px_1.95px_3.6px_rgba(0,0,0,0.11)] rounded-lg top-0 -left-80 text-sm"
     >
       <div class="mt-8">
         <label>Email Address:</label>
@@ -95,7 +98,7 @@ export default {
         }
       });
 
-      this.currentSettings = {...this.settings};
+      this.currentSettings = { ...this.settings };
       this.updateTheme();
     },
     updateTheme() {
@@ -127,8 +130,7 @@ export default {
       this.open = false;
     });
 
-
-    this.currentSettings = {...this.settings}
+    this.currentSettings = { ...this.settings };
 
     this.updateTheme();
 
@@ -142,5 +144,11 @@ export default {
 <style>
 .settings-dropdown-menu .dropdown-body {
   left: -274px;
+}
+
+@media only screen and (max-width: 480px) {
+  .settings-dropdown-menu .dropdown-body {
+    left: 0px;
+  }
 }
 </style>

@@ -124,4 +124,11 @@ export default {
 .dark .search-results-info {
   color: #ffffff;
 }
+
+@media only screen and (max-width: 480px) {
+  .search-input-wrapper.show {
+    width: calc(100%);
+    opacity: 100%;
+  }
+}
 </style>

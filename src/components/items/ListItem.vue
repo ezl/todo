@@ -1,7 +1,15 @@
 <template>
-  <div class="flex justify-start items-start list-item-wrapper" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave" @keydown="onKeyDown">
-    <ItemActionsGroup :class="{ visible: showActions, invisible: !showActions }" class="pt-1"/>
-    <div :class="{ 'w-full': !editing }" class="list-item-content flex items-start py-1 rounded.lg">
+  <div
+    class="flex justify-start items-start list-item-wrapper mt-2 md:m-0 px-2 md:p-0"
+    @mouseenter="$emit('mouseenter', $event)"
+    @mouseleave="$emit('mouseleave', $event)"
+    @keydown="onKeyDown"
+    @touchstart="$emit('touchstart', $event)"
+    @touchmove="$emit('touchmove', $event)"
+    @touchend="$emit('touchend', $event)"
+  >
+    <ItemActionsGroup :class="listItemActionsDynamicClasses" ref="actions" class="list-item-actions px-2 pt-1 w-2/12 lg:3/12 flex" />
+    <div :class="{ 'w-full': !editing }" class="md:ml-8 flex items-start py-1 rounded.lg">
       <div class="pt-1">
         <Checkbox v-model="item.completed" @click="onCompletionStatusChanged" :class="{ '!border-primary': showActions }" />
       </div>
@@ -36,19 +44,36 @@ export default {
     },
     dragging: {
       type: Boolean
+    },
+    showActions: {
+      type: Boolean
     }
   },
   data() {
     return {
-      showActions: false,
       editing: false,
       body: this.item.body,
-      shouldBeDeleted: false
+      shouldBeDeleted: false,
+      isMobile: screen.width <= 768
     };
   },
   computed: {
     settings() {
       return Setting.query().first();
+    },
+    listItemActionsDynamicClasses() {
+      const classList = [];
+
+      if (this.isMobile && this.showActions) {
+        classList.push('show');
+        console.log('sh');
+      }
+
+      if (!this.isMobile) {
+        this.showActions ? classList.push('visible') : classList.push('invisible');
+      }
+
+      return classList;
     }
   },
   methods: {
@@ -69,16 +94,7 @@ export default {
 
       this.item.$save();
     },
-    onMouseEnter() {
-      if (this.dragging === false) this.showActions = true;
 
-      document.querySelector('.action-labels').style.visibility = 'visible';
-    },
-    onMouseLeave() {
-      if (this.dragging === false) this.showActions = false;
-
-      document.querySelector('.action-labels').style.visibility = 'hidden';
-    },
     startEditing() {
       this.editing = true;
       this.$emit('started-editing', this.item.id);
@@ -113,5 +129,22 @@ export default {
 
 .dark .list-item-wrapper:hover {
   background: #24222b;
+}
+
+@media only screen and (max-width: 768px) {
+  .list-item-actions {
+    transition: all 0.15s;
+    width: 0;
+    opacity: 0;
+    padding: 0;
+  }
+
+  .list-item-actions.show {
+    width: 52px;
+    padding: 5px 0px;
+    margin-right: 22px;
+    display: flex;
+    opacity: 100%;
+  }
 }
 </style>
