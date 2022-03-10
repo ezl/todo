@@ -1,5 +1,5 @@
 <template>
-  <div @click="toggle" :class="{'bg-primary checked': checked}" class="cursor-pointer checkbox flex items-center justify-center">
+  <div @click="toggle" :class="{'checked ': checked}" class="cursor-pointer checkbox flex items-center justify-center hover:border-primary">
     <CheckIcon v-if="checked"/>
   </div>
 </template>
@@ -48,7 +48,7 @@ export default {
 }
 
 .checkbox.checked{
-    @apply border-primary;
+    @apply border-primary bg-primary;
     color: #fff;
 }
 </style>
