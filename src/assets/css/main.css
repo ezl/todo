@@ -17,3 +17,43 @@ body {
   font-family: 'Roboto', sans-serif;
   min-height: 100%;
 }
+
+.list-item-body-wrapper .row {
+  position: relative;
+  display: inline-block;
+}
+
+.list-item-body-wrapper .row.strikethrough {
+  color: rgb(150, 150, 150);
+}
+.dark .list-item-body-wrapper .row.strikethrough {
+  color: rgb(121, 121, 121)
+}
+
+.list-item-body-wrapper .row.strikethrough {
+  background-image: linear-gradient(to right, rgba(189, 189, 189, 0.801) 70%, #fd4b30 30%);
+  background-repeat: no-repeat;
+  background-size: auto 2px;
+}
+
+
+.list-item-body-wrapper .row.strikethrough:not(.animation) {
+  background-position:  4px 50%!important;
+  background-size: 147% 3px!important;
+  transition: none!important;
+}
+
+.list-item-body-wrapper .row.strikethrough.animation {
+  animation: strikethrough 0.7s;
+  animation-fill-mode: forwards;
+}
+
+.dark .list-item-body-wrapper .row.strikethrough {
+  background-image: linear-gradient(to right, rgba(128, 128, 128, 0.801) 70%, #fd4b30 30%);
+}
+
+@keyframes strikethrough {
+  to {
+    background-position:  4px 50%;
+  }
+}

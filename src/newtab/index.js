@@ -4,6 +4,10 @@ import router from '../router';
 import store from '../store';
 import '@/assets/css/main.css';
 import LocalStorageHelper from '../helpers/LocalStorageHelper';
+import LottieAnimation from 'lottie-web-vue'
+
+
+Vue.use(LottieAnimation);
 
 // we dont need to require this unless we are running as a browser extension
 if(typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id || typeof browser !== 'undefined'){

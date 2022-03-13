@@ -13,12 +13,16 @@
       <div class="pt-1">
         <Checkbox v-model="item.completed" @click="onCompletionStatusChanged" />
       </div>
-      <div :class="{'editing': editing && !shouldBeDeleted, 'bg-blue-500': shouldBeDeleted}" class="list-item-body ml-3 w-full text-dark-jungle-green dark:text-gray-300 px-3 p-1">
-        <div v-show="!editing && !shouldBeDeleted" @click="startEditing">
-          <ListItemBody :item="item" />
+      <div
+        :class="{ editing: editing && !shouldBeDeleted, 'bg-blue-500': shouldBeDeleted }"
+        class="list-item-body-wrapper relative ml-3 w-full text-dark-jungle-green dark:text-gray-300 px-3 p-1"
+      >
+        <div v-show="!editing && !shouldBeDeleted && !item.completed" @click="startEditing">
+          <ListItemBody :item="item" class="body" />
         </div>
         <Input v-if="editing && !shouldBeDeleted" v-model="body" @submit="submit" ref="input" input-classes="" />
         <p v-if="shouldBeDeleted" class="bg-blue-500 text-white w-full">{{ body }}</p>
+        <p v-show="item.completed" ref="animatedBody" :class="{ strikethrough: item.completed }" class="">{{ body }}</p>
       </div>
     </div>
   </div>
@@ -88,13 +92,11 @@ export default {
       await this.item.updateTags();
     },
     onCompletionStatusChanged() {
-      // delete it straight away after completion, if user prefers that
-      if (this.item.completed && this.settings.completed_preference === 'clear_immediately') {
-        this.item.$delete();
-        return;
-      }
-
       this.item.$save();
+
+      if (this.item.completed) {
+        this.$nextTick(this.strikeThroughBodyText);
+      }
     },
 
     startEditing() {
@@ -115,8 +117,91 @@ export default {
       if (e.keyCode == 46) {
         this.shouldBeDeleted = true;
       }
+    },
+    strikeThroughBodyText() {
+      // We need each row/line of the list item body text to be in a separate container In order to animate them
+      this.wrapWordsInElements();
+      this.groupWordsByYPosition();
+
+      const nodes = this.$refs.animatedBody.querySelectorAll('.row');
+
+      Array.from(nodes).forEach(node => {
+        let w = node.getBoundingClientRect().width;
+
+        const offset = w - 0.2 * w;
+        node.style.backgroundSize = ` ${w + offset}px 3px`;
+        node.style.backgroundPosition = ` -${w + offset}px 50% `;
+
+        setTimeout(() => {
+          node.classList.add('strikethrough');
+          node.classList.add('animation');
+        }, 370);
+
+        // animation completed
+        setTimeout(() => {
+          node.classList.remove('animation');
+          // delete it straight away after completion, if user prefers that
+          if (this.item.completed && this.settings.completed_preference === 'clear_immediately') {
+            this.item.$delete();
+          }
+        }, 1000);
+      });
+    },
+    wrapWordsInElements() {
+      let el = this.$refs.animatedBody;
+      const words = el.textContent.split(' ').filter(w => w.trim().length > 0);
+      el.innerText = '';
+
+      let lastYOffset;
+      for (let i = 0; i < words.length; i++) {
+        const node = document.createElement('span');
+
+        node.innerText = words[i]
+        node.className = 'word';
+        el.appendChild(node);
+
+        const offset = node.offsetTop + node.getBoundingClientRect().height;
+        node.setAttribute('data-y-offset', offset);
+
+        if (i < words.length - 1) {
+          node.innerText += ' ';
+        }
+      }
+    },
+    groupWordsByYPosition() {
+      const el = this.$refs.animatedBody;
+      const wordNodes = el.querySelectorAll('.word');
+      el.innerText = '';
+
+      let lastYOffset;
+      let currentParent;
+
+      for (let index = 0; index < wordNodes.length; index++) {
+        const node = wordNodes[index];
+        const offset = parseFloat(node.getAttribute('data-y-offset'));
+
+        if (!currentParent) {
+          currentParent = document.createElement('p');
+          currentParent.className = 'row';
+          el.appendChild(currentParent);
+
+          currentParent.appendChild(node);
+        }
+
+        if (lastYOffset && offset == lastYOffset) {
+          currentParent.appendChild(node);
+        } else {
+          currentParent = document.createElement('p');
+          currentParent.className = 'row';
+          el.appendChild(currentParent);
+
+          currentParent.appendChild(node);
+        }
+
+        lastYOffset = offset;
+      }
     }
-  }
+  },
 };
 </script>
 
@@ -133,11 +218,11 @@ export default {
   background: #24222b;
 }
 
-.list-item-body.editing {
+.list-item-body-wrapper.editing {
   background: #f2f2f2;
 }
 
-.dark .list-item-body.editing {
+.dark .list-item-body-wrapper.editing {
   background: #141317;
 }
 
