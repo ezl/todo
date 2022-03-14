@@ -13,9 +13,6 @@
         <span class="text-xs text-gray-400">drag</span>
       </div>
       <div class="flex relative items-start	w-full ml-0 md:ml-8">
-        <div class="absolute -left-12 hover:opacity-100 opacity-60">
-          <TagMenu />
-        </div>
         <SearchInput v-model="listItemSearchQuery" :results-count="items.length" />
         <TagGroup class="ml-3" />
       </div>
@@ -55,7 +52,6 @@ import TagGroup from '@/components/tags/TagGroup';
 import Item from '@/models/Item';
 import Tag from '@/models/Tag';
 import draggable from 'vuedraggable';
-import TagMenu from '@/components/tags/TagMenu';
 import SearchInput from '@/components/inputs/SearchInput';
 import SnoozeAction from '@/components/items/actions/SnoozeAction';
 
@@ -65,7 +61,6 @@ export default {
     ListItem,
     TagGroup,
     draggable,
-    TagMenu,
     SearchInput,
     SnoozeAction
   },
