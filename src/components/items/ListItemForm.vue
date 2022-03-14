@@ -11,6 +11,7 @@
         placeholder-text="Start typing to create a list item..."
         class="ml-3"
         input-classes="px-3"
+        @tag-selected="onTagSelected"
       />
     </div>
   </div>
@@ -31,7 +32,8 @@ export default {
     return {
       completed: false,
       body: '',
-      isMobile: screen.width <= 768
+      isMobile: screen.width <= 768,
+      selectedTags: []
     };
   },
   methods: {
@@ -41,14 +43,19 @@ export default {
       }
 
       const item = await Item.add(this.body, this.completed);
+      await item.assignSelectedTags(this.selectedTags)
 
       this.body = '';
       this.completed = false;
+      this.selectedTags = [];
+    },
+    onTagSelected(tagInfo) {
+      this.selectedTags.push(tagInfo);
     }
   },
   mounted() {
     document.addEventListener('click', e => {
-      if(this.isMobile) return
+      if (this.isMobile) return;
 
       // Always keep the input to create new list item focused if there are no other active inputs
       const inputSelectors = ['input', 'textarea', '[contenteditable="true"]', 'select'];

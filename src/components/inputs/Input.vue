@@ -4,7 +4,7 @@
       contenteditable="true"
       :data-placeholder="placeholderText"
       @input="change"
-      @keydown.enter="submit"
+      @keydown="onKeyDown"
       ref="input"
       :class="inputClasses"
       class="block cursor-text whitespace-pre-wrap overflow-hidden bg-transparent w-full text-dark-jungle-green dark:text-gray-200 focus:outline-none caret-primary p-2s "
@@ -15,7 +15,7 @@
       v-if="suggestionsPopupCoordinates"
       :x="suggestionsPopupCoordinates.x"
       :y="suggestionsPopupCoordinates.y"
-      :query="tagThatIsBeingTyped"
+      :query="tagThatIsBeingTyped.body"
       @select="onTagSelected"
     />
   </div>
@@ -36,15 +36,20 @@ export default {
     },
     inputClasses: {},
     placeholderText: {
-      type: String,
+      type: String
     }
   },
   data() {
     return {
       initialInputHeight: null,
       currentCaretOffset: 0,
-      tagThatIsBeingTyped: '',
-      suggestionsPopupCoordinates: null
+      tagThatIsBeingTyped: {
+        body: '',
+        startIndex: null,
+        endIndex: null
+      },
+      suggestionsPopupCoordinates: null,
+      ignoredTagsStartIndexes: []
     };
   },
   methods: {
@@ -57,13 +62,22 @@ export default {
       this.resize();
 
       this.$nextTick(() => {
-        if (this.userIsTypingATag()) {
-          if (!this.suggestionsPopupCoordinates) {
+        // Frequently reset and update the ignored tag indexes 
+        this.ignoredTagsStartIndexes = this.ignoredTagsStartIndexes.filter(index => {
+          return index <= this.value.length - 1
+        })
+
+        const isTypingATag = this.userIsTypingATag() 
+        const justStartedTypingIt = this.tagThatIsBeingTyped.body.length === 1
+        const shouldBeIgnored = this.ignoredTagsStartIndexes.some(index => index === this.tagThatIsBeingTyped.startIndex)
+
+        if (isTypingATag && !shouldBeIgnored) {
+          if (!this.suggestionsPopupCoordinates && justStartedTypingIt) {
             this.suggestionsPopupCoordinates = this.getCaretAbsolutePosition();
           }
 
-          if (this.tagThatIsBeingTyped.length === 1) {
-            this.showTagAssignmentGuide()
+          if (justStartedTypingIt) {
+            this.showTagAssignmentGuide();
           } else {
             this.hideTagAssignmentGuide();
           }
@@ -75,9 +89,17 @@ export default {
     },
     submit(e) {
       e.preventDefault();
+      // If user hits enter while tag suggestion box is shown,
+      // just select/create current tag and don’t execute the rest of this function
+      if (this.suggestionsPopupCoordinates) {
+        this.$refs.suggestionsPopup.onSelectTag();
+        return;
+      }
+
       this.$emit('submit');
       this.$refs.input.style.height = this.initialInputHeight;
       this.suggestionsPopupCoordinates = null;
+      this.ignoredTagsStartIndexes = []
     },
     focus() {
       this.$refs.input.focus();
@@ -135,27 +157,46 @@ export default {
       this.hideTagAssignmentGuide();
       this.autoCompleteTagRemainingCharacters(tag.name);
       this.suggestionsPopupCoordinates = null;
+
+      this.$emit('tag-selected', {
+        tag,
+        startIndex: this.tagThatIsBeingTyped.startIndex,
+        endIndex: this.tagThatIsBeingTyped.endIndex
+      });
     },
     userIsTypingATag() {
       // retrieve current caret position
       const currentCaretOffset = this.getCurrentCaretPosition();
       // get all words that precede current caret position, and ignore words that come after that
-      const words = this.value.substring(0, currentCaretOffset).split(' ');
-      // the word that the user is currently typing
-      const lastWord = words[words.length - 1];
+      const words = this.value.substring(0, currentCaretOffset);
+      // extract tags
+      const matches = words.match(/(#[0-9a-zA-Z ]*)/g);
+      // take the last one
+      let tag;
+      if (matches != null) {
+        tag = matches[matches.length - 1];
+      }
+
+      const tagStartIndex = tag ? currentCaretOffset - tag.length : null;
+      const tagEndIndex = tag ? currentCaretOffset : null;
 
       // check if it's a valid tag
-      if (/^#(\w+)?$/.test(lastWord)) {
-        this.tagThatIsBeingTyped = lastWord;
+      if (/^#[0-9a-zA-Z ]*?$/.test(tag)) {
+        this.tagThatIsBeingTyped.body = tag;
+        this.tagThatIsBeingTyped.startIndex = tagStartIndex;
+        this.tagThatIsBeingTyped.endIndex = tagEndIndex;
         return true;
       }
 
-      this.tagThatIsBeingTyped = '';
+      this.tagThatIsBeingTyped.body = '';
+      this.tagThatIsBeingTyped.startIndex = null;
+      this.tagThatIsBeingTyped.endIndex = null;
+
       return false;
     },
     autoCompleteTagRemainingCharacters(str) {
       const selection = window.getSelection();
-      const remainingCharacters = str.slice(this.tagThatIsBeingTyped.length) + ' ';
+      const remainingCharacters = str.slice(this.tagThatIsBeingTyped.body.length) + ' ';
       const textNode = document.createTextNode(remainingCharacters);
       const range = selection.getRangeAt(0);
 
@@ -169,6 +210,7 @@ export default {
       this.saveCurrentCaretPosition();
       this.updateInputValue(this.$refs.input.innerHTML);
       this.$emit('input', this.$refs.input.innerHTML);
+      this.tagThatIsBeingTyped.endIndex += remainingCharacters.length;
     },
     getCaretAbsolutePosition() {
       const selection = document.getSelection();
@@ -224,6 +266,19 @@ export default {
       this.$refs.input.innerHTML = value;
       // place the caret back at its previous position, after changing input value
       this.restoreCaretPosition();
+    },
+    onKeyDown(e) {
+      if (e.key === 'Enter') this.submit(e);
+
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        this.ignoredTagsStartIndexes.push(this.tagThatIsBeingTyped.startIndex)
+
+        this.suggestionsPopupCoordinates = null;
+        this.tagThatIsBeingTyped.body = '';
+        this.tagThatIsBeingTyped.startIndex = null;
+        this.tagThatIsBeingTyped.endIndex = null;
+        this.hideTagAssignmentGuide();
+      }
     }
   },
   computed: {
@@ -231,7 +286,7 @@ export default {
       let tags = Tag.all();
 
       if (tags) {
-        tags = tags.filter(tag => tag.name.toLowerCase().includes(this.tagThatIsBeingTyped.toLowerCase())).slice(0, 8);
+        tags = tags.filter(tag => tag.name.toLowerCase().includes(this.tagThatIsBeingTyped.body.toLowerCase())).slice(0, 8);
       }
 
       return tags;

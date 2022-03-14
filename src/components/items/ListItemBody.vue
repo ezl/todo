@@ -18,21 +18,16 @@ export default {
   },
   computed: {
     hashTagEntities() {
-      const pattern = /(?:\s|^)(?<tag>#\w+)/g;
-      const entities = [];
-      let match;
+      if (this.item.tags_meta === null) return [];
 
-      while ((match = pattern.exec(this.item.body)) != null) {
-        const entity = {};
-        entity.body = match.groups.tag;
-        entity.startIndex = match[0].startsWith(' ') ? match.index + 1 : match.index;
-        entity.endIndex = entity.startIndex + entity.body.length;
-        entity.type = 'tag';
-
-        entities.push(entity);
-      }
-
-      return entities;
+      return this.item.tags_meta.map(tagMeta => {
+        return {
+          body: tagMeta.tag,
+          startIndex: tagMeta.startIndex,
+          endIndex: tagMeta.endIndex,
+          type: 'tag'
+        };
+      });
     },
     allEntities() {
       return this.hashTagEntities;
@@ -84,3 +79,9 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+span{
+  padding-right: 4px;;
+}
+</style>

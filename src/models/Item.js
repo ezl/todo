@@ -16,6 +16,7 @@ export default class Item extends BaseModel {
       completed_at: this.attr(null),
       created_at: this.attr(null),
       order: this.attr(null),
+      tags_meta: this.attr(null),
       tags: this.belongsToMany(Tag, ItemTag, 'item_id', 'tag_id')
     };
   }
@@ -99,7 +100,7 @@ export default class Item extends BaseModel {
 
   extractTagsFromBody() {
     const tags = [];
-    const matches = this.body.match(/#\w+/g);
+    const matches = this.body.match(/(#[0-9a-zA-Z ]*)/g);
 
     if (!matches) return tags;
 
@@ -111,38 +112,54 @@ export default class Item extends BaseModel {
   }
 
   async updateTags() {
-    // remove current tags
-    const currentAttachedTags = Tag.query().whereHas('items', query => query.where('id', this.id)).get()
-    for (let index = 0; index < currentAttachedTags.length; index++) {
-      const id = currentAttachedTags[index].id
-     
-      const relations =  ItemTag.query().where('item_id', this.id).where('tag_id', id).get()
-      relations.forEach(relation => relation.$delete());
-      
-    }
-
-    // Extract all tag names from the body of this list ite
+    // Extract all tag names from the body of this list item
     const tagNames = this.extractTagsFromBody();
 
-    // Retrieve corresponding tags, and create the ones that don't exist
-    let tags = await Tag.findOrCreateTags(tagNames);
+    const currentAttachedTags = Tag.query()
+      .whereHas('items', query => query.where('id', this.id))
+      .get();
+      
+    for (let index = 0; index < currentAttachedTags.length; index++) {
+      const tag = currentAttachedTags[index];
 
-    // remove duplicates, we dont need to assign the same tag multiple times to an item
-    const uniqueTags = []
-    tags.forEach(tag => {
-      const isDuplicate = uniqueTags.some(t => t.id === tag.id)
-      if(!isDuplicate) uniqueTags.push(tag)
+      const removed = !tagNames.some(name => name.toLowerCase() === tag.name.toLowerCase());
+
+      if (removed) {
+        const relations = ItemTag.query()
+          .where('item_id', this.id)
+          .where('tag_id', tag.id)
+          .get();
+
+        relations.forEach(relation => relation.$delete());
+      }
+    }
+  }
+
+  async assignSelectedTags(selectedTags) {
+    if(selectedTags.length === 0) return
+
+    const uniqueTags = [];
+    selectedTags.forEach(tagInfo => {
+      const duplicate = uniqueTags.some(tag => tag.id === tagInfo.tag.id);
+      if (!duplicate) uniqueTags.push(tagInfo.tag);
     });
 
-    // Attach update tags to this item
-    if (uniqueTags.length) {
-      await Item.insertOrUpdate({
-        data: {
-          id: this.id,
-          tags: uniqueTags
-        }
-      });
-    }
+    await Item.insertOrUpdate({
+      data: {
+        id: this.id,
+        tags: uniqueTags
+      }
+    });
+
+    this.tags_meta = selectedTags.map(t => {
+      return {
+        tag: t.tag.name,
+        startIndex: t.startIndex,
+        endIndex: t.endIndex
+      };
+    });
+
+    await this.$save();
   }
 
   set completed(completed) {

@@ -14,13 +14,13 @@
         <Checkbox v-model="item.completed" @click="onCompletionStatusChanged" />
       </div>
       <div
-        :class="{ editing: editing && !shouldBeDeleted, 'bg-blue-500': shouldBeDeleted }"
-        class="list-item-body-wrapper relative ml-3 w-full text-dark-jungle-green dark:text-gray-300 px-3 p-1"
+        :class="{ editing: editing && !shouldBeDeleted && !item.completed, 'bg-blue-500': shouldBeDeleted }"
+        class="list-item-body-wrapper ml-3 w-full text-dark-jungle-green dark:text-gray-300 px-3 p-1"
       >
         <div v-show="!editing && !shouldBeDeleted && !item.completed" @click="startEditing">
           <ListItemBody :item="item" class="body" />
         </div>
-        <Input v-if="editing && !shouldBeDeleted" v-model="body" @submit="submit" ref="input" input-classes="" />
+        <Input v-if="editing && !shouldBeDeleted && !item.completed" v-model="body" @submit="submit" ref="input" @tag-selected="onTagSelected" />
         <p v-if="shouldBeDeleted" class="bg-blue-500 text-white w-full">{{ body }}</p>
         <p v-show="item.completed" ref="animatedBody" :class="{ strikethrough: item.completed }" class="">{{ body }}</p>
       </div>
@@ -60,7 +60,8 @@ export default {
       editing: false,
       body: this.item.body,
       shouldBeDeleted: false,
-      isMobile: screen.width <= 768
+      isMobile: screen.width <= 768,
+      selectedTags: []
     };
   },
   computed: {
@@ -90,6 +91,8 @@ export default {
       this.item.body = this.body;
       await this.item.$save();
       await this.item.updateTags();
+      await this.item.assignSelectedTags(this.selectedTags);
+      this.selectedTags = [];
     },
     onCompletionStatusChanged() {
       this.item.$save();
@@ -156,7 +159,7 @@ export default {
       for (let i = 0; i < words.length; i++) {
         const node = document.createElement('span');
 
-        node.innerText = words[i]
+        node.innerText = words[i];
         node.className = 'word';
         el.appendChild(node);
 
@@ -200,8 +203,11 @@ export default {
 
         lastYOffset = offset;
       }
+    },
+    onTagSelected(tagInfo) {
+      this.selectedTags.push(tagInfo);
     }
-  },
+  }
 };
 </script>
 
