@@ -122,7 +122,7 @@ export default class Item extends BaseModel {
     for (let index = 0; index < currentAttachedTags.length; index++) {
       const tag = currentAttachedTags[index];
 
-      const removed = !tagNames.some(name => name.toLowerCase() === tag.name.toLowerCase());
+      const removed = !tagNames.some(name => name.toLowerCase().trim() === tag.name.toLowerCase().trim());
 
       if (removed) {
         const relations = ItemTag.query()
@@ -131,6 +131,16 @@ export default class Item extends BaseModel {
           .get();
 
         relations.forEach(relation => relation.$delete());
+
+        this.tags_meta = this.tags_meta.filter(meta => {
+          if(meta.tag.toLowerCase().trim() != tag.name.toLowerCase().trim()){
+            return true
+          }
+
+          return false
+        });
+
+        await this.$save()
       }
     }
   }

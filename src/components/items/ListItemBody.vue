@@ -20,14 +20,23 @@ export default {
     hashTagEntities() {
       if (this.item.tags_meta === null) return [];
 
-      return this.item.tags_meta.map(tagMeta => {
-        return {
+      const entities = [];
+
+      this.item.tags_meta.forEach(tagMeta => {
+        const attached = this.item.tags.some(tag => tag.name.toLowerCase().trim() === tagMeta.tag.toLowerCase().trim());
+        if (!attached) {
+          return;
+        }
+
+        entities.push({
           body: tagMeta.tag,
           startIndex: tagMeta.startIndex,
           endIndex: tagMeta.endIndex,
           type: 'tag'
-        };
+        });
       });
+
+      return entities;
     },
     allEntities() {
       return this.hashTagEntities;
@@ -81,7 +90,7 @@ export default {
 </script>
 
 <style scoped>
-span{
-  padding-right: 4px;;
+span {
+  padding-right: 4px;
 }
 </style>
