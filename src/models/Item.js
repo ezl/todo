@@ -74,8 +74,6 @@ export default class Item extends BaseModel {
 
     await item.$save();
 
-    item.updateTags();
-
     // Re-arrange items positions/orders if an item is to be placed at the bottom (position 1),
     // move the new item from temp position 0 to 1, then move up the item that was at position 1 to 2 and so on
 
@@ -98,31 +96,27 @@ export default class Item extends BaseModel {
     }
   }
 
-  extractTagsFromBody() {
-    const tags = [];
-    const matches = this.body.match(/(#[0-9a-zA-Z ]*)/g);
-
-    if (!matches) return tags;
-
-    for (let index = 0; index < matches.length; index++) {
-      tags.push(matches[index]);
-    }
-
-    return tags;
-  }
-
-  async updateTags() {
-    // Extract all tag names from the body of this list item
-    const tagNames = this.extractTagsFromBody();
-
+  // First checks if an attached tag is present in the list item body,
+  // and removes/detaches said tag from this item if no reference was found within its body
+  async detachRemovedTags() {
     const currentAttachedTags = Tag.query()
       .whereHas('items', query => query.where('id', this.id))
       .get();
-      
+
+    const body = this.body.toLowerCase().trim();
     for (let index = 0; index < currentAttachedTags.length; index++) {
       const tag = currentAttachedTags[index];
+      const tagName = tag.name.toLowerCase().trim();
 
-      const removed = !tagNames.some(name => name.toLowerCase().trim() === tag.name.toLowerCase().trim());
+      const endsWithIt = body.endsWith(tagName);
+
+      let removed;
+
+      if (endsWithIt) {
+        removed = !body.includes(tagName);
+      } else {
+        removed = !body.includes(tagName + ' ');
+      }
 
       if (removed) {
         const relations = ItemTag.query()
@@ -133,20 +127,20 @@ export default class Item extends BaseModel {
         relations.forEach(relation => relation.$delete());
 
         this.tags_meta = this.tags_meta.filter(meta => {
-          if(meta.tag.toLowerCase().trim() != tag.name.toLowerCase().trim()){
-            return true
+          if (meta.tag.toLowerCase().trim() != tag.name.toLowerCase().trim()) {
+            return true;
           }
 
-          return false
+          return false;
         });
 
-        await this.$save()
+        await this.$save();
       }
     }
   }
 
   async assignSelectedTags(selectedTags) {
-    if(selectedTags.length === 0) return
+    if (selectedTags.length === 0) return;
 
     const uniqueTags = [];
     selectedTags.forEach(tagInfo => {
@@ -160,16 +154,66 @@ export default class Item extends BaseModel {
         tags: uniqueTags
       }
     });
+    await this.$save();
+  }
 
-    this.tags_meta = selectedTags.map(t => {
-      return {
-        tag: t.tag.name,
-        startIndex: t.startIndex,
-        endIndex: t.endIndex
-      };
-    });
+  // Keeps tracks of start and end positions of the attached tags in the list item body.
+  // This will be used to highlight them within the body
+  async updateTagPositionsInBody() {
+    let tags = this.tags;
+
+    if (tags.length === 0) {
+      tags = Tag.query()
+        .whereHas('items', query => {
+          return query.where('id', this.id);
+        })
+        .get();
+
+      if (tags.length === 0) return;
+    }
+
+    let newTagPositions = [];
+
+    for (let index = 0; index < tags.length; index++) {
+      const tag = tags[index];
+      const positions = this.findTagPositionInBody(tag.name);
+
+      newTagPositions = [...newTagPositions, ...positions];
+    }
+
+    this.tags_meta = newTagPositions;
 
     await this.$save();
+  }
+
+  // Looks through the list item body and finds all occurrences of the provided tag.
+  // It then returns an array containing start/end positions for all the occurrences of this tag
+  findTagPositionInBody(tagName) {
+    const positions = [];
+    let searchStartOffset = 0;
+
+    while (true) {
+      const body = this.body.substring(searchStartOffset);
+
+      const tagPosition = {
+        tag: tagName
+      };
+
+      const startIndex = body.indexOf(tagName);
+
+      if (startIndex === -1) {
+        break;
+      }
+
+      tagPosition.startIndex = searchStartOffset + body.indexOf(tagName);
+      tagPosition.endIndex = tagPosition.startIndex + tagPosition.tag.length;
+
+      searchStartOffset = tagPosition.endIndex;
+
+      positions.push(tagPosition);
+    }
+
+    return positions;
   }
 
   set completed(completed) {

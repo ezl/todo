@@ -286,7 +286,7 @@ export default {
       let tags = Tag.all();
 
       if (tags) {
-        tags = tags.filter(tag => tag.name.toLowerCase().includes(this.tagThatIsBeingTyped.body.toLowerCase())).slice(0, 8);
+        tags = tags.filter(tag => tag.name.toLowerCase().includes(this.tagThatIsBeingTyped.body.toLowerCase().trim())).slice(0, 8);
       }
 
       return tags;

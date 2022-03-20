@@ -36,7 +36,7 @@ export default {
         });
       });
 
-      return entities;
+      return entities.sort((a, b) => a.startIndex - b.startIndex)
     },
     allEntities() {
       return this.hashTagEntities;

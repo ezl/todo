@@ -90,8 +90,9 @@ export default {
     async save() {
       this.item.body = this.body;
       await this.item.$save();
-      await this.item.updateTags();
+      await this.item.detachRemovedTags();
       await this.item.assignSelectedTags(this.selectedTags);
+      this.item.updateTagPositionsInBody();
       this.selectedTags = [];
     },
     onCompletionStatusChanged() {
@@ -206,6 +207,11 @@ export default {
     },
     onTagSelected(tagInfo) {
       this.selectedTags.push(tagInfo);
+    }
+  },
+  async mounted() {
+    if(this.item.tags_meta === null){
+      this.item.updateTagPositionsInBody()
     }
   }
 };

@@ -43,7 +43,8 @@ export default {
       }
 
       const item = await Item.add(this.body, this.completed);
-      await item.assignSelectedTags(this.selectedTags)
+      await item.assignSelectedTags(this.selectedTags);
+      item.updateTagPositionsInBody();
 
       this.body = '';
       this.completed = false;
