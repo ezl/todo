@@ -9,7 +9,7 @@
     <li
       v-for="(tag, index) in tags"
       :key="index"
-      @click="onSelectTag"
+      @click="onSelectTag(index)"
       :class="getDynamicClassList(index)"
       class="cursor-pointer px-4 py-1 flex items-center text-black dark:text-white tag-suggestion"
     >
@@ -54,8 +54,8 @@ export default {
     }
   },
   methods: {
-    async onSelectTag() {
-      let tag = this.tags[0]
+    async onSelectTag(index = 0) {
+      let tag = this.tags[index]
 
       if(!tag) {
         tag = await Tag.add(this.query);
