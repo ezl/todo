@@ -57,12 +57,12 @@
           <option value="clear_immediately">Clear Immediately</option>
         </select>
       </div>
-      <div class="mt-6">
-        <label for="completed-preference">Track time spent:</label>
-        <button class="p-3 rounded-lg bg-gray-asparagus mt-2 w-full text-white">Sync with Pomodoro Party</button>
-      </div>
-      <div class="mt-10 flex justify-center">
-        <span class="cursor-pointer">Logout</span>
+      <div class="exporting mb-4 mt-8 flex justify-between items-center px-10">
+        <label class="cursor-pointer hover:text-primary">
+          Import data
+          <input type="file" @change="importData" accept=".json" class="hidden" />
+        </label>
+        <span @click="exportData" class="cursor-pointer hover:text-primary">Export data</span>
       </div>
     </div>
   </div>
@@ -73,6 +73,7 @@ import PencilOutlineIcon from 'vue-material-design-icons/PencilOutline';
 import ChevronRightIcon from 'vue-material-design-icons/ChevronRight';
 import Setting from '@/models/Setting';
 import SettingsIcon from '@/assets/images/icons/settings.svg';
+import LocalStorageHelper from '@/helpers/LocalStorageHelper';
 
 export default {
   components: {
@@ -111,6 +112,63 @@ export default {
         document.body.classList.remove('bg-eerie-black');
         document.body.classList.add('bg-white');
       }
+    },
+    async exportData() {
+      const items = await LocalStorageHelper.getValue({ items: [] });
+      const tags = await LocalStorageHelper.getValue({ tags: [] });
+      const itemTagRelationships = await LocalStorageHelper.getValue({ itemTagRelationships: [] });
+
+      const data = JSON.stringify({
+        version: 1,
+        data: {
+          items,
+          tags,
+          itemTagRelationships,
+        }
+      });
+
+      // Initiate download
+      var element = document.createElement('a');
+      element.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(data));
+      element.setAttribute('download', 'Badtodo - export ' + new Date().getTime() + '.json');
+
+      element.style.display = 'none';
+      document.body.appendChild(element);
+
+      element.click();
+
+      document.body.removeChild(element);
+    },
+    importData(e) {
+      if (e.target.files.length === 0) return;
+
+      const file = e.target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = async event => {
+        let json;
+
+        try {
+          json = JSON.parse(event.target.result);
+        } catch (error) {
+          alert('Could not import this file');
+          console.error(error);
+        }
+        
+        if (json === undefined || json.data === undefined) return;
+
+        const data = json.data;
+
+        if (data.items) await LocalStorageHelper.setValue({ items: data.items });
+        if (data.tags) await LocalStorageHelper.setValue({ tags: data.tags });
+        if (data.itemTagRelationships) await LocalStorageHelper.setValue({ itemTagRelationships: data.itemTagRelationships });
+
+        LocalStorageHelper.restore();
+
+        this.open = false;
+      };
+
+      reader.readAsText(file);
     }
   },
   computed: {
@@ -144,6 +202,11 @@ export default {
 <style>
 .settings-dropdown-menu .dropdown-body {
   left: -274px;
+}
+
+.exporting label,
+.exporting span {
+  color: #babbbb;
 }
 
 @media only screen and (max-width: 480px) {
