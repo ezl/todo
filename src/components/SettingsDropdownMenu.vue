@@ -4,7 +4,7 @@
       @click="toggleMenu"
       class="z-30 p-2 rounded-lg hover:bg-bright-gray dark:hover:bg-dark-charcoal text-black dark:text-gray-400 absolute top-0 right-0 md:relative"
     >
-      <SettingsIcon />
+      <dots-horizontal-icon />
     </button>
     <div
       v-if="open"
@@ -72,14 +72,14 @@
 import PencilOutlineIcon from 'vue-material-design-icons/PencilOutline';
 import ChevronRightIcon from 'vue-material-design-icons/ChevronRight';
 import Setting from '@/models/Setting';
-import SettingsIcon from '@/assets/images/icons/settings.svg';
+import DotsHorizontalIcon from 'vue-material-design-icons/DotsHorizontal';
 import LocalStorageHelper from '@/helpers/LocalStorageHelper';
 
 export default {
   components: {
     PencilOutlineIcon,
     ChevronRightIcon,
-    SettingsIcon
+    DotsHorizontalIcon
   },
   data() {
     return {
@@ -201,7 +201,7 @@ export default {
 
 <style>
 .settings-dropdown-menu .dropdown-body {
-  left: -274px;
+  left: -287px;
 }
 
 .exporting label,
