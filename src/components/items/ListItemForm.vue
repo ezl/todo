@@ -1,6 +1,6 @@
 <template>
-  <div class="flex items-top py-1">
-    <div class="pt-1">
+  <div class="flex items-center py-1">
+    <div class="">
       <Checkbox v-model="completed" class="opacity-60" />
     </div>
     <div class="w-full">

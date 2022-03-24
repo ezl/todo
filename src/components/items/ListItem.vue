@@ -10,7 +10,7 @@
   >
     <ItemActionsGroup :class="listItemActionsDynamicClasses" ref="actions" class="list-item-actions px-2 pt-1 w-2/12 lg:3/12 flex" />
     <div :class="{ 'w-full': !editing }" class="md:ml-8 flex items-start py-1">
-      <div class="pt-1">
+      <div class="checkbox-wrapper">
         <Checkbox v-model="item.completed" @click="onCompletionStatusChanged" />
       </div>
       <div
@@ -236,6 +236,14 @@ export default {
 
 .dark .list-item-body-wrapper.editing {
   background: #141317;
+}
+
+.checkbox-wrapper{
+  margin-top: 12px;
+}
+
+.list-item-actions{
+  margin-top: 9px;
 }
 
 @media only screen and (max-width: 768px) {
