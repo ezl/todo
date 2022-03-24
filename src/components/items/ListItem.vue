@@ -9,18 +9,18 @@
     @touchend="$emit('touchend', $event)"
   >
     <ItemActionsGroup :class="listItemActionsDynamicClasses" ref="actions" class="list-item-actions px-2 pt-1 w-2/12 lg:3/12 flex" />
-    <div :class="{ 'w-full': !editing }" class="md:ml-8 flex items-start py-1 rounded.lg">
+    <div :class="{ 'w-full': !editing }" class="md:ml-8 flex items-start py-1">
       <div class="pt-1">
         <Checkbox v-model="item.completed" @click="onCompletionStatusChanged" />
       </div>
       <div
         :class="{ editing: editing && !shouldBeDeleted && !item.completed, 'bg-blue-500': shouldBeDeleted }"
-        class="list-item-body-wrapper ml-3 w-full text-dark-jungle-green dark:text-gray-300 px-3 p-1"
+        class="list-item-body-wrapper ml-3 w-full text-dark-jungle-green dark:text-gray-300 px-3 py-2 rounded-lg"
       >
         <div v-show="!editing && !shouldBeDeleted && !item.completed" @click="startEditing">
           <ListItemBody :item="item" class="body" />
         </div>
-        <Input v-if="editing && !shouldBeDeleted && !item.completed" v-model="body" @submit="submit" ref="input" @tag-selected="onTagSelected" />
+        <Input v-if="editing && !shouldBeDeleted && !item.completed" v-model="body" @submit="submit" ref="input" @tag-selected="onTagSelected" inputClasses="p-0" />
         <p v-if="shouldBeDeleted" class="bg-blue-500 text-white w-full">{{ body }}</p>
         <p v-show="item.completed" ref="animatedBody" :class="{ strikethrough: item.completed }" class="">{{ body }}</p>
       </div>

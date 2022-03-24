@@ -7,7 +7,7 @@
       @keydown="onKeyDown"
       ref="input"
       :class="inputClasses"
-      class="block cursor-text whitespace-pre-wrap overflow-hidden bg-transparent w-full text-dark-jungle-green dark:text-gray-200 focus:outline-none caret-primary p-2s "
+      class="block cursor-text whitespace-pre-wrap overflow-hidden bg-transparent w-full text-dark-jungle-green dark:text-gray-200 focus:outline-none caret-primary p-2 "
     ></span>
     <TagsSuggestionPopup
       ref="suggestionsPopup"
