@@ -118,9 +118,9 @@ export default {
       this.$emit('finished-editing');
     },
     onKeyDown(e) {
-      if (e.keyCode == 46) {
-        this.shouldBeDeleted = true;
-      }
+      if (e.keyCode == 46) this.shouldBeDeleted = true
+
+      if (e.key === 'Escape' || e.key === 'Esc') this.stopEditing()
     },
     strikeThroughBodyText() {
       // We need each row/line of the list item body text to be in a separate container In order to animate them
