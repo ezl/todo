@@ -1,6 +1,6 @@
 <template>
-  <div class="w-full lg:w-8/12 lg:ml-20 mt-8 md:mt-16">
-    <div v-show="isMobile && visibleActionsItemId" class="z-50 absolute inset-x-0 top-0 p-4 bg-lotion dark:bg-dark-gunmetal flex justify-end">
+  <div class="w-full lg:w-8/12 lg:ml-20 mt-8 md:mt-16 overflow-x-hidden">
+    <div v-show="isMobile && visibleActionsItemId" class="z-50 fixed inset-x-0 top-0 p-4 bg-lotion dark:bg-dark-gunmetal flex justify-end">
       <button @click="visibleActionsItemId = null">cancel</button>
     </div>
     <div class="flex px-2">
@@ -19,14 +19,14 @@
     </div>
     <div class="mt-3 md:mt-8 list-items-container">
       <ListItemForm class="w-full md:w-10/12 lg:9/12 mr-0 m-auto px-2 md:px-2 md:pl-8" />
-      <draggable :animation="100" :disabled="false" v-model="list" handle=".handle" @start="dragging = true" @end="dragging = false">
+      <draggable :class="listItemsWrapperDynamicClasses" :animation="100" :disabled="false" v-model="list" handle=".handle" @start="dragging = true" @end="dragging = false">
         <transition-group type="transition" name="items">
           <ListItem
             v-for="item in items"
             :key="item.id"
             :item="item"
             :ref="`item-${item.id}`"
-            :show-actions="visibleActionsItemId === item.id"
+            :show-actions="visibleActionsItemId === item.id || showAllItemsActions"
             @started-editing="onStartedEditingItem"
             @finished-editing="onFinishedEditingItem"
             @touchstart="onTouchStart(item)"
@@ -39,7 +39,7 @@
         </transition-group>
       </draggable>
     </div>
-    <div v-show="isMobile && visibleActionsItemId" class="absolute inset-x-0 bottom-0 p-4 bg-lotion dark:bg-dark-gunmetal z-40">
+    <div v-show="isMobile && visibleActionsItemId" class="fixed inset-x-0 bottom-0 p-4 bg-lotion dark:bg-dark-gunmetal z-40">
       <SnoozeAction />
     </div>
   </div>
@@ -160,6 +160,18 @@ export default {
           item.$save();
         });
       }
+    },
+    listItemsWrapperDynamicClasses() {
+      const classList = [];
+
+      if (this.showAllItemsActions) {
+        classList.push('show-all-actions');
+      }
+
+      return classList;
+    },
+    showAllItemsActions(){
+      return this.isMobile && this.visibleActionsItemId != null
     }
   },
   mounted() {
@@ -180,5 +192,12 @@ export default {
 <style>
 [draggable='true'] {
   opacity: 0.5;
+}
+
+@media only screen and (max-width: 768px) {
+  .show-all-actions {
+    @apply !transition-transform !duration-500;
+    transform: translateX(calc(68px));
+  }
 }
 </style>

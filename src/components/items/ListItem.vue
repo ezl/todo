@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex justify-start items-start list-item-wrapper mt-2 md:m-0 px-2 md:p-0"
+    class="flex justify-start items-start list-item-wrapper mt-2 md:m-0 px-2 md:p-0 relative "
     @mouseenter="$emit('mouseenter', $event)"
     @mouseleave="$emit('mouseleave', $event)"
     @keydown="onKeyDown"
@@ -20,7 +20,14 @@
         <div v-show="!editing && !shouldBeDeleted && !item.completed" @click="startEditing">
           <ListItemBody :item="item" class="body" />
         </div>
-        <Input v-if="editing && !shouldBeDeleted && !item.completed" v-model="body" @submit="submit" ref="input" @tag-selected="onTagSelected" inputClasses="p-0" />
+        <Input
+          v-if="editing && !shouldBeDeleted && !item.completed"
+          v-model="body"
+          @submit="submit"
+          ref="input"
+          @tag-selected="onTagSelected"
+          inputClasses="p-0"
+        />
         <p v-if="shouldBeDeleted" class="bg-blue-500 text-white w-full">{{ body }}</p>
         <p v-show="item.completed" ref="animatedBody" :class="{ strikethrough: item.completed }" class="">{{ body }}</p>
       </div>
@@ -70,11 +77,6 @@ export default {
     },
     listItemActionsDynamicClasses() {
       const classList = [];
-
-      if (this.isMobile && this.showActions) {
-        classList.push('show');
-        console.log('sh');
-      }
 
       if (!this.isMobile) {
         this.showActions ? classList.push('visible') : classList.push('invisible');
@@ -210,8 +212,8 @@ export default {
     }
   },
   async mounted() {
-    if(this.item.tags_meta === null){
-      this.item.updateTagPositionsInBody()
+    if (this.item.tags_meta === null) {
+      this.item.updateTagPositionsInBody();
     }
   }
 };
@@ -248,18 +250,10 @@ export default {
 
 @media only screen and (max-width: 768px) {
   .list-item-actions {
-    transition: all 0.15s;
-    width: 0;
-    opacity: 0;
-    padding: 0;
-  }
-
-  .list-item-actions.show {
+    position: absolute;
     width: 52px;
     padding: 5px 0px;
-    margin-right: 22px;
-    display: flex;
-    opacity: 100%;
-  }
+    transform: translateX(calc(-68px));
+  } 
 }
 </style>
