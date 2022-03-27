@@ -18,7 +18,7 @@
       </div>
     </div>
     <div class="mt-3 md:mt-8 list-items-container">
-      <ListItemForm class="w-full md:w-10/12 lg:9/12 mr-0 m-auto px-2 md:px-2 md:pl-8" />
+      <ListItemForm class="w-full md:w-10/12 lg:9/12 mr-0 m-auto px-2 pr-7 md:px-2 md:pl-8" />
       <draggable :class="listItemsWrapperDynamicClasses" :animation="100" :disabled="false" v-model="list" handle=".handle" @start="dragging = true" @end="dragging = false">
         <transition-group type="transition" name="items">
           <ListItem
