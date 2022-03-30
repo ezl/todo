@@ -19,14 +19,24 @@
     </div>
     <div class="mt-3 md:mt-8 list-items-container">
       <ListItemForm class="w-full md:w-10/12 lg:9/12 mr-0 m-auto px-2 pr-7 md:px-2 md:pl-8" />
-      <draggable :class="listItemsWrapperDynamicClasses" :animation="100" :disabled="false" v-model="list" handle=".handle" @start="dragging = true" @end="dragging = false">
+      <draggable
+        :class="listItemsWrapperDynamicClasses"
+        :animation="100"
+        :disabled="false"
+        :force-fallback="true"
+        v-model="list"
+        handle=".handle"
+        @start="onStartedDragging"
+        @end="onEndedDragging"
+        @change="onItemsOrderChanged"
+      >
         <transition-group type="transition" name="items">
           <ListItem
             v-for="item in items"
             :key="item.id"
             :item="item"
             :ref="`item-${item.id}`"
-            :show-actions="visibleActionsItemId === item.id || showAllItemsActions"
+            :show-actions="shouldShowItemActions(item)"
             @started-editing="onStartedEditingItem"
             @finished-editing="onFinishedEditingItem"
             @touchstart="onTouchStart(item)"
@@ -34,6 +44,9 @@
             @touchend="onTouchEnd"
             @mouseenter="onMouseEnter(item)"
             @mouseleave="onMouseLeave(item)"
+            @selection-changed="onItemSelectionChanged"
+            :selected="isItemSelected(item)"
+            :item-body="dragging && isTopMostSelectedItem(item) && selectedItems.length > 1 ? selectedItems.length + ' items...' : null"
             :class="{ 'select-none': holdingTouch }"
           />
         </transition-group>
@@ -74,7 +87,8 @@ export default {
       longTouchTimeoutId: null,
       visibleActionsItemId: null,
       showActionLabels: false,
-      holdingTouch: false
+      holdingTouch: false,
+      selectedItems: []
     };
   },
   methods: {
@@ -109,6 +123,8 @@ export default {
     onMouseEnter(item) {
       if (this.isMobile) return;
 
+      if (this.selectedItems.length) return;
+
       if (this.dragging === false) {
         this.visibleActionsItemId = item.id;
       }
@@ -123,6 +139,78 @@ export default {
       }
 
       this.showActionLabels = false;
+    },
+    onItemSelectionChanged({ selected, item }) {
+      if (selected) {
+        this.selectedItems.push(item);
+      } else {
+        this.selectedItems = this.selectedItems.filter(_item => _item.id != item.id);
+      }
+
+      this.selectedItems.sort((a, b) => a.order - b.order);
+    },
+    onItemsOrderChanged(data) {
+      if (!data.moved || this.selectedItems.length === 0) return;
+
+      let items = Item.query()
+        .get()
+        .sort((a, b) => a.order - b.order);
+
+      // This will only include (while dragging) items that are not selected AND the top most item from the selected ones,
+      // the rest of the selected items will be excluded. In other words, they’ll be grouped together and represented by
+      // the top most one (which happens to be the item being dragged)
+      // For instance: If we have [A,B,C,D,E] and [C,D] are selected, we’ll get [A,B,C,E]
+      let filteredItems = this.items;
+
+      let dropIndex = data.moved.newIndex;
+      let precedingItems = [];
+      let followingItems = [];
+
+      // If the selected items were moved to the beginning of the list
+      if (dropIndex == 0) {
+        followingItems = items.filter(item => !this.isItemSelected(item));
+      }
+
+      // If the selected items were dropped somewhere in the middle of the list
+      if (dropIndex > 0 && dropIndex < filteredItems.length - 1) {
+        precedingItems = items.slice(0, data.moved.newIndex);
+        followingItems = items.slice(data.moved.newIndex).filter(item => !this.isItemSelected(item));
+      }
+
+      // If the selected items were dropped at the end of the list
+      if (dropIndex === filteredItems.length - 1) {
+        precedingItems = items.slice(0, data.moved.newIndex + 1).filter(item => !this.isItemSelected(item));
+      }
+
+      const newReorderedListItems = [...precedingItems, ...this.selectedItems, ...followingItems];
+
+      this.list = newReorderedListItems;
+    },
+    shouldShowItemActions(item) {
+      if (this.visibleActionsItemId === item.id) return true;
+      if (this.showAllItemsActions) return true;
+      if (this.isTopMostSelectedItem(item)) return true;
+    },
+    isItemSelected(item) {
+      return this.selectedItems.some(_item => _item.id == item.id);
+    },
+    isTopMostSelectedItem(item) {
+      const topMostItem = [...this.selectedItems].sort((a, b) => a.order - b.order)[0];
+
+      if (topMostItem && topMostItem.id === item.id) return true;
+
+      return false;
+    },
+    onStartedDragging(e) {
+      this.dragging = true;
+
+      if (this.selectedItems.length > 1) {
+        const draggableElement = document.querySelector('.sortable-drag');
+        draggableElement.querySelector('.body').innerHTML = this.selectedItems.length + ' items...';
+      }
+    },
+    onEndedDragging(e) {
+      this.dragging = false;
     }
   },
   computed: {
@@ -132,15 +220,25 @@ export default {
         .get()
         .sort((a, b) => a.order - b.order);
 
-      if (items && this.toggledTagsIds.length) {
-        items = items.filter(item => {
-          return item.tags.some(tag => this.toggledTagsIds.includes(tag.id));
-        });
-      }
+      items = items.filter(item => {
+        if (this.toggledTagsIds.length) {
+          const hasSelectedTags = item.tags.some(tag => this.toggledTagsIds.includes(tag.id));
+          if (!hasSelectedTags) return false;
+        }
 
-      if (this.listItemSearchQuery != '') {
-        items = items.filter(item => item.body.toLowerCase().includes(this.listItemSearchQuery.toLowerCase()));
-      }
+        if (this.listItemSearchQuery != '') {
+          const matchesCurrentSearchTerm = item.body.toLowerCase().includes(this.listItemSearchQuery.toLowerCase());
+          if (!matchesCurrentSearchTerm) return false;
+        }
+
+        if (this.dragging) {
+          // We should not render this item if it’s part of a multi selection and being dragged.
+          // With the only exception being if it’s the top most selected item
+          if (this.isItemSelected(item) && !this.isTopMostSelectedItem(item)) return false;
+        }
+
+        return true;
+      });
 
       return items;
     },
@@ -168,10 +266,14 @@ export default {
         classList.push('show-all-actions');
       }
 
+      if (this.selectedItems.length) {
+        classList.push('items-selection-mode');
+      }
+
       return classList;
     },
-    showAllItemsActions(){
-      return this.isMobile && this.visibleActionsItemId != null
+    showAllItemsActions() {
+      return this.isMobile && this.visibleActionsItemId != null;
     }
   },
   mounted() {

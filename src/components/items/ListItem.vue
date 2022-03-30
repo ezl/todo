@@ -8,7 +8,17 @@
     @touchmove="$emit('touchmove', $event)"
     @touchend="$emit('touchend', $event)"
   >
-    <ItemActionsGroup :class="listItemActionsDynamicClasses" ref="actions" class="list-item-actions px-2 pt-1 w-2/12 lg:3/12 flex" />
+    <!-- Actions -->
+    <div
+      ref="actions"
+      :class="listItemActionsDynamicClasses"
+      class="flex-shrink-0 flex justify-between items-center list-item-actions px-2 pt-1 w-2/12 lg:3/12 flex"
+    >
+      <SnoozeAction class="hidden md:inline" />
+      <SelectAction :selected="selected" @click="onToggleSelection" class="select-action" />
+      <DragAction />
+    </div>
+
     <div :class="{ 'w-full': !editing }" class="md:ml-8 flex items-start py-1">
       <div class="checkbox-wrapper">
         <Checkbox v-model="item.completed" @click="onCompletionStatusChanged" />
@@ -18,7 +28,8 @@
         class="list-item-body-wrapper ml-3 w-full text-dark-jungle-green dark:text-gray-300 px-3 py-2 rounded-lg"
       >
         <div v-show="!editing && !shouldBeDeleted && !item.completed" @click="startEditing">
-          <ListItemBody :item="item" class="body" />
+          <ListItemBody v-if="!itemBody" :item="item" class="body" />
+          <span v-else>{{ itemBody }}</span>
         </div>
         <Input
           v-if="editing && !shouldBeDeleted && !item.completed"
@@ -37,18 +48,22 @@
 
 <script>
 import Checkbox from '@/components/inputs/Checkbox';
-import ItemActionsGroup from './actions/ItemActionsGroup';
 import Item from '@/models/Item';
 import Setting from '@/models/Setting';
 import ListItemBody from '@/components/items/ListItemBody';
 import Input from '@/components/inputs/Input';
+import DragAction from '@/components/items/actions/DragAction';
+import SelectAction from '@/components/items/actions/SelectAction';
+import SnoozeAction from '@/components/items/actions/SnoozeAction';
 
 export default {
   components: {
     Checkbox,
-    ItemActionsGroup,
     ListItemBody,
-    Input
+    Input,
+    DragAction,
+    SelectAction,
+    SnoozeAction
   },
   props: {
     item: {
@@ -60,7 +75,15 @@ export default {
     },
     showActions: {
       type: Boolean
-    }
+    },
+    selected: {
+      type: Boolean,
+      default: false
+    },
+    itemBody: {
+      type: String,
+      default: null
+    },
   },
   data() {
     return {
@@ -120,9 +143,9 @@ export default {
       this.$emit('finished-editing');
     },
     onKeyDown(e) {
-      if (e.keyCode == 46) this.shouldBeDeleted = true
+      if (e.keyCode == 46) this.shouldBeDeleted = true;
 
-      if (e.key === 'Escape' || e.key === 'Esc') this.stopEditing()
+      if (e.key === 'Escape' || e.key === 'Esc') this.stopEditing();
     },
     strikeThroughBodyText() {
       // We need each row/line of the list item body text to be in a separate container In order to animate them
@@ -209,6 +232,12 @@ export default {
     },
     onTagSelected(tagInfo) {
       this.selectedTags.push(tagInfo);
+    },
+    onToggleSelection() {
+      this.$emit('selection-changed', {
+        selected: !this.selected,
+        item: this.item
+      });
     }
   },
   async mounted() {
@@ -240,12 +269,15 @@ export default {
   background: #141317;
 }
 
-.checkbox-wrapper{
+.checkbox-wrapper {
   margin-top: 12px;
 }
 
-.list-item-actions{
+.list-item-actions {
   margin-top: 9px;
+}
+.items-selection-mode .select-action {
+  visibility: visible;
 }
 
 @media only screen and (max-width: 768px) {
@@ -254,6 +286,6 @@ export default {
     width: 52px;
     padding: 5px 0px;
     transform: translateX(calc(-68px));
-  } 
+  }
 }
 </style>
