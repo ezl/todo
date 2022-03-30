@@ -101,9 +101,7 @@ export default {
     listItemActionsDynamicClasses() {
       const classList = [];
 
-      if (!this.isMobile) {
-        this.showActions ? classList.push('visible') : classList.push('invisible');
-      }
+      this.showActions ? classList.push('visible') : classList.push('invisible');
 
       return classList;
     }

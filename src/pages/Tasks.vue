@@ -1,7 +1,7 @@
 <template>
   <div class="w-full lg:w-8/12 lg:ml-20 mt-8 md:mt-16 overflow-x-hidden">
-    <div v-show="isMobile && visibleActionsItemId" class="z-50 fixed inset-x-0 top-0 p-4 bg-lotion dark:bg-dark-gunmetal flex justify-end">
-      <button @click="visibleActionsItemId = null">cancel</button>
+    <div v-show="isMobile && selectedItems.length" class="z-50 fixed inset-x-0 top-0 p-4 bg-lotion dark:bg-dark-gunmetal flex justify-end">
+      <button @click="selectedItems = []">cancel</button>
     </div>
     <div class="flex px-2">
       <div
@@ -52,7 +52,7 @@
         </transition-group>
       </draggable>
     </div>
-    <div v-show="isMobile && visibleActionsItemId" class="fixed inset-x-0 bottom-0 p-4 bg-lotion dark:bg-dark-gunmetal z-40">
+    <div v-show="isMobile && selectedItems.length" class="fixed inset-x-0 bottom-0 p-4 bg-lotion dark:bg-dark-gunmetal z-40">
       <SnoozeAction />
     </div>
   </div>
@@ -99,7 +99,7 @@ export default {
       }
 
       this.itemBeingEditedId = itemId;
-      if (this.isMobile) this.visibleActionsItemId = null;
+      if (this.isMobile) this.selectedItems = [];
     },
     onFinishedEditingItem() {
       this.itemBeingEditedId = null;
@@ -118,7 +118,7 @@ export default {
       this.holdingTouch = false;
     },
     onLongTouch(item) {
-      this.visibleActionsItemId = item.id;
+      this.selectedItems.push(item)
     },
     onMouseEnter(item) {
       if (this.isMobile) return;
@@ -187,8 +187,8 @@ export default {
       this.list = newReorderedListItems;
     },
     shouldShowItemActions(item) {
-      if (this.visibleActionsItemId === item.id) return true;
-      if (this.showAllItemsActions) return true;
+      if (this.visibleActionsItemId === item.id && !this.selectedItems.length) return true;
+
       if (this.isTopMostSelectedItem(item)) return true;
     },
     isItemSelected(item) {
@@ -262,8 +262,11 @@ export default {
     listItemsWrapperDynamicClasses() {
       const classList = [];
 
-      if (this.showAllItemsActions) {
-        classList.push('show-all-actions');
+      if (this.slideInActions) {
+        classList.push('slide-in-actions');
+      }else{
+        classList.push('slide-out-actions');
+
       }
 
       if (this.selectedItems.length) {
@@ -272,8 +275,8 @@ export default {
 
       return classList;
     },
-    showAllItemsActions() {
-      return this.isMobile && this.visibleActionsItemId != null;
+    slideInActions() {
+      return this.isMobile && this.selectedItems.length;
     }
   },
   mounted() {
@@ -297,9 +300,13 @@ export default {
 }
 
 @media only screen and (max-width: 768px) {
-  .show-all-actions {
+  .slide-in-actions {
     @apply !transition-transform !duration-500;
     transform: translateX(calc(68px));
+  }
+  .slide-out-actions {
+    @apply !transition-transform !duration-500;
+    transform: translateX(calc(0px));
   }
 }
 </style>
