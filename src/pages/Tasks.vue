@@ -46,7 +46,6 @@
             @mouseleave="onMouseLeave(item)"
             @selection-changed="onItemSelectionChanged"
             :selected="isItemSelected(item)"
-            :item-body="dragging && isTopMostSelectedItem(item) && selectedItems.length > 1 ? selectedItems.length + ' items...' : null"
             :class="{ 'select-none': holdingTouch }"
           />
         </transition-group>
@@ -124,6 +123,8 @@ export default {
       if (this.isMobile) return;
 
       if (this.selectedItems.length) return;
+
+      if (this.dragging) return;
 
       if (this.dragging === false) {
         this.visibleActionsItemId = item.id;
@@ -266,7 +267,6 @@ export default {
         classList.push('slide-in-actions');
       }else{
         classList.push('slide-out-actions');
-
       }
 
       if (this.selectedItems.length) {
@@ -297,6 +297,13 @@ export default {
 <style>
 [draggable='true'] {
   opacity: 0.5;
+}
+
+.sortable-ghost {
+  @apply bg-primary;
+  height: 5px;
+  overflow: hidden;
+  opacity: 0.3;
 }
 
 @media only screen and (max-width: 768px) {

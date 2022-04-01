@@ -28,8 +28,7 @@
         class="list-item-body-wrapper ml-3 w-full text-dark-jungle-green dark:text-gray-300 px-3 py-2 rounded-lg"
       >
         <div v-show="!editing && !shouldBeDeleted && !item.completed" @click="startEditing">
-          <ListItemBody v-if="!itemBody" :item="item" class="body" />
-          <span v-else>{{ itemBody }}</span>
+          <ListItemBody :item="item" class="body" />
         </div>
         <Input
           v-if="editing && !shouldBeDeleted && !item.completed"
@@ -79,10 +78,6 @@ export default {
     selected: {
       type: Boolean,
       default: false
-    },
-    itemBody: {
-      type: String,
-      default: null
     },
   },
   data() {
