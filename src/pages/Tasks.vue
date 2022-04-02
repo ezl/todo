@@ -32,6 +32,7 @@
       >
         <transition-group type="transition" name="items">
           <ListItem
+            v-show="!dragging || dragging && !isItemSelected(item) || selectedItems[0].id == item.id"
             v-for="item in items"
             :key="item.id"
             :item="item"
@@ -87,7 +88,8 @@ export default {
       visibleActionsItemId: null,
       showActionLabels: false,
       holdingTouch: false,
-      selectedItems: []
+      selectedItems: [],
+      orderedSelectedItems: [],
     };
   },
   methods: {
@@ -148,59 +150,53 @@ export default {
         this.selectedItems = this.selectedItems.filter(_item => _item.id != item.id);
       }
 
-      this.selectedItems.sort((a, b) => a.order - b.order);
+      this.orderedSelectedItems = [...this.selectedItems].sort((a, b) => a.order - b.order)
     },
     onItemsOrderChanged(data) {
       if (!data.moved || this.selectedItems.length === 0) return;
 
-      let items = Item.query()
-        .get()
-        .sort((a, b) => a.order - b.order);
-
-      // This will only include (while dragging) items that are not selected AND the top most item from the selected ones,
-      // the rest of the selected items will be excluded. In other words, they’ll be grouped together and represented by
-      // the top most one (which happens to be the item being dragged)
-      // For instance: If we have [A,B,C,D,E] and [C,D] are selected, we’ll get [A,B,C,E]
-      let filteredItems = this.items;
-
-      let dropIndex = data.moved.newIndex;
       let precedingItems = [];
       let followingItems = [];
+      let droppedItem = data.moved.element;
+      let droppedItemIndexInSelectedItemsArray;
+
+      // Get index of the item that was dropped in selectedItems array
+      this.selectedItems.find((item, index) => {
+        if (item.id === droppedItem.id) {
+          droppedItemIndexInSelectedItemsArray = index;
+        }
+      })
+      // Where we’ll place the items that were selected/dropped in the list
+      const dropIndex = data.moved.newIndex - droppedItemIndexInSelectedItemsArray;
 
       // If the selected items were moved to the beginning of the list
       if (dropIndex == 0) {
-        followingItems = items.filter(item => !this.isItemSelected(item));
+        followingItems = this.items.filter(item => !this.isItemSelected(item));
       }
 
       // If the selected items were dropped somewhere in the middle of the list
-      if (dropIndex > 0 && dropIndex < filteredItems.length - 1) {
-        precedingItems = items.slice(0, data.moved.newIndex);
-        followingItems = items.slice(data.moved.newIndex).filter(item => !this.isItemSelected(item));
+      if (dropIndex > 0 && dropIndex < this.items.length - 1) {
+        precedingItems = this.items.slice(0, dropIndex);
+        followingItems = this.items.slice(dropIndex).filter(item => !this.isItemSelected(item));
       }
 
       // If the selected items were dropped at the end of the list
-      if (dropIndex === filteredItems.length - 1) {
-        precedingItems = items.slice(0, data.moved.newIndex + 1).filter(item => !this.isItemSelected(item));
+      if (dropIndex === this.items.length - 1) {
+        precedingItems = this.items.slice(0, dropIndex + 1).filter(item => !this.isItemSelected(item));
       }
 
-      const newReorderedListItems = [...precedingItems, ...this.selectedItems, ...followingItems];
+
+      const newReorderedListItems = [...precedingItems, ...this.orderedSelectedItems, ...followingItems];
 
       this.list = newReorderedListItems;
     },
     shouldShowItemActions(item) {
       if (this.visibleActionsItemId === item.id && !this.selectedItems.length) return true;
 
-      if (this.isTopMostSelectedItem(item)) return true;
+      if (this.selectedItems.length && this.selectedItems[0].id === item.id) return true;
     },
     isItemSelected(item) {
       return this.selectedItems.some(_item => _item.id == item.id);
-    },
-    isTopMostSelectedItem(item) {
-      const topMostItem = [...this.selectedItems].sort((a, b) => a.order - b.order)[0];
-
-      if (topMostItem && topMostItem.id === item.id) return true;
-
-      return false;
     },
     onStartedDragging(e) {
       this.dragging = true;
@@ -232,12 +228,6 @@ export default {
           if (!matchesCurrentSearchTerm) return false;
         }
 
-        if (this.dragging) {
-          // We should not render this item if it’s part of a multi selection and being dragged.
-          // With the only exception being if it’s the top most selected item
-          if (this.isItemSelected(item) && !this.isTopMostSelectedItem(item)) return false;
-        }
-
         return true;
       });
 
@@ -265,7 +255,7 @@ export default {
 
       if (this.slideInActions) {
         classList.push('slide-in-actions');
-      }else{
+      } else {
         classList.push('slide-out-actions');
       }
 
