@@ -40,9 +40,9 @@
             :show-actions="shouldShowItemActions(item)"
             @started-editing="onStartedEditingItem"
             @finished-editing="onFinishedEditingItem"
-            @touchstart="onTouchStart(item)"
+            @touchstart="onTouchStart($event, item)"
             @touchmove="onTouchMove"
-            @touchend="onTouchEnd"
+            @touchend="onTouchEnd($event, item)"
             @mouseenter="onMouseEnter(item)"
             @mouseleave="onMouseLeave(item)"
             @selection-changed="onItemSelectionChanged"
@@ -105,7 +105,9 @@ export default {
     onFinishedEditingItem() {
       this.itemBeingEditedId = null;
     },
-    onTouchStart(item) {
+    onTouchStart(e, item) {
+      if(this.selectedItems.length === 0) e.preventDefault() 
+
       this.longTouchTimeoutId = setTimeout(() => this.onLongTouch(item), 800);
       this.holdingTouch = true;
     },
@@ -113,10 +115,15 @@ export default {
       clearTimeout(this.longTouchTimeoutId);
       this.longTouchTimeoutId = null;
     },
-    onTouchEnd(e) {
+    onTouchEnd(e, item) {
       clearTimeout(this.longTouchTimeoutId);
       this.longTouchTimeoutId = null;
       this.holdingTouch = false;
+
+      if(this.selectedItems.length === 0){
+        const itemComponentRef = this.$refs[`item-${item.id}`][0];
+        itemComponentRef.startEditing()
+      }
     },
     onLongTouch(item) {
       this.selectedItems.push(item)
