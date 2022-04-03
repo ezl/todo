@@ -108,7 +108,7 @@ export default {
     onTouchStart(e, item) {
       if(this.selectedItems.length === 0) e.preventDefault() 
 
-      this.longTouchTimeoutId = setTimeout(() => this.onLongTouch(item), 800);
+      this.longTouchTimeoutId = setTimeout(() => this.onLongTouch(item), 500);
       this.holdingTouch = true;
     },
     onTouchMove(e) {
