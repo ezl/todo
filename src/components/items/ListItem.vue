@@ -78,7 +78,7 @@ export default {
     selected: {
       type: Boolean,
       default: false
-    },
+    }
   },
   data() {
     return {
@@ -234,6 +234,10 @@ export default {
     }
   },
   async mounted() {
+    if (this.item.completed) {
+      this.strikeThroughBodyText();
+    }
+    
     if (this.item.tags_meta === null) {
       this.item.updateTagPositionsInBody();
     }
