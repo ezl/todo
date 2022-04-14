@@ -1,5 +1,11 @@
 <template>
-  <span @click="onClick" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave" :class="{ selected: tag.toggled }" class="px-3 py-1 mr-2 block cursor-pointer tag">
+  <span
+    @click="onClick"
+    @mouseenter="onMouseEnter"
+    @mouseleave="onMouseLeave"
+    :class="{ selected: tag.toggled }"
+    class="px-3 py-1 mr-2 block cursor-pointer tag"
+  >
     {{ tag.name }}
   </span>
 </template>
@@ -34,7 +40,12 @@ span {
   border-width: 2px;
   border-style: solid;
   border-color: transparent;
-  border-radius: 2px;
+  border-radius: 500px;
+  color: #dbdbdc;
+}
+
+.dark span {
+  color: #525257;
 }
 
 span.hover-state {
@@ -43,10 +54,12 @@ span.hover-state {
 
 span.selected {
   background: rgba(28, 27, 34, 0.1);
+  color: #000;
 }
 
 .dark span.selected {
   background: #303031;
+  color: #e9e9e9;
 }
 
 .dark span.hover-state {
