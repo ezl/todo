@@ -5,7 +5,8 @@
       @click="toggleMenu"
       class="z-30 p-2 rounded-lg hover:bg-bright-gray dark:hover:bg-dark-charcoal text-black dark:text-gray-400 absolute top-0 right-0 md:relative"
     >
-      <dots-horizontal-icon />
+      <dots-horizontal-icon v-show="!open" />
+      <close-icon v-show="open" />
     </button>
     <div
       v-if="open"
@@ -140,6 +141,7 @@ import ChevronRightIcon from '@/assets/images/icons/chevron-right.svg';
 import ChevronLeftIcon from '@/assets/images/icons/chevron-left.svg';
 import Setting from '@/models/Setting';
 import DotsHorizontalIcon from 'vue-material-design-icons/DotsHorizontal';
+import CloseIcon from 'vue-material-design-icons/Close';
 import LocalStorageHelper from '@/helpers/LocalStorageHelper';
 
 export default {
@@ -147,7 +149,8 @@ export default {
     CloseCircleOutlineIcon,
     ChevronRightIcon,
     DotsHorizontalIcon,
-    ChevronLeftIcon
+    ChevronLeftIcon,
+    CloseIcon
   },
   data() {
     return {
