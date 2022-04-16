@@ -1,15 +1,18 @@
 <template>
   <div class="w-full lg:w-8/12 lg:ml-20 mt-8 md:mt-16 overflow-x-hidden">
     <div v-show="isMobile && selectedItems.length" class="z-50 fixed inset-x-0 top-0 p-4 bg-lotion dark:bg-dark-gunmetal flex justify-end">
-      <button @click="selectedItems = []">cancel</button>
+      <button @click="clearSelectedItems">cancel</button>
     </div>
     <div class="flex px-2">
       <div
-        :class="{ invisible: !showActionLabels, hidden: isMobile }"
+        :class="actionLabelsWrapperDynamicClasses"
         class="w-2/12 lg:3/12 hidden md:flex flex-shrink-0 justify-between items-center italic dark:text-white text-black opacity-60 h-8"
       >
         <span class="text-xs text-gray-400">snooze</span>
-        <span class="text-xs text-gray-400">select</span>
+        <span v-if="!selectedItems.length" class="text-xs text-gray-400">select</span>
+        <button @click="clearSelectedItems" v-else class="unselect-btn">
+          <close-icon :size="18" class="text-primary"/>
+        </button>
         <span class="text-xs text-gray-400">drag</span>
       </div>
       <div class="flex relative items-start	w-full ml-0 md:ml-8">
@@ -18,7 +21,7 @@
       </div>
     </div>
     <div class="mt-3 md:mt-8 list-items-container">
-      <ListItemForm class="w-full md:w-10/12 lg:9/12 mr-0 m-auto px-2 pr-7 md:px-2 md:pl-8" />
+      <ListItemForm class="w-full md:w-10/12 lg:9/12 mr-0 m-auto px-2 pr-7 md:px-2 md:pl-10" />
       <draggable
         :class="listItemsWrapperDynamicClasses"
         :animation="100"
@@ -67,6 +70,7 @@ import Tag from '@/models/Tag';
 import draggable from 'vuedraggable';
 import SearchInput from '@/components/inputs/SearchInput';
 import SnoozeAction from '@/components/items/actions/SnoozeAction';
+import CloseIcon from 'vue-material-design-icons/Close';
 
 export default {
   components: {
@@ -75,7 +79,8 @@ export default {
     TagGroup,
     draggable,
     SearchInput,
-    SnoozeAction
+    SnoozeAction,
+    CloseIcon
   },
   data() {
     return {
@@ -100,7 +105,7 @@ export default {
       }
 
       this.itemBeingEditedId = itemId;
-      if (this.isMobile) this.selectedItems = [];
+      if (this.isMobile) this.clearSelectedItems();
     },
     onFinishedEditingItem() {
       this.itemBeingEditedId = null;
@@ -215,7 +220,10 @@ export default {
     },
     onEndedDragging(e) {
       this.dragging = false;
-    }
+    },
+    clearSelectedItems() {
+      this.selectedItems = [];
+    },
   },
   computed: {
     items() {
@@ -272,6 +280,19 @@ export default {
 
       return classList;
     },
+    actionLabelsWrapperDynamicClasses() {
+      const classList = [];
+
+      if (!this.showActionLabels && this.selectedItems.length === 0) {
+        classList.push('invisible');
+      }
+
+      if (this.isMobile) {
+        classList.push('hidden');
+      }
+
+      return classList;
+    },
     slideInActions() {
       return this.isMobile && this.selectedItems.length;
     }
@@ -301,6 +322,13 @@ export default {
   height: 5px;
   overflow: hidden;
   opacity: 0.3;
+}
+
+.unselect-btn{
+  border-style: solid;
+  border-width: 2px;
+  @apply border-primary;
+  @apply text-primary;
 }
 
 @media only screen and (max-width: 768px) {

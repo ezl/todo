@@ -12,7 +12,7 @@
     <div
       ref="actions"
       :class="listItemActionsDynamicClasses"
-      class="flex-shrink-0 flex justify-between items-center list-item-actions px-2 pt-1 w-2/12 lg:3/12 flex"
+      class="flex-shrink-0 flex justify-between items-center list-item-actions px-2 pt-1 w-2/12 lg:3/12 flex md:ml-2"
     >
       <SnoozeAction class="hidden md:inline" />
       <SelectAction :selected="selected" @click="onToggleSelection" class="select-action" />
