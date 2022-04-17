@@ -10,6 +10,7 @@
           ref="input"
           v-model="query"
           @input="onChange"
+          @keydown="onKeyDown"
           :class="{ '': expand }"
           :disabled="!expand"
           class=" w-full text-dark-jungle-green dark:text-gray-200 focus:outline-none caret-primary p-2"
@@ -70,6 +71,9 @@ export default {
     },
     onChange(e) {
       this.$emit('input', e.target.value);
+    },
+    onKeyDown(e){
+      if (e.key === 'Escape') this.close();
     }
   }
 };
