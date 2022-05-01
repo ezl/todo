@@ -14,7 +14,7 @@
 
 <script>
 import CogOutlineIcon from 'vue-material-design-icons/CogOutline';
-import SettingsDropdwnMenu from '@/components/SettingsDropdownMenu';
+import SettingsDropdwnMenu from '@/components/settings/SettingsDropdownMenu';
 
 export default {
   components: {

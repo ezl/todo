@@ -57,3 +57,27 @@ body {
     background-position:  4px 50%;
   }
 }
+
+input {
+  background: #f2f2f2;
+  border-radius: 8px;
+}
+
+.dark input {
+  background: #141317;
+}
+
+.spinner{
+  animation: spin 1s linear infinite;
+  fill: #fd4b30;
+  color: transparent;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

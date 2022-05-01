@@ -96,14 +96,8 @@ export default {
 }
 
 .search-input-wrapper input {
-  background: #f2f2f2;
-  border-radius: 10px;
   padding-left: 55px;
   z-index: 6;
-}
-
-.dark .search-input-wrapper input {
-  background: #141317;
 }
 
 .clear-btn {

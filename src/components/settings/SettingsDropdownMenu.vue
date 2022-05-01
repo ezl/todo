@@ -14,13 +14,8 @@
     >
       <div :class="{ 'show-sub-menu': currentSubMenuId }" class="menu-container">
         <div class="menu main-menu">
-          <div>
-            <h4 class="text-center">Settings</h4>
-            <div class="flex justify-between items-center mt-8 text-gray-400">
-              <span>eric@badtodo.com</span>
-              <close-circle-outline-icon :size="16" />
-            </div>
-          </div>
+          <h4 class="text-center">Settings</h4>
+          <Syncing class="mt-8" />
           <div @click="showSubMenu(subMenuIds.hotkeys)" class="flex justify-between items-center mt-4 cursor-pointer">
             <span>See hotkeys (press ? to toggle)</span>
             <chevronRightIcon class="text-primary" />
@@ -110,6 +105,7 @@
             <span @click="exportData" class="cursor-pointer hover:text-primary">Export data</span>
           </div>
         </div>
+
         <div class="sub-menu-container">
           <div :ref="subMenuIds.tagSettings" class="menu hidden">
             <div @click="showMainMenu(subMenuIds.tagSettings)" class="flex items-center cursor-pointer">
@@ -143,6 +139,7 @@ import Setting from '@/models/Setting';
 import DotsHorizontalIcon from 'vue-material-design-icons/DotsHorizontal';
 import CloseIcon from 'vue-material-design-icons/Close';
 import LocalStorageHelper from '@/helpers/LocalStorageHelper';
+import Syncing from '@/components/settings/Syncing';
 
 export default {
   components: {
@@ -150,7 +147,8 @@ export default {
     ChevronRightIcon,
     DotsHorizontalIcon,
     ChevronLeftIcon,
-    CloseIcon
+    CloseIcon,
+    Syncing
   },
   data() {
     return {
@@ -274,6 +272,8 @@ export default {
       if (this.$refs.container.contains(e.target)) return;
       // What was clicked is the menu itself
       if (this.$refs.container === e.target) return;
+      // Make sure that this element actually exists
+      if (!document.body.contains(e.target)) return;
 
       this.open = false;
       this.showDropdownToggleButton = true;
@@ -295,6 +295,7 @@ export default {
 .settings-dropdown-menu .dropdown-body {
   left: -280px;
   overflow: hidden;
+  min-height: 500px;
 }
 
 .exporting label,
