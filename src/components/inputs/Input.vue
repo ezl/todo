@@ -24,6 +24,7 @@
 <script>
 import TagsSuggestionPopup from '@/components/tags/TagsSuggestionPopup';
 import Tag from '@/models/Tag';
+import { findParent } from '@/helpers/dom.js'
 
 export default {
   components: {
@@ -226,9 +227,19 @@ export default {
 
       const rect = newRange.getBoundingClientRect();
 
+      let p = findParent(this.$el, (el) => {
+        if(window.getComputedStyle(el).getPropertyValue('position') == 'relative'){
+            return true
+        }
+
+        if(window.getComputedStyle(el).getPropertyValue('transform') != 'none'){
+            return true
+        }
+      })
+    
       return {
         x: rect.right,
-        y: rect.top + window.scrollY
+        y: rect.top + (p ? p.scrollY : window.scrollY)
       };
     },
     showTagAssignmentGuide() {

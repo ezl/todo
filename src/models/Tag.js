@@ -4,6 +4,7 @@ import ItemTag from './ItemTag';
 import LocalStorageHelper from '../helpers/LocalStorageHelper';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
+import ChangeLogger from '../sync/ChangeLogger';
 
 export default class Tag extends BaseModel {
   static entity = 'tags';
@@ -18,17 +19,19 @@ export default class Tag extends BaseModel {
     };
   }
 
-  static async add(name) {
+  static async add(name, sync = true, options = {}) {
     if (name === undefined) {
       throw 'Name of the tag is required';
     }
 
     const tag = new this();
     tag.name = name;
-    tag.created_at = moment.utc().valueOf();
-    tag.id = uuidv4();
+    tag.created_at = options.created_at ? options.created_at : moment.utc().format();
+    tag.id = options.uuid ? options.uuid : uuidv4();
 
     await tag.$save();
+
+    if(sync) ChangeLogger.tagCreated(tag)
 
     return tag;
   }

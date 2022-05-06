@@ -76,5 +76,6 @@ export default {
 <style>
 #tags-suggestion-popup {
   width: 300px;
+  z-index: 999;
 }
 </style>

@@ -18,11 +18,11 @@ export default {
   },
   computed: {
     hashTagEntities() {
-      if (this.item.tags_meta === null) return [];
+      if (this.item.tag_positions === null) return [];
 
       const entities = [];
 
-      this.item.tags_meta.forEach(tagMeta => {
+      this.item.tag_positions.forEach(tagMeta => {
         const attached = this.item.tags.some(tag => tag.name.toLowerCase().trim() === tagMeta.tag.toLowerCase().trim());
         if (!attached) {
           return;

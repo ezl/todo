@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full lg:w-8/12 lg:ml-20 mt-8 md:mt-16 overflow-x-hidden">
+  <div class="w-full lg:w-8/12 lg:ml-20 mt-8 md:mt-16">
     <div v-show="isMobile && selectedItems.length" class="z-50 fixed inset-x-0 top-0 p-4 bg-lotion dark:bg-dark-gunmetal flex justify-end">
       <button @click="clearSelectedItems">cancel</button>
     </div>
@@ -11,7 +11,7 @@
         <span class="text-xs text-gray-400 opacity-60">snooze</span>
         <span v-if="!selectedItems.length" class="text-xs text-gray-400 opacity-60">select</span>
         <button @click="clearSelectedItems" v-else class="unselect-btn">
-          <close-icon :size="18" class="text-primary"/>
+          <close-icon :size="18" class="text-primary" />
         </button>
         <span class="text-xs text-gray-400 opacity-60 ">drag</span>
       </div>
@@ -35,7 +35,7 @@
       >
         <transition-group type="transition" name="items">
           <ListItem
-            v-show="!dragging || dragging && !isItemSelected(item) || selectedItems[0].id == item.id"
+            v-show="!dragging || (dragging && !isItemSelected(item)) || selectedItems[0].id == item.id"
             v-for="item in items"
             :key="item.id"
             :item="item"
@@ -71,6 +71,7 @@ import draggable from 'vuedraggable';
 import SearchInput from '@/components/inputs/SearchInput';
 import SnoozeAction from '@/components/items/actions/SnoozeAction';
 import CloseIcon from 'vue-material-design-icons/Close';
+import ChangeLogger from '../sync/ChangeLogger';
 
 export default {
   components: {
@@ -94,7 +95,7 @@ export default {
       showActionLabels: false,
       holdingTouch: false,
       selectedItems: [],
-      orderedSelectedItems: [],
+      orderedSelectedItems: []
     };
   },
   methods: {
@@ -111,7 +112,7 @@ export default {
       this.itemBeingEditedId = null;
     },
     onTouchStart(e, item) {
-      if(this.selectedItems.length === 0) e.preventDefault() 
+      if (this.selectedItems.length === 0) e.preventDefault();
 
       this.longTouchTimeoutId = setTimeout(() => this.onLongTouch(item), 500);
       this.holdingTouch = true;
@@ -125,13 +126,13 @@ export default {
       this.longTouchTimeoutId = null;
       this.holdingTouch = false;
 
-      if(this.selectedItems.length === 0){
+      if (this.selectedItems.length === 0) {
         const itemComponentRef = this.$refs[`item-${item.id}`][0];
-        itemComponentRef.startEditing()
+        itemComponentRef.startEditing();
       }
     },
     onLongTouch(item) {
-      this.selectedItems.push(item)
+      this.selectedItems.push(item);
     },
     onMouseEnter(item) {
       if (this.isMobile) return;
@@ -162,7 +163,7 @@ export default {
         this.selectedItems = this.selectedItems.filter(_item => _item.id != item.id);
       }
 
-      this.orderedSelectedItems = [...this.selectedItems].sort((a, b) => a.order - b.order)
+      this.orderedSelectedItems = [...this.selectedItems].sort((a, b) => a.order - b.order);
     },
     onItemsOrderChanged(data) {
       if (!data.moved || this.selectedItems.length === 0) return;
@@ -177,7 +178,7 @@ export default {
         if (item.id === droppedItem.id) {
           droppedItemIndexInSelectedItemsArray = index;
         }
-      })
+      });
       // Where we’ll place the items that were selected/dropped in the list
       const dropIndex = data.moved.newIndex - droppedItemIndexInSelectedItemsArray;
 
@@ -196,7 +197,6 @@ export default {
       if (dropIndex === this.items.length - 1) {
         precedingItems = this.items.slice(0, dropIndex + 1).filter(item => !this.isItemSelected(item));
       }
-
 
       const newReorderedListItems = [...precedingItems, ...this.orderedSelectedItems, ...followingItems];
 
@@ -258,11 +258,13 @@ export default {
       get() {
         return this.items;
       },
-      set(items) {
-        items.forEach((item, index) => {
+      async set(items) {
+        for (let index = 0; index < items.length; index++) {
+          const item = items[index];
           item.order = index + 1;
           item.$save();
-        });
+          await ChangeLogger.itemPropertyValueChanged(item.id, 'order', index + 1);
+        }
       }
     },
     listItemsWrapperDynamicClasses() {
@@ -324,7 +326,7 @@ export default {
   opacity: 0.3;
 }
 
-.unselect-btn{
+.unselect-btn {
   border-style: solid;
   border-width: 2px;
   @apply border-primary;

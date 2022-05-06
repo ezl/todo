@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex justify-start items-start list-item-wrapper mt-2 md:m-0 px-2 md:p-0 relative "
+    class="flex justify-start items-start list-item-wrapper mt-2 md:m-0 px-2 md:p-0 relatives "
     @mouseenter="$emit('mouseenter', $event)"
     @mouseleave="$emit('mouseleave', $event)"
     @keydown="onKeyDown"
@@ -24,21 +24,20 @@
         <Checkbox v-model="item.completed" @click="onCompletionStatusChanged" />
       </div>
       <div
-        :class="{ editing: editing && !shouldBeDeleted && !item.completed, 'bg-blue-500': shouldBeDeleted }"
+        :class="{ editing: editing && !item.completed }"
         class="list-item-body-wrapper ml-3 w-full text-dark-jungle-green dark:text-gray-300 px-3 py-2 rounded-lg"
       >
-        <div v-show="!editing && !shouldBeDeleted && !item.completed" @click="startEditing">
+        <div v-show="!editing && !item.completed" @click="startEditing">
           <ListItemBody :item="item" class="body" />
         </div>
         <Input
-          v-if="editing && !shouldBeDeleted && !item.completed"
+          v-if="editing && !item.completed"
           v-model="body"
           @submit="submit"
           ref="input"
           @tag-selected="onTagSelected"
           inputClasses="p-0"
         />
-        <p v-if="shouldBeDeleted" class="bg-blue-500 text-white w-full">{{ body }}</p>
         <p v-show="item.completed" ref="animatedBody" :class="{ strikethrough: item.completed }" class="">{{ body }}</p>
       </div>
     </div>
@@ -54,6 +53,7 @@ import Input from '@/components/inputs/Input';
 import DragAction from '@/components/items/actions/DragAction';
 import SelectAction from '@/components/items/actions/SelectAction';
 import SnoozeAction from '@/components/items/actions/SnoozeAction';
+import ChangeLogger from '../../sync/ChangeLogger';
 
 export default {
   components: {
@@ -84,7 +84,6 @@ export default {
     return {
       editing: false,
       body: this.item.body,
-      shouldBeDeleted: false,
       isMobile: screen.width <= 768,
       selectedTags: []
     };
@@ -106,12 +105,15 @@ export default {
       this.stopEditing();
     },
     async save() {
+      if (this.item.body === this.body) return;
+
       this.item.body = this.body;
       await this.item.$save();
       await this.item.detachRemovedTags();
       await this.item.assignSelectedTags(this.selectedTags);
       this.item.updateTagPositionsInBody();
       this.selectedTags = [];
+      ChangeLogger.itemPropertyValueChanged(this.item.id, 'body', this.body);
     },
     onCompletionStatusChanged() {
       this.item.$save();
@@ -119,6 +121,8 @@ export default {
       if (this.item.completed) {
         this.$nextTick(this.strikeThroughBodyText);
       }
+
+      ChangeLogger.itemPropertyValueChanged(this.item.id, 'completed_at', this.item.completed_at);
     },
 
     startEditing() {
@@ -126,7 +130,7 @@ export default {
       this.$emit('started-editing', this.item.id);
     },
     async stopEditing() {
-      if (this.shouldBeDeleted || this.body.trim().length === 0) {
+      if (this.body.trim().length === 0) {
         await this.item.$delete();
       } else {
         this.save();
@@ -136,8 +140,6 @@ export default {
       this.$emit('finished-editing');
     },
     onKeyDown(e) {
-      if (e.keyCode == 46) this.shouldBeDeleted = true;
-
       if (e.key === 'Escape' || e.key === 'Esc') this.stopEditing();
     },
     strikeThroughBodyText() {
@@ -237,9 +239,24 @@ export default {
     if (this.item.completed) {
       this.strikeThroughBodyText();
     }
-    
-    if (this.item.tags_meta === null) {
+
+    if (this.item.tag_positions === null) {
       this.item.updateTagPositionsInBody();
+    }
+  },
+  watch: {
+    item: {
+      handler: function(newVal, oldVal) {
+        // Changes made from outside of this component
+        
+        // Ignore if tag suggestions box is visible 
+        if(!document.querySelector('#tags-suggestion-popup')) this.body = newVal.body;
+
+        if(newVal.completed_at != oldVal.completed_at){
+          this.onCompletionStatusChanged()
+        }
+      },
+      deep: true
     }
   }
 };

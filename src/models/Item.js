@@ -5,6 +5,7 @@ import LocalStorageHelper from '../helpers/LocalStorageHelper';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 import Setting from './Setting';
+import ChangeLogger from '../sync/ChangeLogger';
 
 export default class Item extends BaseModel {
   static entity = 'items';
@@ -16,7 +17,7 @@ export default class Item extends BaseModel {
       completed_at: this.attr(null),
       created_at: this.attr(null),
       order: this.attr(null),
-      tags_meta: this.attr(null),
+      tag_positions: this.attr(null),
       tags: this.belongsToMany(Tag, ItemTag, 'item_id', 'tag_id')
     };
   }
@@ -35,12 +36,12 @@ export default class Item extends BaseModel {
     });
   }
 
-  static async add(body, completed) {
-    if (body === undefined || completed === undefined) {
+  static async add(body, completed, shouldSync = true, options) {
+    if (body === undefined || completed === undefined && options.completed_at === undefined) {
       throw '"body" and "completed" are required';
     }
 
-    if (typeof completed !== 'boolean') {
+    if (typeof completed !== 'boolean' && options.completed_at === undefined) {
       throw '"completed" must be a boolean';
     }
 
@@ -67,17 +68,28 @@ export default class Item extends BaseModel {
 
     const item = new this();
     item.body = body;
-    item.completed_at = completed ? moment.utc().valueOf() : null;
-    item.created_at = moment.utc().valueOf();
+    item.completed_at = completed ? moment.utc().format() : null;
+    item.created_at = moment.utc().format();
     item.order = newItemOrder;
     item.id = uuidv4();
 
+    if(options != undefined && typeof options === 'object'){
+      if(options.completed_at != undefined) item.completed_at = options.completed_at
+      if(options.created_at != undefined) item.created_at = options.created_at
+      if(options.order != undefined) item.order = options.order
+      if(options.uuid != undefined) item.id = options.uuid
+    }    
+
     await item.$save();
 
-    // Re-arrange items positions/orders if an item is to be placed at the bottom (position 1),
-    // move the new item from temp position 0 to 1, then move up the item that was at position 1 to 2 and so on
+    if(shouldSync){
+      ChangeLogger.itemCreated(item)
+    }
 
-    if (newItemOrder === 0) {
+    // Re-arrange items positions/orders if an item is to be placed at the bottom (0) (position 1),
+    // move the new item from temp position 0 to 1, then move up the item that was at position 1 to 2 and so on
+    // We first have to make sure we have not been given an explicit position 
+    if (newItemOrder === 0 && options === undefined) {
       await this.updateOrders();
     }
 
@@ -93,13 +105,16 @@ export default class Item extends BaseModel {
       const item = items[index];
       item.order = index + 1;
       await item.$save();
+      await ChangeLogger.itemPropertyValueChanged(item.id, 'order', item.order)
     }
   }
 
   // First checks if an attached tag is present in the list item body,
   // and removes/detaches said tag from this item if no reference was found within its body
-  async detachRemovedTags() {
-    const currentAttachedTags = Tag.query()
+  // We’ll set sync to false when we call this function while applying/merging changes from other devices 
+  // We don’t want to push changes when we call this during merging
+  async detachRemovedTags(shouldSync = true) {
+    let currentAttachedTags = Tag.query()
       .whereHas('items', query => query.where('id', this.id))
       .get();
 
@@ -126,7 +141,9 @@ export default class Item extends BaseModel {
 
         relations.forEach(relation => relation.$delete());
 
-        this.tags_meta = this.tags_meta.filter(meta => {
+        if(!this.tag_positions) continue
+
+        this.tag_positions = this.tag_positions.filter(meta => {
           if (meta.tag.toLowerCase().trim() != tag.name.toLowerCase().trim()) {
             return true;
           }
@@ -136,6 +153,15 @@ export default class Item extends BaseModel {
 
         await this.$save();
       }
+    }
+
+    if(shouldSync){
+      const currentAttachedTagIds = Tag.query()
+        .whereHas('items', query => query.where('id', this.id))
+        .get()
+        .map(t => t.id)
+  
+      ChangeLogger.itemAttachedTagsChanged(this.id, currentAttachedTagIds);
     }
   }
 
@@ -155,11 +181,13 @@ export default class Item extends BaseModel {
       }
     });
     await this.$save();
+
+    ChangeLogger.itemAttachedTagsChanged(this.id, uniqueTags.map(t => t.id));
   }
 
   // Keeps tracks of start and end positions of the attached tags in the list item body.
   // This will be used to highlight them within the body
-  async updateTagPositionsInBody() {
+  async updateTagPositionsInBody(shouldSync = true) {
     let tags = this.tags;
 
     if (tags.length === 0) {
@@ -181,9 +209,10 @@ export default class Item extends BaseModel {
       newTagPositions = [...newTagPositions, ...positions];
     }
 
-    this.tags_meta = newTagPositions;
+    this.tag_positions = newTagPositions;
 
     await this.$save();
+    if(shouldSync) await ChangeLogger.itemPropertyValueChanged(this.id, 'tag_positions', this.tag_positions)
   }
 
   // Looks through the list item body and finds all occurrences of the provided tag.
@@ -217,7 +246,7 @@ export default class Item extends BaseModel {
   }
 
   set completed(completed) {
-    this.completed_at = completed ? moment.utc().valueOf() : null;
+    this.completed_at = completed ? moment.utc().format() : null;
   }
 
   get completed() {

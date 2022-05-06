@@ -4,7 +4,6 @@ import LocalStorageHelper from './helpers/LocalStorageHelper';
 import Item from './models/Item';
 import Tag from './models/Tag';
 
-
 let verificationStatusCheckTimerId = null;
 
 store.subscribeAction({
@@ -61,6 +60,7 @@ const onLogout = async () => {
   LocalStorageHelper.setValue({items: []})
   LocalStorageHelper.setValue({tags: []})
   LocalStorageHelper.setValue({itemTagRelationships: []})
+
 };
 
 const loginVerification = async () => {
@@ -106,34 +106,12 @@ const checkVerificationStatus = async clientTrackingToken => {
 
 const getUserData = async () => {
   try {
-    const items = Item.query()
-      .with('tags')
-      .get();
-    const tags = Tag.all();
-    const data = {};
-
-    data.items = items.map(item => {
-      return {
-        uuid: item.id,
-        body: item.body,
-        order: item.order,
-        completed_at: item.completed_at,
-        tag_positions: item.tags_meta,
-        related_tag_uuids: item.tags.map(tag => tag.id),
-        created_at: item.created_at
-      };
-    });
-
-    data.tags = tags.map(item => {
-      return {
-        uuid: item.id,
-        name: item.name,
-        created_at: item.created_at
-      };
-    });
+    // Get every change that was created offline (does not belong to any particular account),
+    // and attach them to currently logged in user’s account 
+    let changeLogs = await LocalStorageHelper.getValue({ changeLogs: [] });
 
     const response = await axios.post(`/user-data/`, {
-      local_data: data
+      change_logs: changeLogs
     });
 
     Tag.insert({
@@ -146,6 +124,7 @@ const getUserData = async () => {
 
     const auth = await LocalStorageHelper.getValue({ auth: {} });
     auth.initialized_data = true;
+    LocalStorageHelper.setValue({ lastSyncedAt: response.data.last_synced_at });
     LocalStorageHelper.setValue({ auth });
   } catch (error) {
     console.error(error);
