@@ -18,7 +18,7 @@ if ((typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) || ty
   window.browser = require('webextension-polyfill');
 }
 
-axios.defaults.baseURL = 'http://localhost:8000/api';
+axios.defaults.baseURL = 'https://dilaaal.com/api';
 
 const init = async () => {
   await LocalStorageHelper.restore();
