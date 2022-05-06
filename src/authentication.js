@@ -34,6 +34,10 @@ store.subscribe(mutation => {
   }
 });
 
+window.onfocus = function () { 
+  loginVerification()
+};
+
 const onLogin = async (token) => {
   const auth = await LocalStorageHelper.getValue({ auth: {} });
   auth.token = token;
@@ -82,6 +86,13 @@ const startCheckingVerificationStatus = clientTrackingToken => {
   if (verificationStatusCheckTimerId != null) return;
 
   verificationStatusCheckTimerId = setInterval(() => checkVerificationStatus(clientTrackingToken), 5000);
+
+  // stop after 5mins
+  setTimeout(() => {
+    console.log('timeout')
+    clearInterval(verificationStatusCheckTimerId)
+    verificationStatusCheckTimerId = null
+  }, 30000);
 };
 
 const checkVerificationStatus = async clientTrackingToken => {

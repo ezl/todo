@@ -8,18 +8,12 @@ import ItemTag from '../models/ItemTag';
 import { ENTYTY_TYPE_ITEM, ENTYTY_TYPE_TAG } from './entity-types';
 import { CHANGE_TYPE_PROPERTY_VALUE_CHANGE, CHANGE_TYPE_ITEM_ATTACHED_TAGS_CHANGE, CHANGE_TYPE_CREATION, CHANGE_TYPE_DELETION } from './change-types';
 
-let syncingTimerId = null;
-const syncingInterval = 5000;
-
 store.subscribe(mutation => {
   switch (mutation.type) {
     case 'auth/SET_TOKEN':
       if (mutation.payload) {
-        syncingTimerId = setInterval(pullLatestChanges, syncingInterval);
+        pullLatestChanges()
       } else {
-        clearInterval(syncingTimerId);
-        syncingTimerId = null;
-
         LocalStorageHelper.setValue({ changeLogs: [] });
         LocalStorageHelper.setValue({ lastSyncedAt: null });
       }
