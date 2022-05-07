@@ -9,6 +9,7 @@
       </div>
     </nav>
     <router-view />
+    <notifications position="bottom right" width="100%" />
   </div>
 </template>
 

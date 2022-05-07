@@ -73,7 +73,12 @@ export default {
       logout: 'auth/logout'
     }),
     async login() {
-      this.sendVerificationEmail(this.email);
+      try {
+        await this.sendVerificationEmail(this.email);      
+        this.$notify({title: 'Please click t  he verification link in your inbox.'})  
+      } catch (error) {
+        this.$notify({title: 'Could not send verification email, please try again later.'})  
+      }
     },
     async signOutOrAbortVerification() {
       if (this.isAwaitingVerification) {

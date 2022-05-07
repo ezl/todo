@@ -6,10 +6,13 @@ import '@/assets/css/main.css';
 import LocalStorageHelper from '../helpers/LocalStorageHelper';
 import LottieAnimation from 'lottie-web-vue';
 import axios from 'axios';
+import Notifications from 'vue-notification'
+
 require('../authentication')
 require('../sync/update')
 
 Vue.use(LottieAnimation);
+Vue.use(Notifications)
 
 const APP_VERSION = '0.0.1'
 

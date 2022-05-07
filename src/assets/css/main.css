@@ -81,3 +81,8 @@ input {
     transform: rotate(360deg);
   }
 }
+
+.vue-notification{
+  border: none !important;
+  @apply !bg-primary !m-0 !text-center;
+}

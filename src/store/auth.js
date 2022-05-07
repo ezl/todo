@@ -59,6 +59,7 @@ export default {
       } catch (error) {
         commit('SET_SENDING_EMAIL', false);
         console.error(error);
+        throw('Could not send verification email')
       }
     },
     logout({ commit }){
