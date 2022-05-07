@@ -13,8 +13,13 @@ store.subscribeAction({
       startCheckingVerificationStatus(state.auth.client_tracking_token);
     }
 
-    if (action.type === 'auth/logout') onLogout();
+  },
+  before: (action, state) => {
+    // Whether or not the user is logging out after successfully verifying their email
+    const isVerified = !store.getters['auth/isAwaitingVerification']
+    if (action.type === 'auth/logout') onLogout(isVerified);
   }
+
 });
 
 store.subscribe(mutation => {
@@ -51,19 +56,21 @@ const onLogin = async (token) => {
   getUserData();
 }
 
-const onLogout = async () => {
+const onLogout = async (isVerified) => {
   // Abort checking verification status if user signs out
   if (verificationStatusCheckTimerId != null) {
     clearInterval(verificationStatusCheckTimerId);
     verificationStatusCheckTimerId = null
   }
 
-  // clear items/tags
-  Item.deleteAll()
-  Tag.deleteAll()
-  LocalStorageHelper.setValue({items: []})
-  LocalStorageHelper.setValue({tags: []})
-  LocalStorageHelper.setValue({itemTagRelationships: []})
+  if(isVerified){
+    // clear items/tags
+    Item.deleteAll()
+    Tag.deleteAll()
+    LocalStorageHelper.setValue({items: []})
+    LocalStorageHelper.setValue({tags: []})
+    LocalStorageHelper.setValue({itemTagRelationships: []})
+  }
 
 };
 
