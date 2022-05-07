@@ -131,6 +131,7 @@ export default {
     },
     async stopEditing() {
       if (this.body.trim().length === 0) {
+        await ChangeLogger.entityDeleted('item', this.item.id)
         await this.item.$delete();
       } else {
         this.save();

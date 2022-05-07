@@ -13,9 +13,6 @@ store.subscribe(mutation => {
     case 'auth/SET_TOKEN':
       if (mutation.payload) {
         pullLatestChanges()
-      } else {
-        LocalStorageHelper.setValue({ changeLogs: [] });
-        LocalStorageHelper.setValue({ lastSyncedAt: null });
       }
       break;
     default:

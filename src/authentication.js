@@ -70,6 +70,8 @@ const onLogout = async (isVerified) => {
     LocalStorageHelper.setValue({items: []})
     LocalStorageHelper.setValue({tags: []})
     LocalStorageHelper.setValue({itemTagRelationships: []})
+    LocalStorageHelper.setValue({ changeLogs: [] });
+    LocalStorageHelper.setValue({ lastSyncedAt: null });
   }
 
 };
