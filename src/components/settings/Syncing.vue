@@ -75,7 +75,7 @@ export default {
     async login() {
       try {
         await this.sendVerificationEmail(this.email);      
-        this.$notify({title: 'Please click t  he verification link in your inbox.'})  
+        this.$notify({title: 'Please click the verification link in your inbox.'})  
       } catch (error) {
         this.$notify({title: 'Could not send verification email, please try again later.'})  
       }
