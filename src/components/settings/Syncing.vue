@@ -98,12 +98,12 @@ export default {
 
 <style scoped>
 input {
-  width: 284px;
+  width: 100%;
   transition: 0.4s width !important;
 }
 
 input.shrink {
-  width: 254px;
+  width: calc(100% - 30px);
 }
 
 .submit-btn {
