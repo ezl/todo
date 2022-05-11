@@ -9,7 +9,7 @@ import axios from 'axios';
 import Notifications from 'vue-notification'
 
 require('../authentication')
-require('../sync/update')
+require('../sync')
 
 Vue.use(LottieAnimation);
 Vue.use(Notifications)

@@ -38,7 +38,7 @@ const buildConfig = env => {
     mode: 'development',
     devtool: 'cheap-module-source-map',
     entry: {
-      index: './src/newtab/index.js'
+      index: './src/app/index.js'
     },
     resolve: {
       alias: {
@@ -95,7 +95,7 @@ const buildConfig = env => {
     plugins: [
       new VueLoaderPlugin(),
       new HtmlWebpackPlugin({
-        template: './src/newtab/index.html',
+        template: './src/app/index.html',
         filename: 'index.html',
         chunks: ['index'],
         title : target === 'web' ? 'Bad to do' : 'New tab',
