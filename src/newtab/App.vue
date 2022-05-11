@@ -9,7 +9,7 @@
       </div>
     </nav>
     <router-view />
-    <notifications position="bottom right" width="100%" :duration="6000"/>
+    <notifications position="bottom right" width="100%" :duration="6000" :ignore-duplicates="true"/>
   </div>
 </template>
 

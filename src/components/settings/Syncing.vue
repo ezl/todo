@@ -16,6 +16,7 @@
           <input
             type="text"
             v-model="email"
+            @keyup.enter="login"
             :class="{ shrink: isValidEmail }"
             class=" w-full text-dark-jungle-green dark:text-gray-200 focus:outline-none caret-primary py-1 px-2"
           />
@@ -73,11 +74,16 @@ export default {
       logout: 'auth/logout'
     }),
     async login() {
+      if(!this.isValidEmail){
+        this.$notify({title: 'Please enter a valid email address.'})  
+        return
+      }
+
       try {
         await this.sendVerificationEmail(this.email);      
         this.$notify({title: 'Please click the verification link in your inbox.'})  
       } catch (error) {
-        this.$notify({title: 'Could not send verification email, please try again later.'})  
+        this.$notify({title: 'Could not send the verification email, please try again later.'})  
       }
     },
     async signOutOrAbortVerification() {
