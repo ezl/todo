@@ -9,7 +9,7 @@
       </div>
     </nav>
     <router-view />
-    <notifications position="bottom right" width="100%" />
+    <notifications position="bottom right" width="100%" :duration="6000"/>
   </div>
 </template>
 
