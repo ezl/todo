@@ -21,7 +21,7 @@ if ((typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) || ty
   window.browser = require('webextension-polyfill');
 }
 
-axios.defaults.baseURL = 'https://dilaaal.com/api';
+axios.defaults.baseURL = 'https://www.badtodo.com/api';
 
 const init = async () => {
   await LocalStorageHelper.restore();
