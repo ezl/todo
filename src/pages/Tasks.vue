@@ -224,6 +224,12 @@ export default {
     clearSelectedItems() {
       this.selectedItems = [];
     },
+    async onItemsReordered(items) {
+      for (let index = 0; index < items.length; index++) {
+        const item = items[index];
+        await ChangeLogger.itemPropertyValueChanged(item.id, 'order', index + 1);
+      }
+    }
   },
   computed: {
     items() {
@@ -258,13 +264,13 @@ export default {
       get() {
         return this.items;
       },
-      async set(items) {
-        for (let index = 0; index < items.length; index++) {
-          const item = items[index];
+      set(items) {
+        items.forEach((item, index) => {
           item.order = index + 1;
           item.$save();
-          await ChangeLogger.itemPropertyValueChanged(item.id, 'order', index + 1);
-        }
+        });
+
+        this.onItemsReordered(items);
       }
     },
     listItemsWrapperDynamicClasses() {
