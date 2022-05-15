@@ -49,6 +49,7 @@
             @mouseenter="onMouseEnter(item)"
             @mouseleave="onMouseLeave(item)"
             @selection-changed="onItemSelectionChanged"
+            @completion-status-changed="onItemCompletionStatusChanged"
             :selected="isItemSelected(item)"
             :class="{ 'select-none': holdingTouch }"
           />
@@ -67,6 +68,7 @@ import ListItem from '@/components/items/ListItem';
 import TagGroup from '@/components/tags/TagGroup';
 import Item from '@/models/Item';
 import Tag from '@/models/Tag';
+import Setting from '@/models/Setting';
 import draggable from 'vuedraggable';
 import SearchInput from '@/components/inputs/SearchInput';
 import SnoozeAction from '@/components/items/actions/SnoozeAction';
@@ -95,7 +97,8 @@ export default {
       showActionLabels: false,
       holdingTouch: false,
       selectedItems: [],
-      orderedSelectedItems: []
+      orderedSelectedItems: [],
+      itemsMarkedAsCompletedIds: [],
     };
   },
   methods: {
@@ -224,6 +227,13 @@ export default {
     clearSelectedItems() {
       this.selectedItems = [];
     },
+    onItemCompletionStatusChanged(item) {
+      if(item.completed_at){
+        this.itemsMarkedAsCompletedIds.push(item.id)
+      }else{
+        this.itemsMarkedAsCompletedIds = this.itemsMarkedAsCompletedIds.filter(id => id != item.id)
+      }
+    },
   },
   computed: {
     items() {
@@ -241,6 +251,13 @@ export default {
         if (this.listItemSearchQuery != '') {
           const matchesCurrentSearchTerm = item.body.toLowerCase().includes(this.listItemSearchQuery.toLowerCase());
           if (!matchesCurrentSearchTerm) return false;
+        }
+
+        if(this.settings.completed_preference == 'strikethrough_until_refresh') {
+          // Keep showing items that get marked as completed until the next time this component is loaded, 
+          // and hide items that were previously marked as completed 
+          const shouldBeHidden = item.completed_at != null && !this.itemsMarkedAsCompletedIds.includes(item.id)
+          if (shouldBeHidden) return false;
         }
 
         return true;
@@ -297,6 +314,9 @@ export default {
     },
     slideInActions() {
       return this.isMobile && this.selectedItems.length;
+    },
+    settings() {
+      return Setting.query().first()
     }
   },
   mounted() {

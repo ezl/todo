@@ -24,13 +24,7 @@ export default class Item extends BaseModel {
 
   static async restore() {
     let items = await LocalStorageHelper.getItems();
-    const setting = Setting.query().first();
-
-    if (setting.completed_preference == 'strikethrough_until_refresh') {
-      // exclude items that were marked as completed
-      items = items.filter(item => item.completed_at === null);
-    }
-
+    
     this.insert({
       data: [...items]
     });

@@ -122,6 +122,8 @@ export default {
         this.$nextTick(this.strikeThroughBodyText);
       }
 
+      this.$emit('completion-status-changed', this.item)
+
       ChangeLogger.itemPropertyValueChanged(this.item.id, 'completed_at', this.item.completed_at);
     },
 
