@@ -7,9 +7,9 @@ import LocalStorageHelper from '../helpers/LocalStorageHelper';
 import LottieAnimation from 'lottie-web-vue';
 import axios from 'axios';
 import Notifications from 'vue-notification'
+import { sync } from '../sync'
 
 require('../authentication')
-require('../sync')
 
 Vue.use(LottieAnimation);
 Vue.use(Notifications)
@@ -37,7 +37,12 @@ const init = async () => {
   
   await LocalStorageHelper.setValue({ appVersion: APP_VERSION })
 
-  if (auth.token) store.commit('auth/SET_TOKEN', auth.token);
+  if (auth.token) {
+    await store.commit('auth/SET_TOKEN', auth.token);
+    // Sync with the server as soon as we retrieve currently logged in user’s token from the local storage
+    sync()
+  }
+
   if (auth.email) store.commit('auth/SET_EMAIL', auth.email);
   if (auth.clientTrackingToken) store.commit('auth/SET_CLIENT_TRACKING_TOKEN', auth.clientTrackingToken);
   

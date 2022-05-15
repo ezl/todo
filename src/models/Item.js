@@ -105,8 +105,9 @@ export default class Item extends BaseModel {
       const item = items[index];
       item.order = index + 1;
       await item.$save();
-      await ChangeLogger.itemPropertyValueChanged(item.id, 'order', item.order)
     }
+
+    await ChangeLogger.itemOrdersChanged(items)
   }
 
   // First checks if an attached tag is present in the list item body,

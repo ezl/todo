@@ -2,6 +2,7 @@ import LocalStorageHelper from '../helpers/LocalStorageHelper';
 import moment from 'moment';
 import { ENTYTY_TYPE_ITEM, ENTYTY_TYPE_TAG } from './entity-types';
 import { CHANGE_TYPE_PROPERTY_VALUE_CHANGE, CHANGE_TYPE_ITEM_ATTACHED_TAGS_CHANGE, CHANGE_TYPE_CREATION, CHANGE_TYPE_DELETION } from './change-types';
+import { syncDelayed } from './index'
 
 export default class ChangeLogger {
   static async createChange(change) {
@@ -10,7 +11,7 @@ export default class ChangeLogger {
 
     const changeLogs = await LocalStorageHelper.getValue({ changeLogs: [] });
     changeLogs.push(change);
-    LocalStorageHelper.setValue({ changeLogs });
+    await LocalStorageHelper.setValue({ changeLogs });
   }
   static async itemPropertyValueChanged(uuid, property_pame, new_value) {
     if (!uuid) {
@@ -37,6 +38,8 @@ export default class ChangeLogger {
         new_value
       },
     })
+
+    syncDelayed()
   }
 
   static async itemAttachedTagsChanged(item_id, current_attached_tags_ids) {
@@ -58,6 +61,8 @@ export default class ChangeLogger {
         current_attached_tags_uuids: current_attached_tags_ids
       },
     })
+
+    syncDelayed()
   }
 
   static async itemCreated(item) {
@@ -78,6 +83,26 @@ export default class ChangeLogger {
         created_at: item.created_at
       },
     })
+
+    syncDelayed()
+  }
+
+  static async itemOrdersChanged(items) {
+    for (let index = 0; index < items.length; index++) {
+      const item = items[index];
+      
+      await this.createChange({
+        entity_type: ENTYTY_TYPE_ITEM,
+        entity_uuid: item.id,
+        change_type: CHANGE_TYPE_PROPERTY_VALUE_CHANGE,
+        meta: {
+          property_pame: 'order',
+          new_value: item.order
+        },
+      })
+    }
+
+    syncDelayed()
   }
 
   static async entityDeleted(entityType, entityId) {
@@ -96,6 +121,8 @@ export default class ChangeLogger {
       entity_uuid: entityId,
       change_type: CHANGE_TYPE_DELETION,
     })
+
+    syncDelayed()
   }
 
   static async tagCreated(tag) {
@@ -113,5 +140,7 @@ export default class ChangeLogger {
         created_at: tag.created_at
       },
     })
+
+    syncDelayed()
   }
 }

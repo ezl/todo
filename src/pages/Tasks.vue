@@ -224,12 +224,6 @@ export default {
     clearSelectedItems() {
       this.selectedItems = [];
     },
-    async onItemsReordered(items) {
-      for (let index = 0; index < items.length; index++) {
-        const item = items[index];
-        await ChangeLogger.itemPropertyValueChanged(item.id, 'order', index + 1);
-      }
-    }
   },
   computed: {
     items() {
@@ -270,7 +264,7 @@ export default {
           item.$save();
         });
 
-        this.onItemsReordered(items);
+        ChangeLogger.itemOrdersChanged(items)
       }
     },
     listItemsWrapperDynamicClasses() {
