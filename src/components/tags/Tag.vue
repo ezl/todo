@@ -6,11 +6,13 @@
     :class="{ selected: tag.toggled }"
     class="px-3 py-1 mr-2 block cursor-pointer tag"
   >
-    {{ tag.name }}
+    {{ name }}
   </span>
 </template>
 
 <script>
+import Setting from '@/models/Setting';
+
 export default {
   props: {
     tag: {
@@ -30,6 +32,18 @@ export default {
     },
     onMouseLeave() {
       this.$el.classList.remove('hover-state');
+    }
+  },
+  computed: {
+    settings() {
+      return Setting.query().first();
+    },
+    name() {
+      if (this.settings.display_number_of_items_per_tag) {
+        return `${this.tag.name} (${this.tag.items.length})`;
+      }
+
+      return this.tag.name;
     }
   }
 };

@@ -15,7 +15,7 @@
       <div :class="{ 'show-sub-menu': currentSubMenuId }" class="menu-container">
         <GeneralSettingsTab :settings="currentSettings" @settings-updated="onSettingsChanged" :tab-ids="subMenuIds" :switch-tab="showSubMenu" />
         <div class="sub-menu-container">
-          <TagSettingsTab :ref="subMenuIds.tagSettings" @go-back="showMainMenu(subMenuIds.tagSettings)" />
+          <TagSettingsTab :ref="subMenuIds.tagSettings" @go-back="showMainMenu(subMenuIds.tagSettings)" :settings="currentSettings" @settings-updated="onSettingsChanged"/>
           <HotkeysSettingsTab :ref="subMenuIds.hotkeys" @go-back="showMainMenu(subMenuIds.hotkeys)" />
         </div>
       </div>

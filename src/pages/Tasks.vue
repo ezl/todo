@@ -98,7 +98,7 @@ export default {
       holdingTouch: false,
       selectedItems: [],
       orderedSelectedItems: [],
-      itemsMarkedAsCompletedIds: [],
+      itemsMarkedAsCompletedIds: []
     };
   },
   methods: {
@@ -228,12 +228,12 @@ export default {
       this.selectedItems = [];
     },
     onItemCompletionStatusChanged(item) {
-      if(item.completed_at){
-        this.itemsMarkedAsCompletedIds.push(item.id)
-      }else{
-        this.itemsMarkedAsCompletedIds = this.itemsMarkedAsCompletedIds.filter(id => id != item.id)
+      if (item.completed_at) {
+        this.itemsMarkedAsCompletedIds.push(item.id);
+      } else {
+        this.itemsMarkedAsCompletedIds = this.itemsMarkedAsCompletedIds.filter(id => id != item.id);
       }
-    },
+    }
   },
   computed: {
     items() {
@@ -243,9 +243,18 @@ export default {
         .sort((a, b) => a.order - b.order);
 
       items = items.filter(item => {
-        if (this.toggledTagsIds.length) {
-          const hasSelectedTags = item.tags.some(tag => this.toggledTagsIds.includes(tag.id));
-          if (!hasSelectedTags) return false;
+        // If there are any selected tags
+        if (this.selectedTagIds.length) {
+          if (this.settings.show_only_items_matching_all_selected_tags) {
+            let numOfMatchedTags = 0;
+            item.tags.forEach(tag => {
+              if (this.selectedTagIds.includes(tag.id)) numOfMatchedTags++;
+            });
+            if (numOfMatchedTags != this.selectedTagIds.length) return false;
+          } else {
+            const matchesAnySelectedTags = item.tags.some(tag => this.selectedTagIds.includes(tag.id));
+            if (!matchesAnySelectedTags) return false;
+          }
         }
 
         if (this.listItemSearchQuery != '') {
@@ -253,10 +262,10 @@ export default {
           if (!matchesCurrentSearchTerm) return false;
         }
 
-        if(this.settings.completed_preference == 'strikethrough_until_refresh') {
-          // Keep showing items that get marked as completed until the next time this component is loaded, 
-          // and hide items that were previously marked as completed 
-          const shouldBeHidden = item.completed_at != null && !this.itemsMarkedAsCompletedIds.includes(item.id)
+        if (this.settings.completed_preference == 'strikethrough_until_refresh') {
+          // Keep showing items that get marked as completed until the next time this component is loaded,
+          // and hide items that were previously marked as completed
+          const shouldBeHidden = item.completed_at != null && !this.itemsMarkedAsCompletedIds.includes(item.id);
           if (shouldBeHidden) return false;
         }
 
@@ -265,7 +274,7 @@ export default {
 
       return items;
     },
-    toggledTagsIds() {
+    selectedTagIds() {
       return Tag.query()
         .where('toggled', true)
         .get()
@@ -281,7 +290,7 @@ export default {
           item.$save();
         });
 
-        ChangeLogger.itemOrdersChanged(items)
+        ChangeLogger.itemOrdersChanged(items);
       }
     },
     listItemsWrapperDynamicClasses() {
@@ -316,7 +325,7 @@ export default {
       return this.isMobile && this.selectedItems.length;
     },
     settings() {
-      return Setting.query().first()
+      return Setting.query().first();
     }
   },
   mounted() {
