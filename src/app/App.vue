@@ -5,7 +5,7 @@
         <li class="text-lg cursor-pointer">Tasks</li>
       </ul>
       <div>
-        <SettingsDropdwnMenu />
+        <SettingsMenu />
       </div>
     </nav>
     <router-view />
@@ -15,12 +15,12 @@
 
 <script>
 import CogOutlineIcon from 'vue-material-design-icons/CogOutline';
-import SettingsDropdwnMenu from '@/components/settings/SettingsDropdownMenu';
+import SettingsMenu from '@/components/settings/SettingsMenu';
 
 export default {
   components: {
     CogOutlineIcon,
-    SettingsDropdwnMenu
+    SettingsMenu
   }
 };
 </script>
