@@ -36,7 +36,8 @@ export default {
 
       tags = tags.filter(tag => {
         if (this.settings.hide_tags_without_items) {
-          if (!tag.items.length) return false;
+          const notCompletedItems = tag.items.filter(item => item.completed_at === null)
+          if (!notCompletedItems.length) return false;
         }
 
         return true;
