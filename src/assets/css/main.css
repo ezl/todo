@@ -27,7 +27,7 @@ body {
   color: rgb(150, 150, 150);
 }
 .dark .list-item-body-wrapper .row.strikethrough {
-  color: rgb(121, 121, 121)
+  color: rgb(121, 121, 121);
 }
 
 .list-item-body-wrapper .row.strikethrough {
@@ -36,11 +36,10 @@ body {
   background-size: auto 2px;
 }
 
-
 .list-item-body-wrapper .row.strikethrough:not(.animation) {
-  background-position:  4px 50%!important;
-  background-size: 147% 3px!important;
-  transition: none!important;
+  background-position: 4px 50% !important;
+  background-size: 147% 3px !important;
+  transition: none !important;
 }
 
 .list-item-body-wrapper .row.strikethrough.animation {
@@ -54,7 +53,7 @@ body {
 
 @keyframes strikethrough {
   to {
-    background-position:  4px 50%;
+    background-position: 4px 50%;
   }
 }
 
@@ -67,7 +66,7 @@ input {
   background: #141317;
 }
 
-.spinner{
+.spinner {
   animation: spin 1s linear infinite;
   fill: #fd4b30;
   color: transparent;
@@ -82,7 +81,13 @@ input {
   }
 }
 
-.vue-notification{
+.vue-notification {
   border: none !important;
   @apply !bg-primary !m-0 !text-center;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  input {
+    font-size: 16px;
+  }
 }
