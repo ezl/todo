@@ -3,7 +3,10 @@ import BaseModel from './BaseModel';
 import { v4 as uuidv4 } from 'uuid';
 
 export default class Setting extends BaseModel {
-  static entity = 'settings';
+
+  static get entity () {
+    return 'settings'
+  }
 
   static fields() {
     return {

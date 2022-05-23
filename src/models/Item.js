@@ -8,7 +8,10 @@ import Setting from './Setting';
 import ChangeLogger from '../sync/ChangeLogger';
 
 export default class Item extends BaseModel {
-  static entity = 'items';
+  
+  static get entity () {
+    return 'items'
+  }
 
   static fields() {
     return {
@@ -30,7 +33,9 @@ export default class Item extends BaseModel {
     });
   }
 
-  static async add(body, completed, shouldSync = true, options) {
+  static async add(body, completed, shouldSync, options) {
+    if(shouldSync === undefined) shouldSync = true
+
     if (body === undefined || completed === undefined && options.completed_at === undefined) {
       throw '"body" and "completed" are required';
     }
@@ -108,7 +113,9 @@ export default class Item extends BaseModel {
   // and removes/detaches said tag from this item if no reference was found within its body
   // We’ll set sync to false when we call this function while applying/merging changes from other devices 
   // We don’t want to push changes when we call this during merging
-  async detachRemovedTags(shouldSync = true) {
+  async detachRemovedTags(shouldSync) {
+    if(shouldSync === undefined) shouldSync = true
+
     let currentAttachedTags = Tag.query()
       .whereHas('items', query => query.where('id', this.id))
       .get();
@@ -182,7 +189,9 @@ export default class Item extends BaseModel {
 
   // Keeps tracks of start and end positions of the attached tags in the list item body.
   // This will be used to highlight them within the body
-  async updateTagPositionsInBody(shouldSync = true) {
+  async updateTagPositionsInBody(shouldSync) {
+    if(shouldSync === undefined) shouldSync = true
+
     let tags = this.tags;
 
     if (tags.length === 0) {

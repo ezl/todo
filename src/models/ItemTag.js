@@ -2,9 +2,14 @@ import BaseModel from './BaseModel';
 import LocalStorageHelper from '../helpers/LocalStorageHelper';
 
 export default class ItemTag extends BaseModel {
-  static entity = 'item_tag';
 
-  static primaryKey = ['item_id', 'tag_id'];
+  static get entity () {
+    return 'item_tag'
+  }
+
+  static get primaryKey () {
+    return ['item_id', 'tag_id'];
+  }
 
   static fields() {
     return {

@@ -7,7 +7,10 @@ import { v4 as uuidv4 } from 'uuid';
 import ChangeLogger from '../sync/ChangeLogger';
 
 export default class Tag extends BaseModel {
-  static entity = 'tags';
+
+  static get entity () {
+    return 'tags'
+  }
 
   static fields() {
     return {
@@ -19,10 +22,13 @@ export default class Tag extends BaseModel {
     };
   }
 
-  static async add(name, sync = true, options = {}) {
+  static async add(name, sync, options) {
     if (name === undefined) {
       throw 'Name of the tag is required';
     }
+
+    if (sync === undefined) sync = true
+    if (options === undefined) options = {}
 
     const tag = new this();
     tag.name = name;
