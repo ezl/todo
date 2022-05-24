@@ -2,11 +2,11 @@
   <div class="menu main-menu">
     <h4 class="text-center">Settings</h4>
     <Syncing class="mt-8" />
-    <div @click="switchTab(tabIds.hotkeys)" class="flex justify-between items-center mt-4 cursor-pointer">
+    <div @click="switchMenu(menuIds.hotkeys)" class="flex justify-between items-center mt-4 cursor-pointer">
       <span>See hotkeys (press ? to toggle)</span>
       <chevronRightIcon class="text-primary" />
     </div>
-    <div @click="switchTab(tabIds.tagSettings)" class="flex justify-between items-center mt-4 cursor-pointer">
+    <div @click="switchMenu(menuIds.tagSettings)" class="flex justify-between items-center mt-4 cursor-pointer">
       <span>Tag settings</span>
       <chevronRightIcon class="text-primary" />
     </div>
@@ -98,8 +98,7 @@ import ChevronRightIcon from '@/assets/images/icons/chevron-right.svg';
 import Setting from '@/models/Setting';
 import LocalStorageHelper from '@/helpers/LocalStorageHelper';
 import Syncing from '@/components/settings/Syncing';
-import TagSettingsTab from '@/components/settings/tabs/TagSettingsTab';
-import HotkeysSettingsTab from '@/components/settings/tabs/HotkeysSettingsTab';
+import HotkeysSettingsMenu from '@/components/settings/submenus/HotkeysSettingsMenu';
 
 export default {
   props: {
@@ -107,11 +106,11 @@ export default {
       type: Object,
       required: true
     },
-    tabIds: {
+    menuIds: {
       type: Object,
       required: true
     },
-    switchTab: {
+    switchMenu: {
       type: Function,
       required: false
     }
@@ -119,8 +118,7 @@ export default {
   components: {
     ChevronRightIcon,
     Syncing,
-    TagSettingsTab,
-    HotkeysSettingsTab
+    HotkeysSettingsMenu
   },
   data() {
     return {

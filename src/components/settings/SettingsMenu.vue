@@ -12,13 +12,19 @@
       v-if="open"
       class="dropdown-body z-20  inset-x-0 inset-y-0 md:bottom-auto absolute md:w-80 bg-lotion dark:bg-dark-gunmetal shadow-[1.95px_1.95px_3.6px_rgba(0,0,0,0.11)] rounded-lg top-0 -left-80 text-sm"
     >
-      <div :class="{ 'show-sub-menu': currentSubMenuId }" class="menu-container">
-        <GeneralSettingsTab :settings="currentSettings" @settings-updated="onSettingsChanged" :tab-ids="subMenuIds" :switch-tab="showSubMenu" />
-        <div class="sub-menu-container">
-          <TagSettingsTab :ref="subMenuIds.tagSettings" @go-back="showMainMenu(subMenuIds.tagSettings)" :settings="currentSettings" @settings-updated="onSettingsChanged"/>
-          <HotkeysSettingsTab :ref="subMenuIds.hotkeys" @go-back="showMainMenu(subMenuIds.hotkeys)" />
-        </div>
-      </div>
+      <NestedMenu :active-menu-id="activeMenuId">
+        <GeneralSettingsMenu
+          :data-menu-id="menuIds.generalSettings"
+          data-main-menu
+          :settings="currentSettings"
+          @settings-updated="onSettingsChanged"
+          :menu-ids="menuIds"
+          :switch-menu="switchMenu"
+        />
+
+        <HotkeysSettingsMenu :data-menu-id="menuIds.hotkeys" @close="showMainMenu" />
+        <MainTagSettingsMenu :data-menu-id="menuIds.tagSettings" @close="showMainMenu" :settings="currentSettings" @settings-updated="onSettingsChanged" />
+      </NestedMenu>
     </div>
   </div>
 </template>
@@ -28,26 +34,30 @@ import Setting from '@/models/Setting';
 import DotsHorizontalIcon from 'vue-material-design-icons/DotsHorizontal';
 import CloseIcon from 'vue-material-design-icons/Close';
 import LocalStorageHelper from '@/helpers/LocalStorageHelper';
-import TagSettingsTab from '@/components/settings/tabs/TagSettingsTab';
-import HotkeysSettingsTab from '@/components/settings/tabs/HotkeysSettingsTab';
-import GeneralSettingsTab from '@/components/settings/tabs/GeneralSettingsTab';
+import MainTagSettingsMenu from '@/components/settings/submenus/MainTagSettingsMenu';
+import HotkeysSettingsMenu from '@/components/settings/submenus/HotkeysSettingsMenu';
+import GeneralSettingsMenu from '@/components/settings/GeneralSettingsMenu';
+import NestedMenu from '@/components/settings/NestedMenu';
 
 export default {
   components: {
     DotsHorizontalIcon,
-    TagSettingsTab,
-    HotkeysSettingsTab,
-    GeneralSettingsTab,
-    CloseIcon
+    MainTagSettingsMenu,
+    HotkeysSettingsMenu,
+    GeneralSettingsMenu,
+    CloseIcon,
+    NestedMenu
   },
   data() {
     return {
       open: false,
       currentSettings: {},
-      subMenuIds: {
+      menuIds: {
+        generalSettings: 'general-settings',
         tagSettings: 'tag-settings',
         hotkeys: 'hotkeys'
       },
+      activeMenuId: '',
       currentSubMenuId: null,
       showDropdownToggleButton: true
     };
@@ -55,6 +65,8 @@ export default {
   methods: {
     toggleMenu() {
       this.open = !this.open;
+      // Reset menu whenever the popup is closed/opened
+      this.activeMenuId = this.menuIds.generalSettings
     },
     async onSettingsChanged(newSettings) {
       await Setting.update({
@@ -67,16 +79,13 @@ export default {
       this.currentSettings = { ...this.settings };
       this.updateTheme();
     },
-    showSubMenu(id) {
-      console.log(id);
-      this.currentSubMenuId = id;
-      this.$refs[id].$el.classList.remove('hidden');
-      this.showDropdownToggleButton = false;
+    switchMenu(id) {
+      this.activeMenuId = id;
+      if (id != this.menuIds.generalSettings) this.showDropdownToggleButton = false;
     },
-    showMainMenu(currentSubMenuId) {
-      this.currentSubMenuId = null;
+    showMainMenu() {
+      this.activeMenuId = this.menuIds.generalSettings;
       setTimeout(() => {
-        this.$refs[currentSubMenuId].$el.classList.add('hidden');
         this.showDropdownToggleButton = true;
       }, 400);
     },
@@ -158,39 +167,9 @@ input[type='radio']:checked::before {
   transform: scale(1);
 }
 
-.menu-container {
-  display: flex;
-  position: relative;
-  transition: 0.4s transform ease-in-out !important;
-}
-
-.menu-container.show-sub-menu {
-  transform: translateX(calc(-100%));
-}
-
-.menu {
-  padding: 15px;
-  height: 100%;
-}
-
-.main-menu {
-  width: 100%;
-}
-
-.sub-menu-container {
-  position: absolute;
-  left: calc(100%);
-  width: 100%;
-  height: 100%;
-}
-
 @media only screen and (max-width: 480px) {
   .settings-dropdown-menu .dropdown-body {
     left: 0px;
-  }
-
-  .menu {
-    padding: 15px 7px;
   }
 }
 </style>
