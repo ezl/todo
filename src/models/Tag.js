@@ -18,6 +18,7 @@ export default class Tag extends BaseModel {
       name: this.attr(''),
       created_at: this.attr(null),
       toggled: this.attr(false),
+      order: this.attr(null),
       items: this.belongsToMany(Item, ItemTag, 'tag_id', 'item_id')
     };
   }

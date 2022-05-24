@@ -34,7 +34,7 @@ import Setting from '@/models/Setting';
 import DotsHorizontalIcon from 'vue-material-design-icons/DotsHorizontal';
 import CloseIcon from 'vue-material-design-icons/Close';
 import LocalStorageHelper from '@/helpers/LocalStorageHelper';
-import MainTagSettingsMenu from '@/components/settings/submenus/MainTagSettingsMenu';
+import MainTagSettingsMenu from '@/components/settings/submenus/tags/MainTagSettingsMenu';
 import HotkeysSettingsMenu from '@/components/settings/submenus/HotkeysSettingsMenu';
 import GeneralSettingsMenu from '@/components/settings/GeneralSettingsMenu';
 import NestedMenu from '@/components/settings/NestedMenu';

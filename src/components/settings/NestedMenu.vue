@@ -89,6 +89,11 @@ export default {
   display: flex;
   position: relative;
   transition: 0.4s transform ease-in-out !important;
+  height: 100%;
+}
+
+.sub-menu-container {
+  height: 100%;
 }
 
 .menu-container.show-sub-menu {

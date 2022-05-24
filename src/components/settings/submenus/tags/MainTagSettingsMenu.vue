@@ -21,6 +21,13 @@
             <input @change="onSettingsChanged" type="radio" value="oldest" v-model="currentSettings.sort_tags_by" />
             <span class="ml-2">Oldest tags first</span>
           </label>
+          <label @click="activeMenuId = menuIds.customOrder" class="flex items-center pl-1">
+            <input @change="onSettingsChanged" type="radio" value="custom_order" v-model="currentSettings.sort_tags_by" />
+            <div class="flex-1 flex justify-between items-center ml-2">
+              <span>Custom order</span>
+              <chevronRightIcon class="text-primary" />
+            </div>
+          </label>
         </div>
         <div class="mt-6 flex flex-col">
           <span>If there are no tasks with a tag:</span>
@@ -57,6 +64,7 @@
         </div>
       </div>
     </div>
+    <CustomTagsOrderMenu :data-menu-id="menuIds.customOrder" @close="activeMenuId =menuIds.mainMenu" class="!p-0"/>
   </NestedMenu>
 </template>
 
@@ -64,12 +72,14 @@
 import ChevronRightIcon from '@/assets/images/icons/chevron-right.svg';
 import NestedMenu from '@/components/settings/NestedMenu';
 import BackButton from '@/components/settings/BackButton';
+import CustomTagsOrderMenu from '@/components/settings/submenus/tags/CustomTagsOrderMenu';
 
 export default {
   components: {
     ChevronRightIcon,
     NestedMenu,
-    BackButton
+    BackButton,
+    CustomTagsOrderMenu
   },
   props: {
     settings: {
@@ -82,7 +92,7 @@ export default {
       currentSettings: this.settings,
       menuIds: {
         mainMenu: 'main-menu',
-        reorderingMenu: 'reordering-menu'
+        customOrder: 'custom-order-menu'
       },
       activeMenuId: ''
     };
@@ -93,10 +103,14 @@ export default {
     },
     showMainMenu() {
       this.activeMenuId = this.menuIds.mainMenu;
-      setTimeout(() => {
-        this.showDropdownToggleButton = true;
-      }, 400);
     }
   }
 };
 </script>
+
+<style scoped>
+  label{
+    margin-top: 4px;
+    cursor: pointer;
+  }
+</style>
