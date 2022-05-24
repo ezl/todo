@@ -66,7 +66,7 @@ export default {
     toggleMenu() {
       this.open = !this.open;
       // Reset menu whenever the popup is closed/opened
-      this.activeMenuId = this.menuIds.generalSettings
+      this.activeMenuId = this.menuIds.generalSettings;
     },
     async onSettingsChanged(newSettings) {
       await Setting.update({
@@ -128,6 +128,20 @@ export default {
     // Using setTimeout to avoid applying transitions when we switch to the user's preferred theme on page load
     // We only need to apply transition when the user change theme.
     setTimeout(() => document.body.classList.add('apply-transition'), 1000);
+  },
+  watch: {
+    open: {
+      handler: function(newVal) {
+        // Temporarily prevent body from scrolling while settings menu is opened
+        if (window.screen.width <= 480) {
+          if (this.open) {
+            document.body.style.overflow = 'hidden';
+          } else {
+            document.body.style.overflow = 'auto';
+          }
+        }
+      }
+    }
   }
 };
 </script>
