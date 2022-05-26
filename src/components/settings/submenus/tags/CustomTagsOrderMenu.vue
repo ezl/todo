@@ -27,6 +27,7 @@ import DragIcon from '@/assets/images/icons/drag.svg';
 import draggable from 'vuedraggable';
 import ContentSaveAlertOutlineIcon from 'vue-material-design-icons/ContentSaveAlertOutline';
 import AutorenewIcon from 'vue-material-design-icons/Autorenew';
+import ChangeLogger from '@/sync/ChangeLogger';
 
 export default {
   components: {
@@ -58,7 +59,10 @@ export default {
   methods: {
     async save() {
       for (let index = 0; index < this.tags.length; index++) {
-        await this.tags[index].$save();
+        const tag = this.tags[index]
+
+        await tag.$save();
+        await ChangeLogger.tagPropertyValueChanged(tag.id, 'order', tag.order)
       }
     },
     reset() {

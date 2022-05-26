@@ -13,7 +13,21 @@ export default class ChangeLogger {
     changeLogs.push(change);
     await LocalStorageHelper.setValue({ changeLogs });
   }
+  
   static async itemPropertyValueChanged(uuid, property_pame, new_value) {
+    await this.entityPropertyValueChanged(ENTYTY_TYPE_ITEM, uuid, property_pame, new_value)
+  }
+
+  static async tagPropertyValueChanged(uuid, property_pame, new_value) {
+    await this.entityPropertyValueChanged(ENTYTY_TYPE_TAG, uuid, property_pame, new_value)
+  }
+
+  static async entityPropertyValueChanged(entity_type, uuid, property_pame, new_value) {
+    if (!entity_type || entity_type == '') {
+      console.error('entity_type is required');
+      return;
+    }
+
     if (!uuid) {
       console.error('uuid is required');
       return;
@@ -30,7 +44,7 @@ export default class ChangeLogger {
     }
 
     await this.createChange({
-      entity_type: ENTYTY_TYPE_ITEM,
+      entity_type: entity_type,
       entity_uuid: uuid,
       change_type: CHANGE_TYPE_PROPERTY_VALUE_CHANGE,
       meta: {
@@ -137,6 +151,7 @@ export default class ChangeLogger {
       change_type: CHANGE_TYPE_CREATION,
       meta: {
         name: tag.name,
+        order: tag.order,
         created_at: tag.created_at
       },
     })

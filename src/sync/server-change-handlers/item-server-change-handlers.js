@@ -1,8 +1,8 @@
-import Item from '../../models/Item';
-import Tag from '../../models/Tag';
-import ItemTag from '../../models/ItemTag';
+import Item from '@/models/Item';
+import Tag from '@/models/Tag';
+import ItemTag from '@/models/ItemTag';
 import { ENTYTY_TYPE_ITEM } from '../entity-types';
-import LocalStorageHelper from '../../helpers/LocalStorageHelper';
+import LocalStorageHelper from '@/helpers/LocalStorageHelper';
 
 
 export const handleItemCreation = async remoteChangeLog => {
@@ -12,31 +12,6 @@ export const handleItemCreation = async remoteChangeLog => {
     completed_at: remoteChangeLog.meta.completed_at,
     order: remoteChangeLog.meta.order
   });
-};
-
-export const handleItemPropertyValueChange = async remoteChangeLog => {
-  const changeLogs = await LocalStorageHelper.getValue({ changeLogs: [] });
-
-  const shouldNotApply = changeLogs.find(change => {
-    const targetsSameEntity = change.entity_type == ENTYTY_TYPE_ITEM && change.entity_uuid == remoteChangeLog.entity_uuid;
-    const targetsSameProperty = change.meta.property_pame == remoteChangeLog.meta.property_pame;
-    const happendAfterRemoteChange = change.changed_at > remoteChangeLog.changed_at;
-    if (targetsSameEntity && targetsSameProperty && happendAfterRemoteChange) {
-      return true;
-    }
-  });
-
-  if (shouldNotApply) return;
-
-  const item = Item.find(remoteChangeLog.entity_uuid);
-
-  if (!item) return;
-
-  item[remoteChangeLog.meta.property_pame] = remoteChangeLog.meta.new_value;
-
-  await item.$save();
-  await item.detachRemovedTags(false);
-  await item.updateTagPositionsInBody(false);
 };
 
 export const handleItemAttachedTagsChange = async remoteChangeLog => {
@@ -78,12 +53,4 @@ export const handleItemAttachedTagsChange = async remoteChangeLog => {
   });
 
   await item.updateTagPositionsInBody(false);
-};
-
-export const handleItemDeletion = async remoteChangeLog => {
-  const item = Item.find(remoteChangeLog.entity_uuid);
-
-  if (item) {
-    await item.$delete();
-  }
 };
