@@ -18,5 +18,25 @@ export const TAG_COLORS = [
   {
     name: 'Green',
     hexValue: '#dbeddb'
-  }
+  },
+  {
+    name: 'Yellow',
+    hexValue: '#fdecc8'
+  },
+  {
+    name: 'Orange',
+    hexValue: '#fadec9'
+  },
+  {
+    name: 'Brown',
+    hexValue: '#eee0da'
+  },
+  {
+    name: 'Gray',
+    hexValue: '#e3e2e0'
+  },
+  {
+    name: 'Light gray',
+    hexValue: '#f1f0ef'
+  },
 ];
