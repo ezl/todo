@@ -4,6 +4,7 @@
     @mouseenter="onMouseEnter"
     @mouseleave="onMouseLeave"
     :class="{ selected: tag.toggled }"
+    :style="styles"
     class="px-3 py-1 mr-2 block cursor-pointer tag"
   >
     {{ name }}
@@ -41,11 +42,22 @@ export default {
     name() {
       if (this.settings.display_number_of_items_per_tag) {
         // the number of not yet completed items
-        const count = this.tag.items.filter(item => item.completed_at === null).length
+        const count = this.tag.items.filter(item => item.completed_at === null).length;
         return `${this.tag.name} (${count})`;
       }
 
       return this.tag.name;
+    },
+    styles() {
+      const obj = {};
+      // default
+      obj['background-color'] = '#dbeddb ';
+
+      if (this.tag.color) {
+        obj['background-color'] = this.tag.color;
+      }
+
+      return obj;
     }
   }
 };
@@ -53,36 +65,30 @@ export default {
 
 <style scoped>
 span {
-  border-width: 2px;
+  border-width: 1px;
   border-style: solid;
   border-color: transparent;
   border-radius: 500px;
-  color: #dbdbdc;
-}
-
-.dark span {
-  color: #525257;
-}
-
-span.hover-state {
-  border-color: #e9e9e9;
-}
-
-span.selected {
-  background: rgba(28, 27, 34, 0.1);
   color: #000;
 }
 
+.dark span {
+  border-color: #525257;
+}
+
+span.hover-state {
+  border-color: #a7a7a7;
+}
+
+span.selected {
+  border-color: #a7a7a7;
+}
+
 .dark span.selected {
-  background: #303031;
-  color: #e9e9e9;
+  border-color: #fff;
 }
 
 .dark span.hover-state {
-  border-color: #303031;
-}
-
-.dark span.hover-state {
-  border-color: #303031;
+  border-color: #fff;
 }
 </style>

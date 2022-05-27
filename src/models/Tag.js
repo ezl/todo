@@ -5,6 +5,7 @@ import LocalStorageHelper from '../helpers/LocalStorageHelper';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 import ChangeLogger from '../sync/ChangeLogger';
+import { TAG_COLORS } from '@/constants';
 
 export default class Tag extends BaseModel {
 
@@ -18,6 +19,7 @@ export default class Tag extends BaseModel {
       name: this.attr(''),
       created_at: this.attr(null),
       toggled: this.attr(false),
+      color: this.attr(null),
       order: this.attr(null),
       items: this.belongsToMany(Item, ItemTag, 'tag_id', 'item_id')
     };
@@ -35,6 +37,14 @@ export default class Tag extends BaseModel {
     tag.name = name;
     tag.created_at = options.created_at ? options.created_at : moment.utc().format();
     tag.id = options.uuid ? options.uuid : uuidv4();
+
+    if(options != undefined && options.color){
+      tag.color = options.color
+    }else{
+      // Pick a random color
+      const randomIndex = Math.floor(Math.random() * TAG_COLORS.length);
+      tag.color = TAG_COLORS[randomIndex].hexValue
+    }
 
     await tag.$save();
 

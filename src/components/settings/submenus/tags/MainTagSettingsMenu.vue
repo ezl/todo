@@ -3,7 +3,7 @@
     <div :data-menu-id="menuIds.mainMenu" data-main-menu>
       <BackButton @click="$emit('close')">Back to main settings</BackButton>
       <div class="h-full pl-1">
-        <div class="flex justify-between items-center mt-8 cursor-pointer">
+        <div @click="activeMenuId = menuIds.colorCustomization" class="flex justify-between items-center mt-8 cursor-pointer">
           <span>Customize tag colors</span>
           <chevronRightIcon class="text-primary" />
         </div>
@@ -65,6 +65,7 @@
       </div>
     </div>
     <CustomTagsOrderMenu :data-menu-id="menuIds.customOrder" @close="activeMenuId =menuIds.mainMenu" class="!p-0"/>
+    <TagColorCustomizationMenu :data-menu-id="menuIds.colorCustomization" @close="activeMenuId =menuIds.mainMenu" class="!p-0"/>
   </NestedMenu>
 </template>
 
@@ -73,13 +74,15 @@ import ChevronRightIcon from '@/assets/images/icons/chevron-right.svg';
 import NestedMenu from '@/components/settings/NestedMenu';
 import BackButton from '@/components/settings/BackButton';
 import CustomTagsOrderMenu from '@/components/settings/submenus/tags/CustomTagsOrderMenu';
+import TagColorCustomizationMenu from '@/components/settings/submenus/tags/TagColorCustomizationMenu';
 
 export default {
   components: {
     ChevronRightIcon,
     NestedMenu,
     BackButton,
-    CustomTagsOrderMenu
+    CustomTagsOrderMenu,
+    TagColorCustomizationMenu
   },
   props: {
     settings: {
@@ -92,7 +95,8 @@ export default {
       currentSettings: this.settings,
       menuIds: {
         mainMenu: 'main-menu',
-        customOrder: 'custom-order-menu'
+        customOrder: 'custom-order-menu',
+        colorCustomization: 'color-customization-menu',
       },
       activeMenuId: ''
     };
