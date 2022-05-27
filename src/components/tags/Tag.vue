@@ -13,6 +13,7 @@
 
 <script>
 import Setting from '@/models/Setting';
+import { TAG_COLORS, FALLBACK_TAG_COLOR } from '@/constants';
 
 export default {
   props: {
@@ -20,6 +21,11 @@ export default {
       required: true,
       type: Object
     }
+  },
+  data() {
+    return {
+      defaultColor: FALLBACK_TAG_COLOR // will be used if tag does not have any color
+    };
   },
   methods: {
     onClick(e) {
@@ -51,7 +57,7 @@ export default {
     styles() {
       const obj = {};
       // default
-      obj['background-color'] = '#dbeddb ';
+      obj['background-color'] = this.defaultColor;
 
       if (this.tag.color) {
         obj['background-color'] = this.tag.color;

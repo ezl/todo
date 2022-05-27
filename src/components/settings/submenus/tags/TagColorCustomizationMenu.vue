@@ -21,7 +21,7 @@
                 <span class="w-5 h-5 block" :style="{ 'background-color': color.hexValue }"></span>
                 <span class="ml-4">{{ color.name }}</span>
               </div>
-              <check-icon v-if="tag.color == color.hexValue" :size="16" />
+              <check-icon v-if="tag.color ? tag.color == color.hexValue : defaultColor == color.hexValue" :size="16" />
             </li>
           </ul>
         </div>
@@ -48,7 +48,7 @@ import AutorenewIcon from 'vue-material-design-icons/Autorenew';
 import DotsVerticalIcon from 'vue-material-design-icons/DotsVertical';
 import CheckIcon from 'vue-material-design-icons/Check';
 import ChangeLogger from '@/sync/ChangeLogger';
-import { TAG_COLORS } from '@/constants';
+import { TAG_COLORS, FALLBACK_TAG_COLOR } from '@/constants';
 
 export default {
   components: {
@@ -64,7 +64,8 @@ export default {
       selectedTagId: null,
       openColorSelectionDropdownMenu: false,
       initialColors: {},
-      colorList: TAG_COLORS
+      colorList: TAG_COLORS,
+      defaultColor: FALLBACK_TAG_COLOR // will be used if tag does not have any color
     };
   },
   methods: {
@@ -86,7 +87,7 @@ export default {
     tagStyles(tag) {
       const obj = {};
       // default
-      obj['background-color'] = '#dbeddb ';
+      obj['background-color'] = this.defaultColor;
 
       if (tag.color) {
         obj['background-color'] = tag.color;

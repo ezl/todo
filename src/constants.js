@@ -38,5 +38,7 @@ export const TAG_COLORS = [
   {
     name: 'Light gray',
     hexValue: '#f1f0ef'
-  },
+  }
 ];
+
+export const FALLBACK_TAG_COLOR = '#dbeddb';
