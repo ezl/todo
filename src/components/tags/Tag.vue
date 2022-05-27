@@ -5,7 +5,7 @@
     @mouseleave="onMouseLeave"
     :class="{ selected: tag.toggled }"
     :style="styles"
-    class="px-3 py-1 mr-2 block cursor-pointer tag"
+    class="px-3 py-1 mr-2 mb-2 block cursor-pointer tag"
   >
     {{ name }}
   </span>
