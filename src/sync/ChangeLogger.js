@@ -152,6 +152,7 @@ export default class ChangeLogger {
       meta: {
         name: tag.name,
         order: tag.order,
+        color: tag.color,
         created_at: tag.created_at
       },
     })
