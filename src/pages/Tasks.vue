@@ -21,7 +21,7 @@
       </div>
     </div>
     <div class="mt-3 md:mt-8 list-items-container">
-      <ListItemForm class="w-full md:w-10/12 lg:9/12 mr-0 m-auto px-2 pr-7 md:px-2 md:pl-10" />
+      <ListItemForm v-if="!isMobile && !isTouchDevice" class="w-full md:w-10/12 lg:9/12 mr-0 m-auto px-2 pr-7 md:px-2 md:pl-10" />
       <draggable
         :class="listItemsWrapperDynamicClasses"
         :animation="100"
@@ -59,10 +59,14 @@
     <div v-show="isMobile && selectedItems.length" class="fixed inset-x-0 bottom-0 p-4 bg-lotion dark:bg-dark-gunmetal z-40">
       <SnoozeAction />
     </div>
+    <ListItemMobileForm v-if="openItemCreationFormForMobile" @close="openItemCreationFormForMobile = false" />
+    <ListItemMobileFormToggleButton v-model="openItemCreationFormForMobile" v-if="!selectedItems.length && isTouchDevice" />
   </div>
 </template>
 
 <script>
+import ListItemMobileForm from '@/components/items/mobile-form/ListItemMobileForm';
+import ListItemMobileFormToggleButton from '@/components/items/mobile-form/ListItemMobileFormToggleButton';
 import ListItemForm from '@/components/items/ListItemForm';
 import ListItem from '@/components/items/ListItem';
 import TagGroup from '@/components/tags/TagGroup';
@@ -78,6 +82,8 @@ import ChangeLogger from '../sync/ChangeLogger';
 export default {
   components: {
     ListItemForm,
+    ListItemMobileForm,
+    ListItemMobileFormToggleButton,
     ListItem,
     TagGroup,
     draggable,
@@ -98,7 +104,8 @@ export default {
       holdingTouch: false,
       selectedItems: [],
       orderedSelectedItems: [],
-      itemsMarkedAsCompletedIds: []
+      itemsMarkedAsCompletedIds: [],
+      openItemCreationFormForMobile: false
     };
   },
   methods: {
@@ -326,6 +333,9 @@ export default {
     },
     settings() {
       return Setting.query().first();
+    },
+    isTouchDevice() {
+      return 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
     }
   },
   mounted() {

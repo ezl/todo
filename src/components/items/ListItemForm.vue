@@ -20,8 +20,7 @@
 <script>
 import Checkbox from '@/components/inputs/Checkbox';
 import Input from '@/components/inputs/Input';
-import Item from '@/models/Item';
-import Tag from '@/models/Tag';
+import createItem from '@/mixins/createItem';
 
 export default {
   components: {
@@ -30,29 +29,8 @@ export default {
   },
   data() {
     return {
-      completed: false,
-      body: '',
-      isMobile: screen.width <= 768,
-      selectedTags: []
+      isMobile: screen.width <= 768
     };
-  },
-  methods: {
-    async submit() {
-      if (this.body.trim().length == 0) {
-        return;
-      }
-
-      const item = await Item.add(this.body, this.completed);
-      await item.assignSelectedTags(this.selectedTags);
-      item.updateTagPositionsInBody();
-
-      this.body = '';
-      this.completed = false;
-      this.selectedTags = [];
-    },
-    onTagSelected(tagInfo) {
-      this.selectedTags.push(tagInfo);
-    }
   },
   mounted() {
     document.addEventListener('click', e => {
@@ -67,8 +45,7 @@ export default {
 
       this.$refs.input.focus();
     });
-  }
+  },
+  mixins: [createItem]
 };
 </script>
-
-<style scoped></style>

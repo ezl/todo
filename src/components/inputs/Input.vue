@@ -236,11 +236,19 @@ export default {
             return true
         }
       })
-    
-      return {
+
+
+      const pos =  {
         x: rect.right,
-        y: rect.top + (p ? p.scrollY : window.scrollY)
+        y: rect.top
       };
+      
+      // add offset only on bigger devices
+      if(window.screen.width > 480){
+        pos.y = pos.y + (p ? p.scrollY : window.scrollY)
+      }
+
+      return pos
     },
     showTagAssignmentGuide() {
       if (document.querySelector('#tag-assignment-guide')) return;
