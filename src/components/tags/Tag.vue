@@ -1,11 +1,9 @@
 <template>
   <span
     @click="onClick"
-    @mouseenter="onMouseEnter"
-    @mouseleave="onMouseLeave"
     :style="styles"
-    :class="{'font-bold dark:font-normal': !tag.toggled}"
-    class="px-3 py-1 mr-2 mb-2 block cursor-pointer rounded-full text-black"
+    :class="{ 'font-bold dark:font-normal': !tag.toggled && interactive, 'cursor-pointer': interactive }"
+    class="px-3 py-1 mr-2 mb-2 block rounded-full text-black"
   >
     {{ name }}
   </span>
@@ -20,6 +18,10 @@ export default {
     tag: {
       required: true,
       type: Object
+    },
+    interactive: {
+      default: true,
+      type: Boolean
     }
   },
   data() {
@@ -29,24 +31,20 @@ export default {
   },
   methods: {
     onClick(e) {
+      if (!this.interactive) return;
+
       this.tag.toggled = !this.tag.toggled;
       this.tag.$save();
 
       this.$el.classList.remove('hover-state');
     },
-    onMouseEnter() {
-      this.$el.classList.add('hover-state');
-    },
-    onMouseLeave() {
-      this.$el.classList.remove('hover-state');
-    }
   },
   computed: {
     settings() {
       return Setting.query().first();
     },
     name() {
-      if (this.settings.display_number_of_items_per_tag) {
+      if (this.settings.display_number_of_items_per_tag && this.interactive) {
         // the number of not yet completed items
         const count = this.tag.items.filter(item => item.completed_at === null).length;
         return `${this.tag.name} (${count})`;
@@ -56,14 +54,15 @@ export default {
     },
     styles() {
       const obj = {};
-      const selected = this.tag.toggled
+      const selected = this.tag.toggled;
+
       // default
-      if (selected) obj['background-color'] = this.defaultColor;
-      if (!selected) obj['color'] = this.defaultColor;
+      if (selected && this.interactive || !this.interactive) obj['background-color'] = this.defaultColor;
+      if (!selected && this.interactive) obj['color'] = this.defaultColor;
 
       if (this.tag.color) {
-        if (selected) obj['background-color'] = this.tag.color;
-        if (!selected) obj['color'] = this.tag.color;
+        if (selected && this.interactive || !this.interactive) obj['background-color'] = this.tag.color;
+        if (!selected && this.interactive) obj['color'] = this.tag.color;
       }
 
       return obj;
