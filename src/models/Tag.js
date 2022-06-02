@@ -1,6 +1,7 @@
 import BaseModel from './BaseModel';
 import Item from './Item';
 import ItemTag from './ItemTag';
+import Setting from './Setting';
 import LocalStorageHelper from '../helpers/LocalStorageHelper';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
@@ -8,9 +9,8 @@ import ChangeLogger from '../sync/ChangeLogger';
 import { TAG_COLORS } from '@/constants';
 
 export default class Tag extends BaseModel {
-
-  static get entity () {
-    return 'tags'
+  static get entity() {
+    return 'tags';
   }
 
   static fields() {
@@ -30,41 +30,41 @@ export default class Tag extends BaseModel {
       throw 'Name of the tag is required';
     }
 
-    if (sync === undefined) sync = true
-    if (options === undefined) options = {}
+    if (sync === undefined) sync = true;
+    if (options === undefined) options = {};
 
     const tag = new this();
     tag.name = name;
     tag.created_at = options.created_at ? options.created_at : moment.utc().format();
     tag.id = options.uuid ? options.uuid : uuidv4();
 
-    if(options != undefined && options.color){
-      tag.color = options.color
-    }else{
+    if (options != undefined && options.color) {
+      tag.color = options.color;
+    } else {
       // Pick a random color
       const randomIndex = Math.floor(Math.random() * TAG_COLORS.length);
-      tag.color = TAG_COLORS[randomIndex].hexValue
+      tag.color = TAG_COLORS[randomIndex].hexValue;
     }
 
     await tag.$save();
 
-    if(sync) ChangeLogger.tagCreated(tag)
+    if (sync) ChangeLogger.tagCreated(tag);
 
     return tag;
   }
 
   static async restore() {
-    let tags = await LocalStorageHelper.getTags()
+    let tags = await LocalStorageHelper.getTags();
 
     this.insert({
       data: [...tags]
     });
   }
 
-  static async findOrCreateTags(names){
+  static async findOrCreateTags(names) {
     const tags = [];
 
-    for (let index = 0; index <  names.length; index++) {
+    for (let index = 0; index < names.length; index++) {
       const name = names[index];
 
       let tag = this.query()
@@ -77,6 +77,32 @@ export default class Tag extends BaseModel {
 
       tags.push(tag);
     }
+
+    return tags;
+  }
+
+  // Returns tags in user preferred order
+  static getOrderedTags() {
+    let tags = this.query()
+      .with('items')
+      .get();
+
+    const settings = Setting.query().first();
+
+    tags = tags.sort((a, b) => {
+      if (settings.sort_tags_by === 'alphabetical_order') return a.name.localeCompare(b.name);
+
+      if (settings.sort_tags_by === 'usage_frequency') return b.items.length - a.items.length;
+
+      if (settings.sort_tags_by === 'custom_order') return a.order - b.order;
+
+      if (settings.sort_tags_by === 'oldest') {
+        const d1 = new Date(a.created_at);
+        const d2 = new Date(b.created_at);
+
+        return d1.getTime() - d2.getTime();
+      }
+    });
 
     return tags;
   }

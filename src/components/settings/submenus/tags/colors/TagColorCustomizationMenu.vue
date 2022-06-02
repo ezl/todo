@@ -46,7 +46,7 @@ export default {
   },
   computed: {
     tags() {
-      return Tag.all();
+      return Tag.getOrderedTags();
     }
   },
   methods: {

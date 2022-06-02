@@ -17,24 +17,7 @@ export default {
   },
   computed: {
     tags() {
-      let tags = TagModel.query()
-        .with('items')
-        .get();
-
-      tags = tags.sort((a, b) => {
-        if(this.settings.sort_tags_by === 'alphabetical_order') return a.name.localeCompare(b.name)
-        
-        if(this.settings.sort_tags_by === 'usage_frequency') return b.items.length - a.items.length
-
-        if(this.settings.sort_tags_by === 'custom_order') return a.order - b.order
-  
-        if(this.settings.sort_tags_by === 'oldest') {
-          const d1 = new Date(a.created_at) 
-          const d2 = new Date(b.created_at) 
-      
-          return d1.getTime() - d2.getTime() 
-        }
-      })
+      let tags = TagModel.getOrderedTags()
 
       tags = tags.filter(tag => {
         if (this.settings.hide_tags_without_items) {
