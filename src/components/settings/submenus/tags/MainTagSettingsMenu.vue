@@ -74,7 +74,7 @@ import ChevronRightIcon from '@/assets/images/icons/chevron-right.svg';
 import NestedMenu from '@/components/settings/NestedMenu';
 import BackButton from '@/components/settings/BackButton';
 import CustomTagsOrderMenu from '@/components/settings/submenus/tags/CustomTagsOrderMenu';
-import TagColorCustomizationMenu from '@/components/settings/submenus/tags/TagColorCustomizationMenu';
+import TagColorCustomizationMenu from '@/components/settings/submenus/tags/colors/TagColorCustomizationMenu';
 
 export default {
   components: {

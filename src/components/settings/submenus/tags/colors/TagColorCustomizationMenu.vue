@@ -5,25 +5,7 @@
       <div v-for="tag in tags" :key="tag.id" class="flex items-center justify-between mt-2">
         <span :style="tagStyles(tag)" class="px-3 py-1 tag">{{ tag.name }}</span>
         <div class="flex relative">
-          <dots-vertical-icon :size="20" @click="onToggleTagColorSelectionMenu(tag)" class="dropdown-toggle-btn cursor-pointer text-gray-500" />
-          <ul
-            v-show="openColorSelectionDropdownMenu && selectedTagId == tag.id"
-            class="bg-lotion dark:bg-dark-gunmetal z-20 p-3 text-xs dropdown w-48 absolute top-5 right-0"
-          >
-            <li class="mb-1 text-gray-400">Colors</li>
-            <li
-              @click="onTagColorSelected(tag.id, color.hexValue)"
-              v-for="(color, index) in colorList"
-              :key="index"
-              class="flex items-center justify-between mt-3 cursor-pointer"
-            >
-              <div class="flex items-center">
-                <span class="w-5 h-5 block" :style="{ 'background-color': color.hexValue }"></span>
-                <span class="ml-4">{{ color.name }}</span>
-              </div>
-              <check-icon v-if="tag.color ? tag.color == color.hexValue : defaultColor == color.hexValue" :size="16" />
-            </li>
-          </ul>
+          <dots-vertical-icon :size="20" @click="showTagColorPicker(tag)" class="dropdown-toggle-btn cursor-pointer text-gray-500" />
         </div>
       </div>
     </div>
@@ -37,6 +19,13 @@
         <span class="block ml-5">Reset</span>
       </button>
     </div>
+    <TagColorPicker
+      v-if="openTagColorPicker"
+      :tag="selectedTag"
+      :colors="colorList"
+      @pick="onTagColorSelected"
+      class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+    />
   </div>
 </template>
 
@@ -46,9 +35,9 @@ import Tag from '@/models/Tag';
 import ContentSaveAlertOutlineIcon from 'vue-material-design-icons/ContentSaveAlertOutline';
 import AutorenewIcon from 'vue-material-design-icons/Autorenew';
 import DotsVerticalIcon from 'vue-material-design-icons/DotsVertical';
-import CheckIcon from 'vue-material-design-icons/Check';
 import ChangeLogger from '@/sync/ChangeLogger';
 import { TAG_COLORS, FALLBACK_TAG_COLOR } from '@/constants';
+import TagColorPicker from '@/components/settings/submenus/tags/colors/TagColorPicker';
 
 export default {
   components: {
@@ -56,38 +45,43 @@ export default {
     ContentSaveAlertOutlineIcon,
     AutorenewIcon,
     DotsVerticalIcon,
-    CheckIcon
+    TagColorPicker
   },
   data() {
     return {
       tags: [],
-      selectedTagId: null,
-      openColorSelectionDropdownMenu: false,
+      selectedTag: null,
+      openTagColorPicker: false,
       initialColors: {},
-      colorList: TAG_COLORS,
-      defaultColor: FALLBACK_TAG_COLOR // will be used if tag does not have any color
+      colorList: TAG_COLORS
     };
   },
   methods: {
-    onToggleTagColorSelectionMenu(tag) {
-      if (this.openColorSelectionDropdownMenu) {
-        this.selectedTagId = null;
-        this.openColorSelectionDropdownMenu = false;
-      } else {
-        this.selectedTagId = tag.id;
-        this.openColorSelectionDropdownMenu = true;
+    showTagColorPicker(tag) {
+      if (this.openTagColorPicker && this.selectedTag.id == tag.id) {
+        this.closeTagColorPicker();
+        return
       }
+
+      this.selectedTag = tag;
+      this.openTagColorPicker = true;
     },
-    async onTagColorSelected(id, hexValue) {
+    closeTagColorPicker() {
+      this.selectedTag = null;
+      this.openTagColorPicker = false;
+    },
+    async onTagColorSelected({ tagId, selectedColor }) {
       this.tags = this.tags.map(tag => {
-        if (tag.id == id) tag.color = hexValue;
+        if (tag.id == tagId) tag.color = selectedColor;
         return tag;
       });
+
+      this.closeTagColorPicker();
     },
     tagStyles(tag) {
       const obj = {};
       // default
-      obj['background-color'] = this.defaultColor;
+      obj['background-color'] = FALLBACK_TAG_COLOR;
 
       if (tag.color) {
         obj['background-color'] = tag.color;
@@ -119,8 +113,8 @@ export default {
       if (e.target.matches('.dropdown-toggle-btn') || e.target.matches('.dropdown-toggle-btn *')) return;
       if (e.target.matches('.dropdown *')) return;
 
-      this.openColorSelectionDropdownMenu = false;
-      this.selectedTagId = null;
+      this.openTagColorPicker = false;
+      this.selectedTag = null;
     });
   }
 };
