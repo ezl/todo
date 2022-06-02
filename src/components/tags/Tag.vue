@@ -3,9 +3,9 @@
     @click="onClick"
     @mouseenter="onMouseEnter"
     @mouseleave="onMouseLeave"
-    :class="{ selected: tag.toggled }"
     :style="styles"
-    class="px-3 py-1 mr-2 mb-2 block cursor-pointer tag"
+    :class="{'font-bold dark:font-normal': !tag.toggled}"
+    class="px-3 py-1 mr-2 mb-2 block cursor-pointer rounded-full text-black"
   >
     {{ name }}
   </span>
@@ -56,11 +56,14 @@ export default {
     },
     styles() {
       const obj = {};
+      const selected = this.tag.toggled
       // default
-      obj['background-color'] = this.defaultColor;
+      if (selected) obj['background-color'] = this.defaultColor;
+      if (!selected) obj['color'] = this.defaultColor;
 
       if (this.tag.color) {
-        obj['background-color'] = this.tag.color;
+        if (selected) obj['background-color'] = this.tag.color;
+        if (!selected) obj['color'] = this.tag.color;
       }
 
       return obj;
@@ -68,33 +71,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-span {
-  border-width: 1px;
-  border-style: solid;
-  border-color: transparent;
-  border-radius: 500px;
-  color: #000;
-}
-
-.dark span {
-  border-color: #525257;
-}
-
-span.hover-state {
-  border-color: #a7a7a7;
-}
-
-span.selected {
-  border-color: #a7a7a7;
-}
-
-.dark span.selected {
-  border-color: #fff;
-}
-
-.dark span.hover-state {
-  border-color: #fff;
-}
-</style>
