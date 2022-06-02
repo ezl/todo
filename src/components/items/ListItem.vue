@@ -25,20 +25,16 @@
       </div>
       <div
         :class="{ editing: editing && !item.completed }"
-        class="list-item-body-wrapper ml-3 w-full text-dark-jungle-green dark:text-gray-300 px-3 py-2 rounded-lg"
+        class="list-item-body-wrapper ml-3 w-full text-dark-jungle-green dark:text-gray-300 px-3 py-2 rounded-lg flex"
       >
-        <div v-show="!editing && !item.completed" @click="startEditing">
-          <ListItemBody :item="item" class="body" />
+        <div>
+          <div v-show="!editing && !item.completed" @click="startEditing">
+            <ListItemBody :item="item" class="body" />
+          </div>
+          <Input v-if="editing && !item.completed" v-model="body" @submit="submit" ref="input" @tag-selected="onTagSelected" inputClasses="p-0" />
+          <p v-show="item.completed" ref="animatedBody" :class="{ strikethrough: item.completed }" class="">{{ body }}</p>
         </div>
-        <Input
-          v-if="editing && !item.completed"
-          v-model="body"
-          @submit="submit"
-          ref="input"
-          @tag-selected="onTagSelected"
-          inputClasses="p-0"
-        />
-        <p v-show="item.completed" ref="animatedBody" :class="{ strikethrough: item.completed }" class="">{{ body }}</p>
+        <span class="creation-date visible md:invisible ml-5 opacity-60">{{ creationDate }}</span>
       </div>
     </div>
   </div>
@@ -54,6 +50,7 @@ import DragAction from '@/components/items/actions/DragAction';
 import SelectAction from '@/components/items/actions/SelectAction';
 import SnoozeAction from '@/components/items/actions/SnoozeAction';
 import ChangeLogger from '../../sync/ChangeLogger';
+import moment from 'moment';
 
 export default {
   components: {
@@ -98,6 +95,9 @@ export default {
       this.showActions ? classList.push('visible') : classList.push('invisible');
 
       return classList;
+    },
+    creationDate(){
+      return moment.utc(this.item.created_at).local().format('M/DD')
     }
   },
   methods: {
@@ -122,7 +122,7 @@ export default {
         this.$nextTick(this.strikeThroughBodyText);
       }
 
-      this.$emit('completion-status-changed', this.item)
+      this.$emit('completion-status-changed', this.item);
 
       ChangeLogger.itemPropertyValueChanged(this.item.id, 'completed_at', this.item.completed_at);
     },
@@ -133,7 +133,7 @@ export default {
     },
     async stopEditing() {
       if (this.body.trim().length === 0) {
-        await ChangeLogger.entityDeleted('item', this.item.id)
+        await ChangeLogger.entityDeleted('item', this.item.id);
         await this.item.$delete();
       } else {
         this.save();
@@ -251,12 +251,12 @@ export default {
     item: {
       handler: function(newVal, oldVal) {
         // Changes made from outside of this component
-        
-        // Ignore if tag suggestions box is visible 
-        if(!document.querySelector('#tags-suggestion-popup')) this.body = newVal.body;
 
-        if(newVal.completed_at != oldVal.completed_at){
-          this.onCompletionStatusChanged()
+        // Ignore if tag suggestions box is visible
+        if (!document.querySelector('#tags-suggestion-popup')) this.body = newVal.body;
+
+        if (newVal.completed_at != oldVal.completed_at) {
+          this.onCompletionStatusChanged();
         }
       },
       deep: true
@@ -294,6 +294,10 @@ export default {
   margin-top: 9px;
 }
 .items-selection-mode .select-action {
+  visibility: visible;
+}
+
+.list-item-wrapper:hover .creation-date {
   visibility: visible;
 }
 
