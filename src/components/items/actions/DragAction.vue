@@ -1,5 +1,5 @@
 <template>
-  <span class="handle cursor-move text-gray-400 hover:text-primary">
+  <span class="handle cursor-move text-secondary hover:text-primary">
     <DragIcon />
   </span>
 </template>

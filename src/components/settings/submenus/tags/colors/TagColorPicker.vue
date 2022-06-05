@@ -1,6 +1,6 @@
 <template>
   <ul class="bg-lotion dark:bg-dark-gunmetal z-20 p-3 text-xs w-48">
-    <li class="mb-1 text-gray-400">Colors</li>
+    <li class="mb-1 text-secondary">Colors</li>
     <li @click="onColorPicked(tag, color.hexValue)" v-for="(color, index) in colors" :key="index" class="flex items-center justify-between mt-3 cursor-pointer">
       <div class="flex items-center">
         <span class="w-5 h-5 block" :style="{ 'background-color': color.hexValue }"></span>

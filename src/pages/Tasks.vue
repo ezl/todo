@@ -8,12 +8,12 @@
         :class="actionLabelsWrapperDynamicClasses"
         class="w-2/12 lg:3/12 hidden md:flex flex-shrink-0 justify-between items-center italic dark:text-white text-black h-8"
       >
-        <span class="text-xs text-gray-400 opacity-60">snooze</span>
-        <span v-if="!selectedItems.length" class="text-xs text-gray-400 opacity-60">select</span>
+        <span class="text-xs text-secondary opacity-60">snooze</span>
+        <span v-if="!selectedItems.length" class="text-xs text-secondary opacity-60">select</span>
         <button @click="clearSelectedItems" v-else class="unselect-btn">
           <close-icon :size="18" class="text-primary" />
         </button>
-        <span class="text-xs text-gray-400 opacity-60 ">drag</span>
+        <span class="text-xs text-secondary opacity-60 ">drag</span>
       </div>
       <div class="flex relative items-start	w-full ml-0 md:ml-8">
         <SearchInput v-model="listItemSearchQuery" :results-count="items.length" />

@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center">
-    <button @click="show" :class="{'text-primary': expand}" class="text-gray-400 hover:text-primary z-10 relative h-10">
+    <button @click="show" :class="{'text-primary': expand}" class="text-secondary hover:text-primary z-10 relative h-10">
       <SearchIcon />
     </button>
     <div :class="{ show: expand }" class="search-input-wrapper flex items-center">
@@ -13,7 +13,7 @@
           @keydown="onKeyDown"
           :class="{ '': expand }"
           :disabled="!expand"
-          class=" w-full text-dark-jungle-green dark:text-gray-200 focus:outline-none caret-primary p-2"
+          class=" w-full text-dark-jungle-green dark:text-white focus:outline-none caret-primary p-2"
         />
         <button
           @click="clear"
@@ -112,15 +112,10 @@ export default {
 
 .search-results-info {
   position: absolute;
-  color: #1c1b22;
-  opacity: 0.6;
+  @apply text-secondary;
   font-size: 12px;
   bottom: -26px;
   left: 44px;
-}
-
-.dark .search-results-info {
-  color: #ffffff;
 }
 
 @media only screen and (max-width: 480px) {

@@ -3,7 +3,7 @@
     <button
       :class="{ invisible: !showDropdownToggleButton }"
       @click="toggleMenu"
-      class="z-30 p-2 rounded-lg hover:bg-bright-gray dark:hover:bg-dark-charcoal text-black dark:text-gray-400 absolute top-0 right-0 md:relative"
+      class="z-30 p-2 rounded-lg hover:bg-bright-gray dark:hover:bg-dark-charcoal text-black dark:text-secondary absolute top-0 right-0 md:relative"
     >
       <dots-horizontal-icon v-show="!open" />
       <close-icon v-show="open" />

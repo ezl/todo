@@ -1,5 +1,5 @@
 <template>
-  <span class="text-gray-400 cursor-pointer hover:text-primary">
+  <span class="text-secondary cursor-pointer hover:text-primary">
     <TimerIcon />
   </span>
 </template>

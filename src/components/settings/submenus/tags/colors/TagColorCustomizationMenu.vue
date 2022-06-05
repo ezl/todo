@@ -5,7 +5,7 @@
       <div v-for="tag in tags" :key="tag.id" class="flex items-center justify-between mt-2">
         <span :style="tagStyles(tag)" class="px-3 py-1 tag">{{ tag.name }}</span>
         <div class="flex relative">
-          <dots-vertical-icon :size="20" @click="showTagColorPicker(tag)" class="tag-color-picker-toggle-btn cursor-pointer text-gray-500" />
+          <dots-vertical-icon :size="20" @click="showTagColorPicker(tag)" class="tag-color-picker-toggle-btn cursor-pointer text-secondary" />
         </div>
       </div>
     </div>

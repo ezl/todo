@@ -25,7 +25,7 @@
       </div>
       <div
         :class="{ editing: editing && !item.completed }"
-        class="list-item-body-wrapper ml-3 w-full text-dark-jungle-green dark:text-gray-300 px-3 py-2 rounded-lg flex"
+        class="list-item-body-wrapper ml-3 w-full text-dark-jungle-green dark:text-white px-3 py-2 rounded-lg flex"
       >
         <div>
           <div v-show="!editing && !item.completed" @click="startEditing">
@@ -34,7 +34,7 @@
           <Input v-if="editing && !item.completed" v-model="body" @submit="submit" ref="input" @tag-selected="onTagSelected" inputClasses="p-0" />
           <p v-show="item.completed" ref="animatedBody" :class="{ strikethrough: item.completed }" class="">{{ body }}</p>
         </div>
-        <span class="creation-date visible md:invisible ml-5 opacity-60">{{ creationDate }}</span>
+        <span class="creation-date visible md:invisible ml-5 text-secondary">{{ creationDate }}</span>
       </div>
     </div>
   </div>

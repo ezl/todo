@@ -24,10 +24,10 @@ body {
 }
 
 .list-item-body-wrapper .row.strikethrough {
-  color: rgb(150, 150, 150);
+  @apply text-secondary;
 }
 .dark .list-item-body-wrapper .row.strikethrough {
-  color: rgb(121, 121, 121);
+  @apply text-secondary;
 }
 
 .list-item-body-wrapper .row.strikethrough {

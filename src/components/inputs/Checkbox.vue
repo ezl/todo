@@ -1,5 +1,5 @@
 <template>
-  <div @click="toggle" :class="{ 'checked ': checked }" class="relative cursor-pointer checkbox flex items-center justify-center hover:border-primary">
+  <div @click="toggle" :class="{ 'checked ': checked }" class="relative cursor-pointer checkbox flex items-center justify-center border-2 border-secondary hover:border-primary">
     <lottie-animation v-if="checked" ref="anim" :animationData="animationData" :autoPlay="true" :loop="false" class="animation-wrapper" />
   </div>
 </template>
@@ -45,7 +45,6 @@ export default {
 .checkbox {
   width: 16px;
   height: 16px;
-  border: 2px solid #a4a4a7;
   border-radius: 2px;
   overflow: visible;
 }

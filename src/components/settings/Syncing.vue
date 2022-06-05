@@ -18,7 +18,7 @@
             v-model="email"
             @keyup.enter="login"
             :class="{ shrink: isValidEmail }"
-            class=" w-full text-dark-jungle-green dark:text-gray-200 focus:outline-none caret-primary py-1 px-2"
+            class=" w-full text-dark-jungle-green dark:text-white focus:outline-none caret-primary py-1 px-2"
           />
           <button @click="login" :class="{ 'fade-in': isValidEmail }" class="submit-btn hover:text-primary">
             <content-save-outline-icon :size="23" />

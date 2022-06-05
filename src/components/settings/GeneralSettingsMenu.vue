@@ -21,9 +21,9 @@
         >
           <div class="tablet-icon dark:bg-white bg-gray-200">
             <span class="bg-primary"></span>
-            <span class="bg-gray-400"></span>
-            <span class="bg-gray-400"></span>
-            <span class="bg-gray-400"></span>
+            <span class="bg-secondary"></span>
+            <span class="bg-secondary"></span>
+            <span class="bg-secondary"></span>
           </div>
           <input @change="onSettingsChanged" type="radio" value="top" v-model="currentSettings.new_item_placement" class="hidden" />
         </label>
@@ -32,9 +32,9 @@
           class="opacity-20 p-1 rounded-md border-2 border-transparent"
         >
           <div class="tablet-icon dark:bg-white bg-gray-200">
-            <span class="bg-gray-400"></span>
-            <span class="bg-gray-400"></span>
-            <span class="bg-gray-400"></span>
+            <span class="bg-secondary"></span>
+            <span class="bg-secondary"></span>
+            <span class="bg-secondary"></span>
             <span class="bg-primary"></span>
           </div>
           <input @change="onSettingsChanged" type="radio" value="bottom" v-model="currentSettings.new_item_placement" class="hidden" />
@@ -83,7 +83,7 @@
         </label>
       </div>
     </div>
-    <div class="exporting mt-12 flex justify-between items-center px-10">
+    <div class="exporting mt-12 flex justify-between items-center px-10 text-secondary">
       <label class="cursor-pointer hover:text-primary">
         Import data
         <input type="file" @change="importData" accept=".json" class="hidden" />
@@ -191,11 +191,6 @@ export default {
 </script>
 
 <style>
-.exporting label,
-.exporting span {
-  color: #babbbb;
-}
-
 .tablet-icon {
   width: 43px;
   height: 60px;
