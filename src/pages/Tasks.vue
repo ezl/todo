@@ -122,8 +122,6 @@ export default {
       this.itemBeingEditedId = null;
     },
     onTouchStart(e, item) {
-      if (this.selectedItems.length === 0) e.preventDefault();
-
       this.longTouchTimeoutId = setTimeout(() => this.onLongTouch(item), 500);
       this.holdingTouch = true;
     },
@@ -135,11 +133,6 @@ export default {
       clearTimeout(this.longTouchTimeoutId);
       this.longTouchTimeoutId = null;
       this.holdingTouch = false;
-
-      if (this.selectedItems.length === 0) {
-        const itemComponentRef = this.$refs[`item-${item.id}`][0];
-        itemComponentRef.startEditing();
-      }
     },
     onLongTouch(item) {
       this.selectedItems.push(item);

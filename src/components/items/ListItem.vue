@@ -246,6 +246,13 @@ export default {
     if (this.item.tag_positions === null) {
       this.item.updateTagPositionsInBody();
     }
+    
+    // Disable context menu for this item
+    this.$el.oncontextmenu = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
   },
   watch: {
     item: {
@@ -299,6 +306,12 @@ export default {
 
 .list-item-wrapper:hover .creation-date {
   visibility: visible;
+}
+
+.body, .creation-date{
+-webkit-user-select: none;
+-webkit-touch-callout: none;
+-webkit-tap-highlight-color: transparent;
 }
 
 @media only screen and (max-width: 768px) {
