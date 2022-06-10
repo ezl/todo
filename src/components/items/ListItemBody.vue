@@ -88,9 +88,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-span {
-  padding-right: 4px;
-}
-</style>

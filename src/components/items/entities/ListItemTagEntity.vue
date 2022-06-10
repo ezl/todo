@@ -20,6 +20,12 @@ export default {
     tag(){
       return TagModel.query().where('name', name => name.toLowerCase() == this.tagName.toLowerCase()).first();
     }
+  },
+  mounted(){
+    // Add some margin if previous sibling was also a tag 
+    if(this.$el.previousSibling.nodeType === Node.ELEMENT_NODE){
+      this.$el.classList.add('!ml-1')
+    }
   }
 };
 </script>
