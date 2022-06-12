@@ -90,12 +90,8 @@ export default {
     },
     submit(e) {
       e.preventDefault();
-      // If user hits enter while tag suggestion box is shown,
-      // just select/create current tag and don’t execute the rest of this function
-      if (this.suggestionsPopupCoordinates) {
-        this.$refs.suggestionsPopup.onSelectTag();
-        return;
-      }
+      // Ignore if user hits enter while tag suggestion box is shown
+      if (this.suggestionsPopupCoordinates) return;
 
       this.$emit('submit');
       this.$refs.input.style.height = this.initialInputHeight;
@@ -287,6 +283,9 @@ export default {
       this.restoreCaretPosition();
     },
     onKeyDown(e) {
+      // Ignore and disable up/down arrow keys
+      if(e.keyCode == 38 || e.keyCode == 40)   e.preventDefault()
+
       if (e.key === 'Enter') this.submit(e);
 
       if (e.key === 'Escape' || e.key === 'Esc') {

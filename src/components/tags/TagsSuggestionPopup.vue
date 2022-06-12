@@ -42,7 +42,8 @@ export default {
   },
   data() {
     return {
-      offsetY: 30
+      offsetY: 30,
+      selectedOptionIndex: 0
     };
   },
   computed: {
@@ -52,34 +53,72 @@ export default {
         top: `${this.y + this.offsetY}px`
       };
     },
-    foundExactMatch(){
-      const tag = this.tags[0]
+    foundExactMatch() {
+      const tag = this.tags[0];
 
-      if(tag) return tag.name.toLowerCase() === this.query.toLowerCase()
+      if (tag) return tag.name.toLowerCase() === this.query.toLowerCase();
 
-      return false
+      return false;
     },
-    showCreationButton(){
-      if(!this.foundExactMatch && this.query != '#') return true
+    showCreationButton() {
+      if (!this.foundExactMatch && this.query != '#') return true;
 
-      return false
+      return false;
     }
   },
   methods: {
-    async onSelectTag(index = 0) {
-      let tag = this.tags[index]
+    async onSelectTag(index) {
+      if (index === undefined) index = this.selectedOptionIndex;
 
-      if(!tag) {
+      let tag = this.tags[index];
+
+      if (!tag) {
         tag = await Tag.add(this.query);
       }
 
       this.$emit('select', tag);
     },
     getDynamicClassList(index) {
-      if (index == 0) {
+      if (index == this.selectedOptionIndex) {
         return ['bg-bright-gray', 'dark:bg-dark-charcoal'];
       }
       return ['hover:bg-bright-gray', 'dark:hover:bg-dark-charcoal'];
+    },
+    handleArrowKeysSelection(e) {
+      // Up
+      if (e.keyCode == 38) {
+        if (this.selectedOptionIndex == 0) this.selectedOptionIndex = this.tags.length;
+        if (this.selectedOptionIndex > 0) this.selectedOptionIndex--;
+      }
+
+      // Down
+      if (e.keyCode == 40) {
+        if (this.selectedOptionIndex < this.tags.length - 1) {
+          this.selectedOptionIndex++;
+        } else {
+          this.selectedOptionIndex = 0;
+        }
+      }
+
+      // Enter
+      if (e.key === 'Enter') {
+        // pick tag at  current selected index
+        this.onSelectTag();
+      }
+    }
+  },
+  beforeMount() {
+    window.addEventListener('keydown', this.handleArrowKeysSelection);
+  },
+  beforeUnmount() {
+    window.removeEventListener('keydown', this.handleArrowKeysSelection);
+  },
+  watch: {
+    tags: {
+      handler: function(newVal) {
+        // Reset selection index whenever suggestions change
+        this.selectedOptionIndex = 0;
+      }
     }
   }
 };
