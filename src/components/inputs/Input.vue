@@ -305,7 +305,10 @@ export default {
       let tags = Tag.all();
 
       if (tags) {
-        tags = tags.filter(tag => tag.name.toLowerCase().includes(this.tagThatIsBeingTyped.body.toLowerCase().trim())).slice(0, 8);
+        tags = tags.filter(tag => tag.name.toLowerCase().includes(this.tagThatIsBeingTyped.body.toLowerCase().trim()))
+        // Sort by the character length (from shorter to longer), with shorter tags being the closest matches  
+        .sort((a, b) => a.name.length - b.name.length)
+        .slice(0, 8);
       }
 
       return tags;

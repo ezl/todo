@@ -1,6 +1,6 @@
 <template>
   <ul id="tags-suggestion-popup" class=" shadow-md absolute bg-lotion dark:bg-dark-gunmetal rounded-md overflow-hidden" :style="style">
-    <li v-if="!tags.length && query != '#'" class="tag-suggestion">
+    <li v-if="showCreationButton" class="tag-suggestion">
       <span class="flex flex items-center uppercase px-4 py-1 text-sm">Create tag</span>
       <span @click="onSelectTag" class="px-4 py-1 cursor-pointer flex items-center bg-bright-gray dark:bg-dark-charcoal text-black dark:text-white">
         {{ query }}
@@ -51,6 +51,18 @@ export default {
         left: `${this.x}px`,
         top: `${this.y + this.offsetY}px`
       };
+    },
+    foundExactMatch(){
+      const tag = this.tags[0]
+
+      if(tag) return tag.name.toLowerCase() === this.query.toLowerCase()
+
+      return false
+    },
+    showCreationButton(){
+      if(!this.foundExactMatch && this.query != '#') return true
+
+      return false
     }
   },
   methods: {
