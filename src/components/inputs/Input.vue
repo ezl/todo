@@ -301,12 +301,12 @@ export default {
   },
   computed: {
     tagSuggestions() {
-      let tags = Tag.all();
+      let tags = Tag.query().with('items').get();
 
       if (tags) {
         tags = tags.filter(tag => tag.name.toLowerCase().includes(this.tagThatIsBeingTyped.body.toLowerCase().trim()))
-        // Sort by the character length (from shorter to longer), with shorter tags being the closest matches  
-        .sort((a, b) => a.name.length - b.name.length)
+        // Sort by usage frequency
+        .sort((a, b) => b.items.length - a.items.length)
         .slice(0, 8);
       }
 

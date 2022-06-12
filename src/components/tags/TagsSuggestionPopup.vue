@@ -62,11 +62,7 @@ export default {
       };
     },
     foundExactMatch() {
-      const tag = this.tags[0];
-
-      if (tag) return tag.name.toLowerCase() === this.query.toLowerCase();
-
-      return false;
+      return this.tags.some(tag => tag.name.toLowerCase() === this.query.toLowerCase())
     },
     showCreationButton() {
       if (!this.foundExactMatch && this.query != '#') return true;
