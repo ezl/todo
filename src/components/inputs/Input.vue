@@ -251,7 +251,7 @@ export default {
       // Don’t show if the caret is not at the end
       if (this.getCurrentCaretPosition() !== this.value.length) return;
 
-      const label = this.tagSuggestions.length === 0 ? 'type to create a new tag...' : 'type to add a tag...';
+      const label = 'type to add tag or press ESC to cancel';
 
       const span = document.createElement('span');
       span.innerText = `  ${label}`;
