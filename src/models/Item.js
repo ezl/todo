@@ -82,7 +82,7 @@ export default class Item extends BaseModel {
     await item.$save();
 
     if(shouldSync){
-      ChangeLogger.itemCreated(item)
+      await ChangeLogger.itemCreated(item)
     }
 
     // Re-arrange items positions/orders if an item is to be placed at the bottom (0) (position 1),
@@ -101,7 +101,7 @@ export default class Item extends BaseModel {
       .get();
 
     const newOrders = {}
-    
+
     for (let index = 0; index < items.length; index++) {
       const item = items[index];
       item.order = index + 1;
