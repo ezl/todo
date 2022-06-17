@@ -101,20 +101,27 @@ export default class ChangeLogger {
     syncDelayed()
   }
 
-  static async itemOrdersChanged(items) {
-    for (let index = 0; index < items.length; index++) {
-      const item = items[index];
-      
-      await this.createChange({
+  static async itemOrdersChanged(newOrders) {
+    const changeLogs = await LocalStorageHelper.getValue({ changeLogs: [] });
+
+    for (const uuid in newOrders) {
+      const order = newOrders[uuid]
+
+      const change = {
         entity_type: ENTYTY_TYPE_ITEM,
-        entity_uuid: item.id,
+        entity_uuid: uuid,
         change_type: CHANGE_TYPE_PROPERTY_VALUE_CHANGE,
         meta: {
           property_pame: 'order',
-          new_value: item.order
+          new_value: order
         },
-      })
+        changed_at: moment.utc().format()
+      }
+      
+      changeLogs.push(change);
     }
+
+    await LocalStorageHelper.setValue({ changeLogs });
 
     syncDelayed()
   }

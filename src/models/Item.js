@@ -100,13 +100,17 @@ export default class Item extends BaseModel {
       .orderBy('order', 'asc')
       .get();
 
+    const newOrders = {}
+    
     for (let index = 0; index < items.length; index++) {
       const item = items[index];
       item.order = index + 1;
       await item.$save();
+
+      newOrders[item.id] = item.order
     }
 
-    await ChangeLogger.itemOrdersChanged(items)
+    await ChangeLogger.itemOrdersChanged(newOrders)
   }
 
   // First checks if an attached tag is present in the list item body,

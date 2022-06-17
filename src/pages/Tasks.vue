@@ -285,12 +285,16 @@ export default {
         return this.items;
       },
       set(items) {
+        const newOrders = {}
+
         items.forEach((item, index) => {
-          item.order = index + 1;
+          const order = index + 1
+          item.order = order;
           item.$save();
+          newOrders[item.id] = order
         });
 
-        ChangeLogger.itemOrdersChanged(items);
+        ChangeLogger.itemOrdersChanged(newOrders);
       }
     },
     listItemsWrapperDynamicClasses() {
