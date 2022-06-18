@@ -1,20 +1,20 @@
 <template>
   <div>
-    <BackButton @click="$emit('close')" class="m-3">Tag color customization</BackButton>
+    <BackButton @click="$emit('close')" class="m-3">Tag customization</BackButton>
     <div class="mt-8 overflow-auto list px-4">
       <div v-for="tag in tags" :key="tag.id" class="flex items-center justify-between mt-2">
         <span :style="tagStyles(tag)" class="px-3 py-1 tag">{{ tag.name }}</span>
         <div class="flex relative">
-          <dots-vertical-icon :size="20" @click="showTagColorPicker(tag)" class="tag-color-picker-toggle-btn cursor-pointer text-secondary" />
+          <dots-vertical-icon :size="20" @click="showTagOptionsPopup(tag)" class="tag-options-popup-toggle-btn cursor-pointer text-secondary" />
         </div>
       </div>
     </div>
-    <TagColorPicker
-      v-if="openTagColorPicker"
+    <TagOptionsPopup
+      v-if="openTagOptionsPopup"
       :tag="selectedTag"
-      :colors="colorList"
-      @pick="onTagColorSelected"
-      class="tag-color-picker absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+      @change-color="onChangeTagColor"
+      @delete="onDeleteTag"
+      class="tag-options-popup absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
     />
   </div>
 </template>
@@ -27,7 +27,7 @@ import AutorenewIcon from 'vue-material-design-icons/Autorenew';
 import DotsVerticalIcon from 'vue-material-design-icons/DotsVertical';
 import ChangeLogger from '@/sync/ChangeLogger';
 import { TAG_COLORS, FALLBACK_TAG_COLOR } from '@/constants';
-import TagColorPicker from '@/components/settings/submenus/tags/colors/TagColorPicker';
+import TagOptionsPopup from '@/components/settings/submenus/tags/TagOptionsPopup';
 
 export default {
   components: {
@@ -35,12 +35,12 @@ export default {
     ContentSaveAlertOutlineIcon,
     AutorenewIcon,
     DotsVerticalIcon,
-    TagColorPicker
+    TagOptionsPopup
   },
   data() {
     return {
       selectedTag: null,
-      openTagColorPicker: false,
+      openTagOptionsPopup: false,
       colorList: TAG_COLORS
     };
   },
@@ -50,25 +50,36 @@ export default {
     }
   },
   methods: {
-    showTagColorPicker(tag) {
-      if (this.openTagColorPicker && this.selectedTag.id == tag.id) {
-        this.closeTagColorPicker();
+    showTagOptionsPopup(tag) {
+      if (this.openTagOptionsPopup && this.selectedTag.id == tag.id) {
+        this.closeTagOptionsPopup();
         return;
       }
 
       this.selectedTag = tag;
-      this.openTagColorPicker = true;
+      this.openTagOptionsPopup = true;
     },
-    closeTagColorPicker() {
+    closeTagOptionsPopup() {
       this.selectedTag = null;
-      this.openTagColorPicker = false;
+      this.openTagOptionsPopup = false;
     },
-    async onTagColorSelected({ tag, selectedColor }) {
-      tag.color = selectedColor;
-      await tag.$save();
-      await ChangeLogger.tagPropertyValueChanged(tag.id, 'color', tag.color);
+    async onChangeTagColor(selectedColor) {
+      this.selectedTag.color = selectedColor;
+      await this.selectedTag.$save();
+      await ChangeLogger.tagPropertyValueChanged(this.selectedTag.id, 'color', selectedColor);
 
-      this.closeTagColorPicker();
+      this.closeTagOptionsPopup();
+    },
+    async onDeleteTag() {
+      const confirmed = confirm(`You are about to delete "${this.selectedTag.name}" from your tags. Do you want to proceed?`)
+      const id = this.selectedTag.id
+
+      if(confirmed){
+        await this.selectedTag.$delete()
+        await ChangeLogger.entityDeleted('tag', id);
+      }
+
+      this.closeTagOptionsPopup();
     },
     tagStyles(tag) {
       const obj = {};
@@ -84,10 +95,10 @@ export default {
   },
   mounted() {
     document.body.addEventListener('click', e => {
-      if (e.target.matches('.tag-color-picker-toggle-btn') || e.target.matches('.tag-color-picker-toggle-btn *')) return;
-      if (e.target.matches('.tag-color-picker *')) return;
+      if (e.target.matches('.tag-options-popup-toggle-btn') || e.target.matches('.tag-options-popup-toggle-btn *')) return;
+      if (e.target.matches('.tag-options-popup *')) return;
 
-      this.openTagColorPicker = false;
+      this.openTagOptionsPopup = false;
       this.selectedTag = null;
     });
   }

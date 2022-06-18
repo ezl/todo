@@ -3,8 +3,8 @@
     <div :data-menu-id="menuIds.mainMenu" data-main-menu>
       <BackButton @click="$emit('close')">Back to main settings</BackButton>
       <div class="h-full pl-1">
-        <div @click="activeMenuId = menuIds.colorCustomization" class="flex justify-between items-center mt-8 cursor-pointer">
-          <span>Customize tag colors</span>
+        <div @click="activeMenuId = menuIds.tagCustomization" class="flex justify-between items-center mt-8 cursor-pointer">
+          <span>Tag customization</span>
           <chevronRightIcon class="text-primary" />
         </div>
         <div class="mt-6 flex flex-col">
@@ -65,7 +65,7 @@
       </div>
     </div>
     <CustomTagsOrderMenu :data-menu-id="menuIds.customOrder" @close="activeMenuId =menuIds.mainMenu" class="!p-0"/>
-    <TagColorCustomizationMenu :data-menu-id="menuIds.colorCustomization" @close="activeMenuId =menuIds.mainMenu" class="!p-0"/>
+    <TagCustomizationMenu :data-menu-id="menuIds.tagCustomization" @close="activeMenuId =menuIds.mainMenu" class="!p-0"/>
   </NestedMenu>
 </template>
 
@@ -74,7 +74,7 @@ import ChevronRightIcon from '@/assets/images/icons/chevron-right.svg';
 import NestedMenu from '@/components/settings/NestedMenu';
 import BackButton from '@/components/settings/BackButton';
 import CustomTagsOrderMenu from '@/components/settings/submenus/tags/CustomTagsOrderMenu';
-import TagColorCustomizationMenu from '@/components/settings/submenus/tags/colors/TagColorCustomizationMenu';
+import TagCustomizationMenu from '@/components/settings/submenus/tags/TagCustomizationMenu';
 
 export default {
   components: {
@@ -82,7 +82,7 @@ export default {
     NestedMenu,
     BackButton,
     CustomTagsOrderMenu,
-    TagColorCustomizationMenu
+    TagCustomizationMenu
   },
   props: {
     settings: {
@@ -96,7 +96,7 @@ export default {
       menuIds: {
         mainMenu: 'main-menu',
         customOrder: 'custom-order-menu',
-        colorCustomization: 'color-customization-menu',
+        tagCustomization: 'tag-customization-menu',
       },
       activeMenuId: ''
     };
