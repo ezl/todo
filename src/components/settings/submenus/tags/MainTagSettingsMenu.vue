@@ -10,33 +10,33 @@
         <div class="mt-6 flex flex-col">
           <span>If there are no tasks with a tag:</span>
           <label class="flex items-center pl-1">
-            <input @change="onSettingsChanged" type="radio" :value="true" v-model="settings.hide_tags_without_items" />
+            <input @change="updateSettings" type="radio" :value="true" v-model="settingValues.hide_tags_without_items" />
             <span class="ml-2">Hide these tags</span>
           </label>
           <label class="flex items-center pl-1">
-            <input @change="onSettingsChanged" type="radio" :value="false" v-model="settings.hide_tags_without_items" />
+            <input @change="updateSettings" type="radio" :value="false" v-model="settingValues.hide_tags_without_items" />
             <span class="ml-2">Display these tags anyways</span>
           </label>
         </div>
         <div class="mt-6 flex flex-col">
           <span>If multiple tags are selected, show items that match:</span>
           <label class="flex items-center pl-1">
-            <input @change="onSettingsChanged" type="radio" :value="true" v-model="settings.show_only_items_matching_all_selected_tags" />
+            <input @change="updateSettings" type="radio" :value="true" v-model="settingValues.show_only_items_matching_all_selected_tags" />
             <span class="ml-2">ALL selected tags (“and”)</span>
           </label>
           <label class="flex items-center pl-1">
-            <input @change="onSettingsChanged" type="radio" :value="false" v-model="settings.show_only_items_matching_all_selected_tags" />
+            <input @change="updateSettings" type="radio" :value="false" v-model="settingValues.show_only_items_matching_all_selected_tags" />
             <span class="ml-2">ANY selected tags (“or”)</span>
           </label>
         </div>
         <div class="mt-6 flex flex-col">
           <span>Display # of tasks per tag:</span>
           <label class="flex items-center pl-1">
-            <input @change="onSettingsChanged" type="radio" :value="true" v-model="settings.display_number_of_items_per_tag" />
+            <input @change="updateSettings" type="radio" :value="true" v-model="settingValues.display_number_of_items_per_tag" />
             <span class="ml-2">Yes</span>
           </label>
           <label class="flex items-center pl-1">
-            <input @change="onSettingsChanged" type="radio" :value="false" v-model="settings.display_number_of_items_per_tag" />
+            <input @change="updateSettings" type="radio" :value="false" v-model="settingValues.display_number_of_items_per_tag" />
             <span class="ml-2">No</span>
           </label>
         </div>
@@ -53,7 +53,7 @@ import NestedMenu from '@/components/settings/NestedMenu';
 import BackButton from '@/components/settings/BackButton';
 import CustomTagsOrderMenu from '@/components/settings/submenus/tags/CustomTagsOrderMenu';
 import TagCustomizationMenu from '@/components/settings/submenus/tags/TagCustomizationMenu';
-import Setting from '@/models/Setting';
+import settings from '@/mixins/settings';
 
 export default {
   components: {
@@ -65,7 +65,6 @@ export default {
   },
   data() {
     return {
-      settings: {},
       menuIds: {
         mainMenu: 'main-menu',
         customOrder: 'custom-order-menu',
@@ -75,16 +74,11 @@ export default {
     };
   },
   methods: {
-    async onSettingsChanged() {
-      this.settings.$save()
-    },
     showMainMenu() {
       this.activeMenuId = this.menuIds.mainMenu;
     }
   },
-  mounted(){
-    this.settings = Setting.query().first();
-  }
+  mixins: [settings]
 };
 </script>
 

@@ -4,7 +4,7 @@
       <BackButton @click="$emit('close')" class="m-3">Tag customization</BackButton>
       <div class="mt-8 px-4">
         <label>Order by:</label>
-        <select v-model="settings.sort_tags_by" @change="onTagsOrderChange" class="bg-lotion dark:bg-dark-gunmetal p-1 ml-2 text-black dark:text-white">
+        <select v-model="settingValues.sort_tags_by" @change="onTagsOrderChange" class="bg-lotion dark:bg-dark-gunmetal p-1 ml-2 text-black dark:text-white">
           <option value="alphabetical_order">Alphabetical order (A-Z)</option>
           <option value="usage_frequency">Usage frequency</option>
           <option value="oldest">Oldest tags first</option>
@@ -42,7 +42,7 @@ import { TAG_COLORS, FALLBACK_TAG_COLOR } from '@/constants';
 import TagOptionsPopup from '@/components/settings/submenus/tags/TagOptionsPopup';
 import NestedMenu from '@/components/settings/NestedMenu';
 import CustomTagsOrderMenu from '@/components/settings/submenus/tags/CustomTagsOrderMenu';
-import Setting from '@/models/Setting';
+import settings from '@/mixins/settings';
 
 export default {
   components: {
@@ -59,7 +59,6 @@ export default {
       selectedTag: null,
       openTagOptionsPopup: false,
       colorList: TAG_COLORS,
-      settings: {},
       menuIds: {
         mainMenu: 'main-menu',
         customOrder: 'custom-order-menu'
@@ -105,11 +104,11 @@ export default {
       this.closeTagOptionsPopup();
     },
     onTagsOrderChange() {
-      if (this.settings.sort_tags_by == 'custom_order') {
-        console.log('go to custom_order');
+      if (this.settingValues.sort_tags_by == 'custom_order') {
         this.activeMenuId = this.menuIds.customOrder
       }
-      this.settings.$save();
+
+      this.updateSettings()
     },
     tagStyles(tag) {
       const obj = {};
@@ -131,9 +130,8 @@ export default {
       this.openTagOptionsPopup = false;
       this.selectedTag = null;
     });
-
-    this.settings = Setting.query().first();
-  }
+  },
+  mixins: [settings]
 };
 </script>
 

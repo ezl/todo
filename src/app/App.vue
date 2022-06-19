@@ -25,7 +25,7 @@ export default {
     SettingsMenu
   },
   mounted(){
-    const settings = Setting.query().first();
+    const settings = Setting.retrieve();
     setTheme(settings.theme)
   }
 };

@@ -106,7 +106,6 @@ export default {
       orderedSelectedItems: [],
       itemsMarkedAsCompletedIds: [],
       openItemCreationFormForMobile: false,
-      settings: {}
     };
   },
   methods: {
@@ -331,6 +330,9 @@ export default {
     },
     isTouchDevice() {
       return 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
+    },
+    settings(){
+      return Setting.retrieve()
     }
   },
   mounted() {
@@ -344,8 +346,6 @@ export default {
       itemComponentRef.stopEditing();
       this.itemBeingEditedId = null;
     });
-
-    this.settings = Setting.query().first();
   }
 };
 </script>

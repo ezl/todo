@@ -38,4 +38,8 @@ export default class Setting extends BaseModel {
 
     return entities.settings[0]
   }
+
+  static retrieve(){
+    return this.query().first();
+  }
 }

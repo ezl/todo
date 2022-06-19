@@ -25,7 +25,7 @@
             <span class="bg-secondary"></span>
             <span class="bg-secondary"></span>
           </div>
-          <input @change="onSettingsChanged" type="radio" value="top" v-model="settings.new_item_placement" class="hidden" />
+          <input @change="updateSettings" type="radio" value="top" v-model="settingValues.new_item_placement" class="hidden" />
         </label>
         <label
           :class="{ 'border-2 !border-primary !opacity-100': settings.new_item_placement == 'bottom' }"
@@ -37,18 +37,18 @@
             <span class="bg-secondary"></span>
             <span class="bg-primary"></span>
           </div>
-          <input @change="onSettingsChanged" type="radio" value="bottom" v-model="settings.new_item_placement" class="hidden" />
+          <input @change="updateSettings" type="radio" value="bottom" v-model="settingValues.new_item_placement" class="hidden" />
         </label>
       </div>
     </div>
     <div class="mt-6 flex flex-col">
       <span>After completing an item:</span>
       <label class="flex items-center pl-1">
-        <input @change="onSettingsChanged" type="radio" value="strikethrough_until_refresh" v-model="settings.completed_preference" />
+        <input @change="updateSettings" type="radio" value="strikethrough_until_refresh" v-model="settingValues.completed_preference" />
         <span class="ml-2">Strikethrough until refresh</span>
       </label>
       <label class="flex items-center pl-1">
-        <input @change="onSettingsChanged" type="radio" value="clear_immediately" v-model="settings.completed_preference" />
+        <input @change="updateSettings" type="radio" value="clear_immediately" v-model="settingValues.completed_preference" />
         <span class="ml-2">Remove it immediately</span>
       </label>
     </div>
@@ -64,7 +64,7 @@
             <span class="bg-dark-jungle-green"></span>
             <span class="bg-dark-jungle-green"></span>
           </div>
-          <input @change="onSettingsChanged" type="radio" value="light" v-model="settings.theme" class="hidden" />
+          <input @change="updateSettings" type="radio" value="light" v-model="settingValues.theme" class="hidden" />
         </label>
         <label :class="{ 'border-2 !border-primary !opacity-100': settings.theme == 'dark' }" class="opacity-10 p-1 border-2 border-transparent rounded-md">
           <div class="tablet-icon bg-dark-jungle-green">
@@ -73,7 +73,7 @@
             <span class="bg-white"></span>
             <span class="bg-white"></span>
           </div>
-          <input @change="onSettingsChanged" type="radio" value="dark" v-model="settings.theme" class="hidden" />
+          <input @change="updateSettings" type="radio" value="dark" v-model="settingValues.theme" class="hidden" />
         </label>
       </div>
     </div>
@@ -89,11 +89,10 @@
 
 <script>
 import ChevronRightIcon from '@/assets/images/icons/chevron-right.svg';
-import Setting from '@/models/Setting';
 import LocalStorageHelper from '@/helpers/LocalStorageHelper';
-import { setTheme } from '@/helpers/dom';
 import Syncing from '@/components/settings/Syncing';
 import HotkeysSettingsMenu from '@/components/settings/submenus/HotkeysSettingsMenu';
+import settings from '@/mixins/settings';
 
 export default {
   props: {
@@ -111,16 +110,7 @@ export default {
     Syncing,
     HotkeysSettingsMenu
   },
-  data() {
-    return {
-      settings: {}
-    };
-  },
   methods: {
-    async onSettingsChanged() {
-      await this.settings.$save();
-      setTheme(this.settings.theme)
-    },
     async exportData() {
       const items = await LocalStorageHelper.getValue({ items: [] });
       const tags = await LocalStorageHelper.getValue({ tags: [] });
@@ -179,9 +169,7 @@ export default {
       reader.readAsText(file);
     },
   },
-  mounted() {
-    this.settings = Setting.query().first();
-  }
+  mixins: [settings]
 };
 </script>
 
