@@ -104,10 +104,12 @@ export default class Item extends BaseModel {
 
     for (let index = 0; index < items.length; index++) {
       const item = items[index];
-      item.order = index + 1;
-      await item.$save();
+      const newOrder = index + 1
+      
+      item.order = newOrder;
+      item.$save();
 
-      newOrders[item.id] = item.order
+      newOrders[item.id] = newOrder
     }
 
     await ChangeLogger.itemOrdersChanged(newOrders)
