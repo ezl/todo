@@ -16,11 +16,17 @@
 <script>
 import CogOutlineIcon from 'vue-material-design-icons/CogOutline';
 import SettingsMenu from '@/components/settings/SettingsMenu';
+import Setting from '@/models/Setting';
+import { setTheme } from '@/helpers/dom';
 
 export default {
   components: {
     CogOutlineIcon,
     SettingsMenu
+  },
+  mounted(){
+    const settings = Setting.query().first();
+    setTheme(settings.theme)
   }
 };
 </script>

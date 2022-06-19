@@ -16,14 +16,12 @@
         <GeneralSettingsMenu
           :data-menu-id="menuIds.generalSettings"
           data-main-menu
-          :settings="currentSettings"
-          @settings-updated="onSettingsChanged"
           :menu-ids="menuIds"
           :switch-menu="switchMenu"
         />
 
         <HotkeysSettingsMenu :data-menu-id="menuIds.hotkeys" @close="showMainMenu" />
-        <MainTagSettingsMenu :data-menu-id="menuIds.tagSettings" @close="showMainMenu" :settings="currentSettings" @settings-updated="onSettingsChanged" />
+        <MainTagSettingsMenu :data-menu-id="menuIds.tagSettings" @close="showMainMenu"  />
       </NestedMenu>
     </div>
   </div>
@@ -51,7 +49,6 @@ export default {
   data() {
     return {
       open: false,
-      currentSettings: {},
       menuIds: {
         generalSettings: 'general-settings',
         tagSettings: 'tag-settings',
@@ -68,17 +65,6 @@ export default {
       // Reset menu whenever the popup is closed/opened
       this.activeMenuId = this.menuIds.generalSettings;
     },
-    async onSettingsChanged(newSettings) {
-      await Setting.update({
-        where: this.settings.id,
-        data: {
-          ...newSettings
-        }
-      });
-
-      this.currentSettings = { ...this.settings };
-      this.updateTheme();
-    },
     switchMenu(id) {
       this.activeMenuId = id;
       if (id != this.menuIds.generalSettings) this.showDropdownToggleButton = false;
@@ -88,22 +74,6 @@ export default {
       setTimeout(() => {
         this.showDropdownToggleButton = true;
       }, 400);
-    },
-    updateTheme() {
-      if (this.settings.theme === 'dark') {
-        document.body.classList.remove('bg-white');
-        document.body.classList.add('dark');
-        document.body.classList.add('bg-eerie-black');
-      } else {
-        document.body.classList.remove('dark');
-        document.body.classList.remove('bg-eerie-black');
-        document.body.classList.add('bg-white');
-      }
-    }
-  },
-  computed: {
-    settings() {
-      return Setting.query().first();
     }
   },
   async mounted() {
@@ -121,9 +91,6 @@ export default {
       this.showDropdownToggleButton = true;
       this.currentSubMenuId = null;
     });
-
-    this.currentSettings = { ...this.settings };
-    this.updateTheme();
 
     // Using setTimeout to avoid applying transitions when we switch to the user's preferred theme on page load
     // We only need to apply transition when the user change theme.

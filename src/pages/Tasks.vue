@@ -105,7 +105,8 @@ export default {
       selectedItems: [],
       orderedSelectedItems: [],
       itemsMarkedAsCompletedIds: [],
-      openItemCreationFormForMobile: false
+      openItemCreationFormForMobile: false,
+      settings: {}
     };
   },
   methods: {
@@ -285,13 +286,13 @@ export default {
         return this.items;
       },
       set(items) {
-        const newOrders = {}
+        const newOrders = {};
 
         items.forEach((item, index) => {
-          const order = index + 1
+          const order = index + 1;
           item.order = order;
           item.$save();
-          newOrders[item.id] = order
+          newOrders[item.id] = order;
         });
 
         ChangeLogger.itemOrdersChanged(newOrders);
@@ -328,9 +329,6 @@ export default {
     slideInActions() {
       return this.isMobile && this.selectedItems.length;
     },
-    settings() {
-      return Setting.query().first();
-    },
     isTouchDevice() {
       return 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
     }
@@ -346,6 +344,8 @@ export default {
       itemComponentRef.stopEditing();
       this.itemBeingEditedId = null;
     });
+
+    this.settings = Setting.query().first();
   }
 };
 </script>

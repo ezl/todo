@@ -8,57 +8,35 @@
           <chevronRightIcon class="text-primary" />
         </div>
         <div class="mt-6 flex flex-col">
-          <span>Display tags by:</span>
-          <label class="flex items-center pl-1">
-            <input @change="onSettingsChanged" type="radio" value="alphabetical_order" v-model="currentSettings.sort_tags_by" />
-            <span class="ml-2">Alphabetical order (A-Z)</span>
-          </label>
-          <label class="flex items-center pl-1">
-            <input @change="onSettingsChanged" type="radio" value="usage_frequency" v-model="currentSettings.sort_tags_by" />
-            <span class="ml-2">Most frequently used first</span>
-          </label>
-          <label class="flex items-center pl-1">
-            <input @change="onSettingsChanged" type="radio" value="oldest" v-model="currentSettings.sort_tags_by" />
-            <span class="ml-2">Oldest tags first</span>
-          </label>
-          <label @click="activeMenuId = menuIds.customOrder" class="flex items-center pl-1">
-            <input @change="onSettingsChanged" type="radio" value="custom_order" v-model="currentSettings.sort_tags_by" />
-            <div class="flex-1 flex justify-between items-center ml-2">
-              <span>Custom order</span>
-              <chevronRightIcon class="text-primary" />
-            </div>
-          </label>
-        </div>
-        <div class="mt-6 flex flex-col">
           <span>If there are no tasks with a tag:</span>
           <label class="flex items-center pl-1">
-            <input @change="onSettingsChanged" type="radio" :value="true" v-model="currentSettings.hide_tags_without_items" />
+            <input @change="onSettingsChanged" type="radio" :value="true" v-model="settings.hide_tags_without_items" />
             <span class="ml-2">Hide these tags</span>
           </label>
           <label class="flex items-center pl-1">
-            <input @change="onSettingsChanged" type="radio" :value="false" v-model="currentSettings.hide_tags_without_items" />
+            <input @change="onSettingsChanged" type="radio" :value="false" v-model="settings.hide_tags_without_items" />
             <span class="ml-2">Display these tags anyways</span>
           </label>
         </div>
         <div class="mt-6 flex flex-col">
           <span>If multiple tags are selected, show items that match:</span>
           <label class="flex items-center pl-1">
-            <input @change="onSettingsChanged" type="radio" :value="true" v-model="currentSettings.show_only_items_matching_all_selected_tags" />
+            <input @change="onSettingsChanged" type="radio" :value="true" v-model="settings.show_only_items_matching_all_selected_tags" />
             <span class="ml-2">ALL selected tags (“and”)</span>
           </label>
           <label class="flex items-center pl-1">
-            <input @change="onSettingsChanged" type="radio" :value="false" v-model="currentSettings.show_only_items_matching_all_selected_tags" />
+            <input @change="onSettingsChanged" type="radio" :value="false" v-model="settings.show_only_items_matching_all_selected_tags" />
             <span class="ml-2">ANY selected tags (“or”)</span>
           </label>
         </div>
         <div class="mt-6 flex flex-col">
           <span>Display # of tasks per tag:</span>
           <label class="flex items-center pl-1">
-            <input @change="onSettingsChanged" type="radio" :value="true" v-model="currentSettings.display_number_of_items_per_tag" />
+            <input @change="onSettingsChanged" type="radio" :value="true" v-model="settings.display_number_of_items_per_tag" />
             <span class="ml-2">Yes</span>
           </label>
           <label class="flex items-center pl-1">
-            <input @change="onSettingsChanged" type="radio" :value="false" v-model="currentSettings.display_number_of_items_per_tag" />
+            <input @change="onSettingsChanged" type="radio" :value="false" v-model="settings.display_number_of_items_per_tag" />
             <span class="ml-2">No</span>
           </label>
         </div>
@@ -75,6 +53,7 @@ import NestedMenu from '@/components/settings/NestedMenu';
 import BackButton from '@/components/settings/BackButton';
 import CustomTagsOrderMenu from '@/components/settings/submenus/tags/CustomTagsOrderMenu';
 import TagCustomizationMenu from '@/components/settings/submenus/tags/TagCustomizationMenu';
+import Setting from '@/models/Setting';
 
 export default {
   components: {
@@ -84,15 +63,9 @@ export default {
     CustomTagsOrderMenu,
     TagCustomizationMenu
   },
-  props: {
-    settings: {
-      type: Object,
-      required: true
-    }
-  },
   data() {
     return {
-      currentSettings: this.settings,
+      settings: {},
       menuIds: {
         mainMenu: 'main-menu',
         customOrder: 'custom-order-menu',
@@ -103,11 +76,14 @@ export default {
   },
   methods: {
     async onSettingsChanged() {
-      this.$emit('settings-updated', this.currentSettings);
+      this.settings.$save()
     },
     showMainMenu() {
       this.activeMenuId = this.menuIds.mainMenu;
     }
+  },
+  mounted(){
+    this.settings = Setting.query().first();
   }
 };
 </script>

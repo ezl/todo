@@ -12,11 +12,11 @@
     </div>
     <div class="mt-4">
       <span
-        >Place new tasks on: <span class="text-primary">{{ currentSettings.new_item_placement }}</span></span
+        >Place new tasks on: <span class="text-primary">{{ settings.new_item_placement }}</span></span
       >
       <div class="flex justify-around mt-2">
         <label
-          :class="{ 'border-2 !border-primary !opacity-100': currentSettings.new_item_placement == 'top' }"
+          :class="{ 'border-2 !border-primary !opacity-100': settings.new_item_placement == 'top' }"
           class="opacity-20 p-1 border-2 border-transparent rounded-md"
         >
           <div class="tablet-icon dark:bg-white bg-gray-200">
@@ -25,10 +25,10 @@
             <span class="bg-secondary"></span>
             <span class="bg-secondary"></span>
           </div>
-          <input @change="onSettingsChanged" type="radio" value="top" v-model="currentSettings.new_item_placement" class="hidden" />
+          <input @change="onSettingsChanged" type="radio" value="top" v-model="settings.new_item_placement" class="hidden" />
         </label>
         <label
-          :class="{ 'border-2 !border-primary !opacity-100': currentSettings.new_item_placement == 'bottom' }"
+          :class="{ 'border-2 !border-primary !opacity-100': settings.new_item_placement == 'bottom' }"
           class="opacity-20 p-1 rounded-md border-2 border-transparent"
         >
           <div class="tablet-icon dark:bg-white bg-gray-200">
@@ -37,49 +37,43 @@
             <span class="bg-secondary"></span>
             <span class="bg-primary"></span>
           </div>
-          <input @change="onSettingsChanged" type="radio" value="bottom" v-model="currentSettings.new_item_placement" class="hidden" />
+          <input @change="onSettingsChanged" type="radio" value="bottom" v-model="settings.new_item_placement" class="hidden" />
         </label>
       </div>
     </div>
     <div class="mt-6 flex flex-col">
       <span>After completing an item:</span>
       <label class="flex items-center pl-1">
-        <input @change="onSettingsChanged" type="radio" value="strikethrough_until_refresh" v-model="currentSettings.completed_preference" />
+        <input @change="onSettingsChanged" type="radio" value="strikethrough_until_refresh" v-model="settings.completed_preference" />
         <span class="ml-2">Strikethrough until refresh</span>
       </label>
       <label class="flex items-center pl-1">
-        <input @change="onSettingsChanged" type="radio" value="clear_immediately" v-model="currentSettings.completed_preference" />
+        <input @change="onSettingsChanged" type="radio" value="clear_immediately" v-model="settings.completed_preference" />
         <span class="ml-2">Remove it immediately</span>
       </label>
     </div>
     <div class="mt-4">
       <span
-        >Appearance: <span class="text-primary">{{ currentSettings.theme }} mode</span></span
+        >Appearance: <span class="text-primary">{{ settings.theme }} mode</span></span
       >
       <div class="flex justify-around mt-2">
-        <label
-          :class="{ 'border-2 !border-primary !opacity-100': currentSettings.theme == 'light' }"
-          class="opacity-20 p-1 border-2 border-transparent rounded-md"
-        >
+        <label :class="{ 'border-2 !border-primary !opacity-100': settings.theme == 'light' }" class="opacity-20 p-1 border-2 border-transparent rounded-md">
           <div class="tablet-icon dark:bg-white">
             <span class="bg-dark-jungle-green"></span>
             <span class="bg-dark-jungle-green"></span>
             <span class="bg-dark-jungle-green"></span>
             <span class="bg-dark-jungle-green"></span>
           </div>
-          <input @change="onSettingsChanged" type="radio" value="light" v-model="currentSettings.theme" class="hidden" />
+          <input @change="onSettingsChanged" type="radio" value="light" v-model="settings.theme" class="hidden" />
         </label>
-        <label
-          :class="{ 'border-2 !border-primary !opacity-100': currentSettings.theme == 'dark' }"
-          class="opacity-10 p-1 border-2 border-transparent rounded-md"
-        >
+        <label :class="{ 'border-2 !border-primary !opacity-100': settings.theme == 'dark' }" class="opacity-10 p-1 border-2 border-transparent rounded-md">
           <div class="tablet-icon bg-dark-jungle-green">
             <span class="bg-white"></span>
             <span class="bg-white"></span>
             <span class="bg-white"></span>
             <span class="bg-white"></span>
           </div>
-          <input @change="onSettingsChanged" type="radio" value="dark" v-model="currentSettings.theme" class="hidden" />
+          <input @change="onSettingsChanged" type="radio" value="dark" v-model="settings.theme" class="hidden" />
         </label>
       </div>
     </div>
@@ -97,15 +91,12 @@
 import ChevronRightIcon from '@/assets/images/icons/chevron-right.svg';
 import Setting from '@/models/Setting';
 import LocalStorageHelper from '@/helpers/LocalStorageHelper';
+import { setTheme } from '@/helpers/dom';
 import Syncing from '@/components/settings/Syncing';
 import HotkeysSettingsMenu from '@/components/settings/submenus/HotkeysSettingsMenu';
 
 export default {
   props: {
-    settings: {
-      type: Object,
-      required: true
-    },
     menuIds: {
       type: Object,
       required: true
@@ -122,12 +113,13 @@ export default {
   },
   data() {
     return {
-      currentSettings: this.settings
+      settings: {}
     };
   },
   methods: {
     async onSettingsChanged() {
-      this.$emit('settings-updated', this.currentSettings);
+      await this.settings.$save();
+      setTheme(this.settings.theme)
     },
     async exportData() {
       const items = await LocalStorageHelper.getValue({ items: [] });
@@ -185,7 +177,10 @@ export default {
       };
 
       reader.readAsText(file);
-    }
+    },
+  },
+  mounted() {
+    this.settings = Setting.query().first();
   }
 };
 </script>
