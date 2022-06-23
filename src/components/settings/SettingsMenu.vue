@@ -99,6 +99,8 @@ export default {
   watch: {
     open: {
       handler: function(newVal) {
+        this.$emit('toggled', newVal)
+        
         // Temporarily prevent body from scrolling while settings menu is opened
         if (window.screen.width <= 480) {
           if (this.open) {

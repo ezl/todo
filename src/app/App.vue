@@ -5,10 +5,10 @@
         <li class="text-lg cursor-pointer">Tasks</li>
       </ul>
       <div>
-        <SettingsMenu />
+        <SettingsMenu @toggled="onSettingsMenuToggled"/>
       </div>
     </nav>
-    <router-view />
+    <router-view :class="{'blur-sm pointer-events-none': isSettingsMenuOpen}"/>
     <notifications position="bottom right" width="100%" :duration="6000" :ignore-duplicates="true"/>
   </div>
 </template>
@@ -23,6 +23,16 @@ export default {
   components: {
     CogOutlineIcon,
     SettingsMenu
+  },
+  data(){
+    return {
+      isSettingsMenuOpen: false
+    }
+  },
+  methods: {
+    onSettingsMenuToggled(isOpen){
+      this.isSettingsMenuOpen = isOpen
+    },
   },
   mounted(){
     const settings = Setting.retrieve();
