@@ -5,6 +5,7 @@
       :data-placeholder="placeholderText"
       @input="change"
       @keydown="onKeyDown"
+      @click="onClick"
       ref="input"
       :class="inputClasses"
       class="block cursor-text whitespace-pre-wrap overflow-hidden bg-transparent w-full text-dark-jungle-green dark:text-white focus:outline-none caret-primary p-2 "
@@ -58,8 +59,9 @@ export default {
       // We have to keep track of the caret's position to reset it back later,
       // bcause changing contenteditable resets caret position
       this.saveCurrentCaretPosition();
+      this.hideTagAssignmentGuide()
 
-      this.$emit('input', e.target.innerHTML);
+      this.$emit('input', e.target.textContent);
       this.resize();
 
       this.$nextTick(() => {
@@ -79,8 +81,6 @@ export default {
 
           if (justStartedTypingIt) {
             this.showTagAssignmentGuide();
-          } else {
-            this.hideTagAssignmentGuide();
           }
         } else {
           this.suggestionsPopupCoordinates = null;
@@ -205,8 +205,8 @@ export default {
       this.$refs.input.normalize();
 
       this.saveCurrentCaretPosition();
-      this.updateInputValue(this.$refs.input.innerHTML);
-      this.$emit('input', this.$refs.input.innerHTML);
+      this.updateInputValue(this.$refs.input.textContent);
+      this.$emit('input', this.$refs.input.textContent);
       this.tagThatIsBeingTyped.endIndex += remainingCharacters.length;
     },
     getCaretAbsolutePosition() {
@@ -264,7 +264,7 @@ export default {
 
       if (span) {
         span.parentElement.removeChild(span);
-        this.$emit('input', this.$refs.input.innerHTML);
+        this.$emit('input', this.$refs.input.textContent);
       }
     },
     placeCaretAtTheEnd() {
@@ -278,7 +278,7 @@ export default {
       selection.addRange(range);
     },
     updateInputValue(value) {
-      this.$refs.input.innerHTML = value;
+      this.$refs.input.textContent = value;
       // place the caret back at its previous position, after changing input value
       this.restoreCaretPosition();
     },
@@ -297,6 +297,11 @@ export default {
         this.tagThatIsBeingTyped.endIndex = null;
         this.hideTagAssignmentGuide();
       }
+    },
+    onClick(e) {
+      //Close tags suggestion popup when the user clicks somewhere on the input
+      this.suggestionsPopupCoordinates = null;
+      this.hideTagAssignmentGuide();
     }
   },
   computed: {
@@ -315,7 +320,7 @@ export default {
   },
   mounted() {
     this.initialInputHeight = window.getComputedStyle(this.$refs.input, null).getPropertyValue('height');
-    this.$refs.input.innerHTML = this.value;
+    this.$refs.input.textContent = this.value;
     this.discardPastedTextFormatting();
     this.$nextTick(() => this.placeCaretAtTheEnd());
 
