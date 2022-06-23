@@ -52,6 +52,7 @@ export default {
     show() {
       this.expand = true;
       this.$nextTick(() => this.$refs.input.focus());
+      this.$emit('toggled', this.expand)
 
       document.querySelector('.tags-wrapper').classList.add('hide');
       document.querySelector('.tags-wrapper').classList.add('pointer-events-none');
@@ -59,6 +60,7 @@ export default {
     close() {
       this.expand = false;
       this.clear();
+      this.$emit('toggled', this.expand)
 
       document.querySelector('.tags-wrapper').classList.remove('hide');
       document.querySelector('.tags-wrapper').classList.remove('pointer-events-none');
