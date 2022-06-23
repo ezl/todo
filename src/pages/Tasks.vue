@@ -15,12 +15,12 @@
         </button>
         <span class="text-xs text-secondary opacity-60 ">drag</span>
       </div>
-      <div class="flex relative items-start	w-full ml-0 md:ml-8">
+      <div :class="{'blur-sm pointer-events-none': isMobile && selectedItems.length}" class="flex relative items-start	w-full ml-0 md:ml-8">
         <SearchInput v-model="listItemSearchQuery" :results-count="items.length" />
         <TagGroup class="ml-3" />
       </div>
     </div>
-    <div class="mt-3 md:mt-8 list-items-container">
+    <div class="mt-3 md:mt-8 list-items-container  overflow-x-hidden">
       <ListItemForm v-if="!isMobile && !isTouchDevice" class="w-full md:w-10/12 lg:9/12 mr-0 m-auto px-2 pr-7 md:px-2 md:pl-10" />
       <draggable
         :class="listItemsWrapperDynamicClasses"
