@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "webpack-dev-server --env target=web",
+    "dev:web": "webpack-dev-server --env target=web",
+    "dev:chrome": "webpack-dev-server --env target=chrome",
+    "dev:firefox": "webpack-dev-server --env target=firefox",
     "build:chrome": "webpack --env target=chrome --mode production",
     "build:firefox": "webpack --env target=firefox --mode production",
     "build:web": "webpack --env target=web --mode production"

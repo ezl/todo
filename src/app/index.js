@@ -8,6 +8,7 @@ import LottieAnimation from 'lottie-web-vue';
 import axios from 'axios';
 import Notifications from 'vue-notification'
 import { sync } from '../sync'
+import { isRunningAsAnExtension } from '@/helpers/extension'
 
 require('../authentication')
 
@@ -17,7 +18,7 @@ Vue.use(Notifications)
 const APP_VERSION = '0.0.3'
 
 // we dont need to require this unless we are running as a browser extension
-if ((typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) || typeof browser !== 'undefined') {
+if (isRunningAsAnExtension()) {
   window.browser = require('webextension-polyfill');
 }
 
@@ -46,6 +47,8 @@ const init = async () => {
   if (auth.email) store.commit('auth/SET_EMAIL', auth.email);
   if (auth.clientTrackingToken) store.commit('auth/SET_CLIENT_TRACKING_TOKEN', auth.clientTrackingToken);
   
+  trackPageLoads()
+
   new Vue({
     el: '#app',
     router,
@@ -53,5 +56,14 @@ const init = async () => {
     render: h => h(App)
   });
 }
+
+const trackPageLoads = () => {
+  LocalStorageHelper.getValue({ numOfPageLoads: 0 }).then(numOfPageLoads => {
+    numOfPageLoads++
+    LocalStorageHelper.setValue({numOfPageLoads})
+  })
+}
+
+
 
 init()

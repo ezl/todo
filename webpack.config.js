@@ -18,10 +18,22 @@ const buildConfig = env => {
       }
     ]
   };
+  const entry = {
+    index: './src/app/index.js',
+  }
+
+  if(target === 'chrome'){
+    entry['background-scripts/main'] = './src/browser-extension/background-scripts/main.js'
+    entry['sw'] = './src/browser-extension/background-scripts/sw.js'
+  }
+
+  if(target === 'firefox'){
+    entry['content-scripts/main'] = './src/browser-extension/content-scripts/main.js'
+  }
 
   if (target !== 'web') {
     copyPluginOptions.patterns.push({
-      from: './src/base-manifest.json',
+      from: './src/browser-extension/base-manifest.json',
       to: 'manifest.json',
       transform(content, absoluteFrom) {
         return buildManifestFile(content, target);
@@ -37,9 +49,7 @@ const buildConfig = env => {
   return {
     mode: 'development',
     devtool: 'cheap-module-source-map',
-    entry: {
-      index: './src/app/index.js'
-    },
+    entry,
     resolve: {
       alias: {
         '@': path.resolve('./src')
@@ -81,7 +91,8 @@ const buildConfig = env => {
     output: {
       path: path.resolve(__dirname, outputPath),
       filename: '[name].js',
-      clean: true
+      clean: true,
+      publicPath: '',
     },
     devServer: {
       static: {
@@ -125,6 +136,16 @@ const buildManifestFile = (buffer, browser) => {
         }
       };
 
+      baseManifest.background = {
+        service_worker: 'sw.js'
+      };
+
+      // Using this to allow the web page to communicate with the background script 
+      // in order to get current version of the extension (if installed)
+      baseManifest.externally_connectable = {
+        matches: ["http://localhost:3000/*", "https://app.badtodo.com/*"]
+      };
+
       baseManifest.manifest_version = 3;
       break;
 
@@ -134,6 +155,17 @@ const buildManifestFile = (buffer, browser) => {
           ...icons
         }
       };
+
+      baseManifest.background = {
+        scripts: ['background-scripts/main.js']
+      };
+
+      baseManifest.content_scripts = [
+        {
+          js: ['content-scripts/main.js'],
+          matches: ["http://localhost/*", "*://app.badtodo.com/*"]
+        }
+      ];
 
       baseManifest.manifest_version = 2;
       break;
