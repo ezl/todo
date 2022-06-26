@@ -29,7 +29,7 @@
       >
         <div>
           <div v-show="!editing && !item.completed" @click="startEditing">
-            <ListItemBody :item="item" class="body" />
+            <ListItemBody :item="item" :class="{'line-through': item.completed}" class="body" />
           </div>
           <Input v-if="editing && !item.completed" v-model="body" @submit="submit" ref="input" @tag-selected="onTagSelected" inputClasses="p-0" />
           <p v-show="item.completed" ref="animatedBody" :class="{ strikethrough: item.completed }" class="">{{ body }}</p>

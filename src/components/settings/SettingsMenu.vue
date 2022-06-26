@@ -111,6 +111,12 @@ export default {
         }
       }
     }
+  },
+  watch: {
+    '$route' (to, from) {
+      // Close when the page changes 
+      this.open = false
+    }
   }
 };
 </script>

@@ -14,7 +14,7 @@ export default {
   render: function(h) {
     const bodyParts = this.replaceEntitiesWithComponents(this.item.body);
 
-    return <span class={this.item.completed ? 'line-through' : ''}> {...bodyParts} </span>;
+    return <span> {...bodyParts} </span>;
   },
   computed: {
     hashTagEntities() {

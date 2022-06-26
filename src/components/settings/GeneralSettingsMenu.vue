@@ -2,6 +2,10 @@
   <div class="menu main-menu">
     <h4 class="text-center">Settings</h4>
     <Syncing class="mt-8" />
+    <router-link :to="{ name: 'tasks.completed' }" class="flex justify-between items-center mt-4 cursor-pointer">
+      <span>See completed tasks</span>
+      <chevronRightIcon class="text-primary" />
+    </router-link>
     <div @click="switchMenu(menuIds.hotkeys)" class="flex justify-between items-center mt-4 cursor-pointer">
       <span>See hotkeys (press ? to toggle)</span>
       <chevronRightIcon class="text-primary" />
@@ -162,8 +166,6 @@ export default {
         if (data.itemTagRelationships) await LocalStorageHelper.setValue({ itemTagRelationships: data.itemTagRelationships });
 
         LocalStorageHelper.restore();
-
-        this.open = false;
       };
 
       reader.readAsText(file);
