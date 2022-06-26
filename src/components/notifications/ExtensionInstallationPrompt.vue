@@ -6,7 +6,7 @@
           <a :href="installationUrl" target="_blank" class="text-primary underline">Download our browser extension</a> to see your to do list in every browser
           tab.
         </p>
-        <button class="absolute right-0 top-1/2 transform -translate-y-1/2 p-2" @click="close">
+        <button class="absolute right-0 top-1/2 transform -translate-y-1/2 p-2 text-black" @click="close">
           <close-icon :size="21" />
         </button>
       </div>
@@ -78,9 +78,11 @@ export default {
 <style scoped>
 .notification {
   background: #f2f2f2;
+  border-top: 2px solid #C4C4C4;
 }
 
 .dark .notification {
-  background: #141317;
+  background: #4B4949;
+  border-top: 2px solid #928C8C;
 }
 </style>
