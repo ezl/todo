@@ -75,15 +75,15 @@ export default {
     }),
     async login() {
       if(!this.isValidEmail){
-        this.$notify({title: 'Please enter a valid email address.'})  
+        this.$notify({group: 'general', title: 'Please enter a valid email address.'})  
         return
       }
 
       try {
         await this.sendVerificationEmail(this.email);      
-        this.$notify({title: 'Please click the verification link in your inbox.'})  
+        this.$notify({group: 'general', title: 'Please click the verification link in your inbox.'})  
       } catch (error) {
-        this.$notify({title: 'Could not send the verification email, please try again later.'})  
+        this.$notify({group: 'general', title: 'Could not send the verification email, please try again later.'})  
       }
     },
     async signOutOrAbortVerification() {

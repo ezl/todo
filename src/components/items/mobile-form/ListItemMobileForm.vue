@@ -61,7 +61,7 @@ export default {
   right: 0;
   left: 0;
   bottom: 0;
-  z-index: 9876789;
+  z-index: 999;
   transition: 0.3s transform ease-in-out, opacity 0.3s !important;
   transform: translateY(calc(100%));
   opacity: 0;

@@ -15,7 +15,7 @@
       </div>
     </nav>
     <router-view :class="{ 'blur-sm pointer-events-none': isSettingsMenuOpen }" />
-    <notifications position="bottom right" width="100%" :duration="6000" :ignore-duplicates="true" />
+    <notifications group="general" position="bottom right" width="100%" :duration="6000" :ignore-duplicates="true" />
     <ExtensionInstallationPrompt />
   </div>
 </template>

@@ -5,6 +5,7 @@
       :data-placeholder="placeholderText"
       @input="change"
       @keydown="onKeyDown"
+      @keypress="onKeyPress"
       @click="onClick"
       ref="input"
       :class="inputClasses"
@@ -25,7 +26,7 @@
 <script>
 import TagsSuggestionPopup from '@/components/tags/TagsSuggestionPopup';
 import Tag from '@/models/Tag';
-import { findParent } from '@/helpers/dom.js'
+import { findParent } from '@/helpers/dom.js';
 
 export default {
   components: {
@@ -59,20 +60,20 @@ export default {
       // We have to keep track of the caret's position to reset it back later,
       // bcause changing contenteditable resets caret position
       this.saveCurrentCaretPosition();
-      this.hideTagAssignmentGuide()
+      this.hideTagAssignmentGuide();
 
       this.$emit('input', e.target.textContent);
       this.resize();
 
       this.$nextTick(() => {
-        // Frequently reset and update the ignored tag indexes 
+        // Frequently reset and update the ignored tag indexes
         this.ignoredTagsStartIndexes = this.ignoredTagsStartIndexes.filter(index => {
-          return index <= this.value.length - 1
-        })
+          return index <= this.value.length - 1;
+        });
 
-        const isTypingATag = this.userIsTypingATag() 
-        const justStartedTypingIt = this.tagThatIsBeingTyped.body.length === 1
-        const shouldBeIgnored = this.ignoredTagsStartIndexes.some(index => index === this.tagThatIsBeingTyped.startIndex)
+        const isTypingATag = this.userIsTypingATag();
+        const justStartedTypingIt = this.tagThatIsBeingTyped.body.length === 1;
+        const shouldBeIgnored = this.ignoredTagsStartIndexes.some(index => index === this.tagThatIsBeingTyped.startIndex);
 
         if (isTypingATag && !shouldBeIgnored) {
           if (!this.suggestionsPopupCoordinates && justStartedTypingIt) {
@@ -96,7 +97,7 @@ export default {
       this.$emit('submit');
       this.$refs.input.style.height = this.initialInputHeight;
       this.suggestionsPopupCoordinates = null;
-      this.ignoredTagsStartIndexes = []
+      this.ignoredTagsStartIndexes = [];
     },
     focus() {
       this.$refs.input.focus();
@@ -223,28 +224,27 @@ export default {
 
       const rect = newRange.getBoundingClientRect();
 
-      let p = findParent(this.$el, (el) => {
-        if(window.getComputedStyle(el).getPropertyValue('position') == 'relative'){
-            return true
+      let p = findParent(this.$el, el => {
+        if (window.getComputedStyle(el).getPropertyValue('position') == 'relative') {
+          return true;
         }
 
-        if(window.getComputedStyle(el).getPropertyValue('transform') != 'none'){
-            return true
+        if (window.getComputedStyle(el).getPropertyValue('transform') != 'none') {
+          return true;
         }
-      })
+      });
 
-
-      const pos =  {
+      const pos = {
         x: rect.right,
         y: rect.top
       };
-      
+
       // add offset only on bigger devices
-      if(window.screen.width > 480){
-        pos.y = pos.y + (p ? p.scrollY : window.scrollY)
+      if (window.screen.width > 480) {
+        pos.y = pos.y + (p ? p.scrollY : window.scrollY);
       }
 
-      return pos
+      return pos;
     },
     showTagAssignmentGuide() {
       if (document.querySelector('#tag-assignment-guide')) return;
@@ -284,18 +284,30 @@ export default {
     },
     onKeyDown(e) {
       // Ignore and disable up/down arrow keys
-      if(e.keyCode == 38 || e.keyCode == 40)   e.preventDefault()
+      if (e.keyCode == 38 || e.keyCode == 40) e.preventDefault();
 
       if (e.key === 'Enter') this.submit(e);
 
       if (e.key === 'Escape' || e.key === 'Esc') {
-        this.ignoredTagsStartIndexes.push(this.tagThatIsBeingTyped.startIndex)
+        this.ignoredTagsStartIndexes.push(this.tagThatIsBeingTyped.startIndex);
 
         this.suggestionsPopupCoordinates = null;
         this.tagThatIsBeingTyped.body = '';
         this.tagThatIsBeingTyped.startIndex = null;
         this.tagThatIsBeingTyped.endIndex = null;
         this.hideTagAssignmentGuide();
+      }
+    },
+    onKeyPress(e){
+      // Prevent the user from creating tags containing disallowed characters 
+      if (this.suggestionsPopupCoordinates) {
+        const typedChar = String.fromCharCode(e.keyCode);
+        const allowedKeys = [38, 40, 13, 27];
+
+        if (!/[0-9a-zA-Z ]/.test(typedChar) && !allowedKeys.includes(e.keyCode)) {
+          this.$notify({ group: 'general', title: `Oops, are you trying to create a tag with a '${typedChar}' in it? Tags can only contain the following characters: A-Z, a-z, 0-9, space and "_".` });
+          e.preventDefault()
+        }
       }
     },
     onClick(e) {
@@ -306,13 +318,16 @@ export default {
   },
   computed: {
     tagSuggestions() {
-      let tags = Tag.query().with('items').get();
+      let tags = Tag.query()
+        .with('items')
+        .get();
 
       if (tags) {
-        tags = tags.filter(tag => tag.name.toLowerCase().includes(this.tagThatIsBeingTyped.body.toLowerCase().trim()))
-        // Sort by usage frequency
-        .sort((a, b) => b.items.length - a.items.length)
-        .slice(0, 8);
+        tags = tags
+          .filter(tag => tag.name.toLowerCase().includes(this.tagThatIsBeingTyped.body.toLowerCase().trim()))
+          // Sort by usage frequency
+          .sort((a, b) => b.items.length - a.items.length)
+          .slice(0, 8);
       }
 
       return tags;
