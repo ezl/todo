@@ -109,14 +109,14 @@ export default {
     },
     itemsCompletedToday() {
       return this.items.filter(item => {
-        const completionDate = moment.utc(item.completed_at);
+        const completionDate = moment.utc(item.completed_at).local();
 
         return completionDate.isAfter(this.today);
       });
     },
     itemsCompletedYesterday() {
       return this.items.filter(item => {
-        const completionDate = moment.utc(item.completed_at);
+        const completionDate = moment.utc(item.completed_at).local()
 
         return completionDate.isBetween(this.yesterday, this.today);
       });
@@ -126,7 +126,7 @@ export default {
     },
     itemsCompletedThisWeek() {
       return this.items.filter(item => {
-        const completionDate = moment.utc(item.completed_at);
+        const completionDate = moment.utc(item.completed_at).local()
 
         return completionDate.isBetween(this.thisWeek, this.yesterday);
       });
@@ -136,7 +136,7 @@ export default {
     },
     itemsCompletedLastWeek() {
       return this.items.filter(item => {
-        const completionDate = moment.utc(item.completed_at);
+        const completionDate = moment.utc(item.completed_at).local()
 
         return completionDate.isBetween(this.lastWeek, this.thisWeek);
       });
@@ -146,7 +146,7 @@ export default {
     },
     itemsCompletedThisMonth() {
       return this.items.filter(item => {
-        const completionDate = moment.utc(item.completed_at);
+        const completionDate = moment.utc(item.completed_at).local()
 
         return completionDate.isBetween(this.thisMonth, this.lastWeek);
       });
@@ -156,7 +156,7 @@ export default {
     },
     itemsCompletedLastMonth() {
       return this.items.filter(item => {
-        const completionDate = moment.utc(item.completed_at);
+        const completionDate = moment.utc(item.completed_at).local()
 
         return completionDate.isBetween(this.lastMonth, this.thisMonth);
       });
@@ -166,27 +166,24 @@ export default {
     },
     itemsCompletedBeforeLastMonth() {
       return this.items.filter(item => {
-        const completionDate = moment.utc(item.completed_at);
+        const completionDate = moment.utc(item.completed_at).local()
 
         return completionDate.isBefore(this.lastMonth);
       });
     }
   },
   created() {
-    this.today = moment.utc().startOf('day');
+    this.today = moment().startOf('day');
 
-    this.yesterday = moment.utc().subtract(1, 'days');
+    this.yesterday = moment().subtract(1, 'days');
 
-    this.thisWeek = moment.utc().subtract(8, 'days'); // 8 days from today
+    this.thisWeek = moment().subtract(8, 'days'); // 8 days from today
 
-    this.lastWeek = moment.utc().subtract(14, 'days'); // 14 days from today
+    this.lastWeek = moment().subtract(14, 'days'); // 14 days from today
 
-    this.thisMonth = moment.utc().subtract(30, 'days'); // 30 days from today
+    this.thisMonth = moment().subtract(30, 'days'); // 30 days from today
 
-    this.lastMonth = moment
-      .utc()
-      .subtract(60, 'days') // 60 days from today
-      .startOf('day');
+    this.lastMonth = moment().subtract(60, 'days').startOf('day') // 60 days from today
   }
 };
 </script>
