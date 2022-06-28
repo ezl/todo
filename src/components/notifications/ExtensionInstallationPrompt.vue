@@ -27,8 +27,8 @@ export default {
     return {
       notificationId: null,
       intervals: [10, 15, 20], // After how many refreshes should we show this?
-      firefoxInstallationUrl: 'https://addons.mozilla.org/en-US/firefox/',
-      chromeInstallationUrl: 'https://chrome.google.com/webstore?'
+      firefoxInstallationUrl: 'https://addons.mozilla.org/en-US/firefox/addon/bad-to-do/',
+      chromeInstallationUrl: 'https://chrome.google.com/webstore/detail/todo-list/lgpchgegecogdjhonnjbkaccjpnhlipa'
     };
   },
   computed: {
