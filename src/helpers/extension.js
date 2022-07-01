@@ -90,8 +90,8 @@ export const getBrowserType = () => {
 
 export const getInstalledExtensionId = () => {
   const browserType = getBrowserType();
-  // To be replaced with the actual IDs later
-  const chromeExtensionId = 'npjagoopibghdalioeinlhkbakkomjoo';
+  
+  const chromeExtensionId = 'lgpchgegecogdjhonnjbkaccjpnhlipa';
   const firefoxExtensionId = 'a8c5dca1214e19e4052fba219f81a1229ab276fa@temporary-addon';
 
   if (browserType === 'chrome') return chromeExtensionId;
