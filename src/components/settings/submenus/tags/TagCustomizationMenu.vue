@@ -93,22 +93,38 @@ export default {
       this.closeTagOptionsPopup();
     },
     async onDeleteTag() {
-      const confirmed = confirm(`You are about to delete "${this.selectedTag.name}" from your tags. Do you want to proceed?`);
-      const id = this.selectedTag.id;
-
-      if (confirmed) {
-        await this.selectedTag.$delete();
-        await ChangeLogger.entityDeleted('tag', id);
-      }
-
-      this.closeTagOptionsPopup();
+      this.$notify({
+        group: 'prompt',
+        title: 'Delete',
+        text: `You are about to delete "${this.selectedTag.name}" from your tags. Do you want to proceed?`,
+        data: {
+          actions: [
+            {
+              label: 'Cancel',
+              callback: async close => {
+                close();
+                this.closeTagOptionsPopup();
+              }
+            },
+            {
+              label: 'Yes',
+              callback: async close => {
+                await this.selectedTag.$delete();
+                await ChangeLogger.entityDeleted('tag', id);
+                close();
+                this.closeTagOptionsPopup();
+              }
+            }
+          ]
+        }
+      });
     },
     onTagsOrderChange() {
       if (this.settingValues.sort_tags_by == 'custom_order') {
-        this.activeMenuId = this.menuIds.customOrder
+        this.activeMenuId = this.menuIds.customOrder;
       }
 
-      this.updateSettings()
+      this.updateSettings();
     },
     tagStyles(tag) {
       const obj = {};

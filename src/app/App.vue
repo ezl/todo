@@ -18,6 +18,8 @@
     <notifications group="general" position="bottom right" width="100%" :duration="6000" :ignore-duplicates="true" />
     <ExtensionInstallationPrompt />
     <ExtensionUpdatePrompt />
+    <PromptNotification />
+    <BasicNotification />
   </div>
 </template>
 
@@ -26,6 +28,8 @@ import CogOutlineIcon from 'vue-material-design-icons/CogOutline';
 import SettingsMenu from '@/components/settings/SettingsMenu';
 import ExtensionInstallationPrompt from '@/components/notifications/ExtensionInstallationPrompt';
 import ExtensionUpdatePrompt from '@/components/notifications/ExtensionUpdatePrompt';
+import PromptNotification from '@/components/notifications/PromptNotification';
+import BasicNotification from '@/components/notifications/BasicNotification';
 import Setting from '@/models/Setting';
 import { setTheme } from '@/helpers/dom';
 
@@ -34,7 +38,9 @@ export default {
     CogOutlineIcon,
     SettingsMenu,
     ExtensionInstallationPrompt,
-    ExtensionUpdatePrompt
+    ExtensionUpdatePrompt,
+    PromptNotification,
+    BasicNotification
   },
   data() {
     return {

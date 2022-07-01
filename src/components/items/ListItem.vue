@@ -29,7 +29,7 @@
       >
         <div>
           <div v-show="!editing && !item.completed" @click="startEditing">
-            <ListItemBody :item="item" :class="{'line-through': item.completed}" class="body" />
+            <ListItemBody :item="item" :class="{ 'line-through': item.completed }" class="body" />
           </div>
           <Input v-if="editing && !item.completed" v-model="body" @submit="submit" ref="input" @tag-selected="onTagSelected" inputClasses="p-0" />
           <p v-show="item.completed" ref="animatedBody" :class="{ strikethrough: item.completed }" class="">{{ body }}</p>
@@ -96,8 +96,11 @@ export default {
 
       return classList;
     },
-    creationDate(){
-      return moment.utc(this.item.created_at).local().format('M/DD')
+    creationDate() {
+      return moment
+        .utc(this.item.created_at)
+        .local()
+        .format('M/DD');
     }
   },
   methods: {
@@ -135,6 +138,11 @@ export default {
       if (this.body.trim().length === 0) {
         await ChangeLogger.entityDeleted('item', this.item.id);
         await this.item.$delete();
+        this.$notify({
+          group: 'basic',
+          title: 'Deleted',
+          text: 'Item successfully deleted!'
+        });
       } else {
         this.save();
       }
@@ -246,13 +254,13 @@ export default {
     if (this.item.tag_positions === null) {
       this.item.updateTagPositionsInBody();
     }
-    
+
     // Disable context menu for this item
-    this.$el.oncontextmenu = (e) => {
+    this.$el.oncontextmenu = e => {
       e.preventDefault();
       e.stopPropagation();
       return false;
-    }
+    };
   },
   watch: {
     item: {
@@ -308,10 +316,11 @@ export default {
   visibility: visible;
 }
 
-.body, .creation-date{
--webkit-user-select: none;
--webkit-touch-callout: none;
--webkit-tap-highlight-color: transparent;
+.body,
+.creation-date {
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @media only screen and (max-width: 768px) {
