@@ -1,34 +1,24 @@
 <template>
-  <notifications group="extension-update-prompt" position="bottom right" width="100%" :duration="-1">
-    <template slot="body">
-      <div class="notification h-auto p-4 relative border-t border-secondary dark:border-none banner">
-        <p class="title md:text-center mr-4 md:m-0">
-          Your browser extension is out of date. Please update it
-          <a :href="updateUrl" target="_blank" class="text-primary underline">here</a>
-        </p>
-        <button class="absolute right-0 top-1/2 transform -translate-y-1/2 p-2 text-black" @click="close">
-          <close-icon :size="21" />
-        </button>
-      </div>
+  <BannerStyleNotification group="extension-update-prompt" ref="notification">
+    <template slot="title">
+      <p class="title md:text-center mr-4 md:m-0">
+        Your browser extension is out of date. Please update it
+        <a :href="updateUrl" target="_blank" class="text-primary underline">here</a>
+      </p>
     </template>
-  </notifications>
+  </BannerStyleNotification>
 </template>
 
 <script>
-import CloseIcon from 'vue-material-design-icons/Close';
 import { isRunningAsAnExtension, getBrowserType, getExtensionVersion } from '@/helpers/extension';
 import { CHROME_EXTENSION_DOWNLOAD_LINK, FIREFOX_EXTENSION_DOWNLOAD_LINK } from '@/constants';
+import BannerStyleNotification from './templates/BannerStyleNotification';
 import axios from 'axios';
 const semver = require('semver');
 
 export default {
   components: {
-    CloseIcon
-  },
-  data() {
-    return {
-      notificationId: null
-    };
+    BannerStyleNotification
   },
   computed: {
     updateUrl() {
@@ -42,9 +32,6 @@ export default {
     }
   },
   methods: {
-    close() {
-      this.$notify.close(this.notificationId);
-    },
     async getLatestVersion() {
       try {
         const response = await axios.get('latest-app-version');
@@ -64,11 +51,7 @@ export default {
       const diff = semver.diff(currentVersion, latestVersion);
 
       if (diff != null) {
-        this.notificationId = Date.now();
-        this.$notify({
-          id: this.notificationId,
-          group: 'extension-update-prompt'
-        });
+        this.$refs.notification.open()
       }
     } catch (error) {
       console.error(error);
