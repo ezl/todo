@@ -89,6 +89,16 @@ input {
   z-index: 9999;
 }
 
+.notification.banner {
+  background: #f2f2f2;
+  border-top: 2px solid #c4c4c4;
+}
+
+.dark .notification.banner {
+  background: #4b4949;
+  border-top: 2px solid #928c8c;
+}
+
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
   input {
     font-size: 16px;

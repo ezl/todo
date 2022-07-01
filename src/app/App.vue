@@ -17,6 +17,7 @@
     <router-view :class="{ 'blur-sm pointer-events-none': isSettingsMenuOpen }" />
     <notifications group="general" position="bottom right" width="100%" :duration="6000" :ignore-duplicates="true" />
     <ExtensionInstallationPrompt />
+    <ExtensionUpdatePrompt />
   </div>
 </template>
 
@@ -24,6 +25,7 @@
 import CogOutlineIcon from 'vue-material-design-icons/CogOutline';
 import SettingsMenu from '@/components/settings/SettingsMenu';
 import ExtensionInstallationPrompt from '@/components/notifications/ExtensionInstallationPrompt';
+import ExtensionUpdatePrompt from '@/components/notifications/ExtensionUpdatePrompt';
 import Setting from '@/models/Setting';
 import { setTheme } from '@/helpers/dom';
 
@@ -31,7 +33,8 @@ export default {
   components: {
     CogOutlineIcon,
     SettingsMenu,
-    ExtensionInstallationPrompt
+    ExtensionInstallationPrompt,
+    ExtensionUpdatePrompt
   },
   data() {
     return {

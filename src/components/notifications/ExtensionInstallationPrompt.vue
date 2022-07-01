@@ -1,7 +1,7 @@
 <template>
   <notifications group="extension-intallation-prompt" position="bottom right" width="100%" :duration="-1">
     <template slot="body">
-      <div class="notification h-auto p-4 relative border-t border-secondary dark:border-none">
+      <div class="notification h-auto p-4 relative border-t border-secondary dark:border-none banner">
         <p class="title md:text-center mr-4 md:m-0">
           <a :href="installationUrl" target="_blank" class="text-primary underline">Download our browser extension</a> to see your to do list in every browser
           tab.
@@ -18,6 +18,7 @@
 import CloseIcon from 'vue-material-design-icons/Close';
 import { isRunningAsAnExtension, isExtensionInstalled, getBrowserType } from '@/helpers/extension';
 import LocalStorageHelper from '@/helpers/LocalStorageHelper';
+import { CHROME_EXTENSION_DOWNLOAD_LINK, FIREFOX_EXTENSION_DOWNLOAD_LINK } from '@/constants';
 
 export default {
   components: {
@@ -27,19 +28,17 @@ export default {
     return {
       notificationId: null,
       intervals: [10, 15, 20], // After how many refreshes should we show this?
-      firefoxInstallationUrl: 'https://addons.mozilla.org/en-US/firefox/addon/bad-to-do/',
-      chromeInstallationUrl: 'https://chrome.google.com/webstore/detail/todo-list/lgpchgegecogdjhonnjbkaccjpnhlipa'
     };
   },
   computed: {
     installationUrl() {
       const browserType = getBrowserType();
 
-      if (browserType === 'chrome') return this.chromeInstallationUrl;
-      if (browserType === 'firefox') return this.firefoxInstallationUrl;
+      if (browserType === 'chrome') return CHROME_EXTENSION_DOWNLOAD_LINK;
+      if (browserType === 'firefox') return FIREFOX_EXTENSION_DOWNLOAD_LINK;
 
       // default
-      return this.chromeInstallationUrl;
+      return CHROME_EXTENSION_DOWNLOAD_LINK;
     }
   },
   methods: {
@@ -74,15 +73,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.notification {
-  background: #f2f2f2;
-  border-top: 2px solid #C4C4C4;
-}
-
-.dark .notification {
-  background: #4B4949;
-  border-top: 2px solid #928C8C;
-}
-</style>

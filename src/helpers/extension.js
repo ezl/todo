@@ -5,6 +5,14 @@ export const isRunningAsAnExtension = () => {
 export const getExtensionVersion = () => {
   return new Promise((resolve, reject) => {
     const browser = window.chrome || window.browser;
+
+    // If we are running as extension, we can directly get the version number
+    if(isRunningAsAnExtension()){
+      const version =  browser.runtime.getManifest().version
+      resolve(version)
+      return
+    }
+    
     const browserType = getBrowserType();
 
     // It is not Chrome or Firefox
@@ -83,7 +91,7 @@ export const getBrowserType = () => {
 export const getInstalledExtensionId = () => {
   const browserType = getBrowserType();
   // To be replaced with the actual IDs later
-  const chromeExtensionId = 'gblcdgphdahabceeoppchnkepfonhmbg';
+  const chromeExtensionId = 'npjagoopibghdalioeinlhkbakkomjoo';
   const firefoxExtensionId = 'a8c5dca1214e19e4052fba219f81a1229ab276fa@temporary-addon';
 
   if (browserType === 'chrome') return chromeExtensionId;

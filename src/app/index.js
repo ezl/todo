@@ -15,7 +15,7 @@ require('../authentication')
 Vue.use(LottieAnimation);
 Vue.use(Notifications)
 
-const APP_VERSION = '0.0.3'
+console.log('APP_VERSION ',APP_VERSION)
 
 // we dont need to require this unless we are running as a browser extension
 if (isRunningAsAnExtension()) {

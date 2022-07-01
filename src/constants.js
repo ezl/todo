@@ -42,3 +42,6 @@ export const TAG_COLORS = [
 ];
 
 export const FALLBACK_TAG_COLOR = '#dbeddb';
+
+export const CHROME_EXTENSION_DOWNLOAD_LINK = 'https://chrome.google.com/webstore/detail/todo-list/lgpchgegecogdjhonnjbkaccjpnhlipa'
+export const FIREFOX_EXTENSION_DOWNLOAD_LINK = 'https://addons.mozilla.org/en-US/firefox/addon/bad-to-do/'

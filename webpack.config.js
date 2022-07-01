@@ -2,6 +2,7 @@ const path = require('path');
 const { VueLoaderPlugin } = require('vue-loader');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
+const webpack = require('webpack');
 
 const buildConfig = env => {
   if (!env.target) {
@@ -111,7 +112,10 @@ const buildConfig = env => {
         chunks: ['index'],
         title : target === 'web' ? 'Bad to do' : 'New tab',
       }),
-      new CopyPlugin(copyPluginOptions)
+      new CopyPlugin(copyPluginOptions),
+      new webpack.DefinePlugin({
+        APP_VERSION: JSON.stringify(process.env.npm_package_version),
+      }),
     ]
   };
 };
@@ -127,6 +131,8 @@ const buildManifestFile = (buffer, browser) => {
   baseManifest.icons = {
     ...icons
   };
+
+  baseManifest.version = process.env.npm_package_version
 
   switch (browser) {
     case 'chrome':
