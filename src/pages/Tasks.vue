@@ -281,6 +281,7 @@ export default {
     selectedTagIds() {
       return Tag.query()
         .where('toggled', true)
+        .has('items') // Retrieve all tags that have at least one task
         .get()
         .map(t => t.id);
     },
