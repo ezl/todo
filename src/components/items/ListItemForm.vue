@@ -32,9 +32,18 @@ export default {
       isMobile: screen.width <= 768
     };
   },
-  mounted() {
-    document.addEventListener('click', e => {
+  methods: {
+    setFocusOnInput(e) {
       if (this.isMobile) return;
+
+      // We need to first check if the input is currently visible in the viewport.
+      // If it is not, we will not set focus on it to prevent the page’s scroll position from resetting
+      const rect = this.$refs.input.$el.getBoundingClientRect();
+      const isVisibleInViewport = rect.top >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight);
+
+      if (!isVisibleInViewport) {
+        return;
+      }
 
       // Always keep the input to create new list item focused if there are no other active inputs
       const inputSelectors = ['input', 'textarea', '[contenteditable="true"]', 'select'];
@@ -44,6 +53,15 @@ export default {
       }
 
       this.$refs.input.focus();
+    }
+  },
+  mounted() {
+    document.addEventListener('click', this.setFocusOnInput);
+    // Set focus on the input when it becomes visible in the viewport
+    document.addEventListener('scroll', (e) => {
+      if(!this.$refs.input.isFocused()){
+        this.setFocusOnInput()
+      }
     });
   },
   mixins: [createItem]

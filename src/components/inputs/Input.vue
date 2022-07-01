@@ -314,6 +314,9 @@ export default {
       //Close tags suggestion popup when the user clicks somewhere on the input
       this.suggestionsPopupCoordinates = null;
       this.hideTagAssignmentGuide();
+    },
+    isFocused(){
+      return document.activeElement === this.$refs.input
     }
   },
   computed: {
