@@ -1,7 +1,7 @@
 <template>
   <div class="h-full text-black dark:text-white py-3 md:px-8 lg:py-4 lg:px-20 text-base">
     <nav class="flex justify-between items-center mx-4">
-      <ul class="flex items-center">
+      <ul :class="{ 'blur-sm pointer-events-none': isSettingsMenuOpen }" class="flex items-center">
         <li class="text-lg cursor-pointer text-ree-500">
           <router-link :class="{'text-bold text-black': isActive('tasks')}" :to="{name: 'tasks'}">Tasks</router-link>
         </li>
