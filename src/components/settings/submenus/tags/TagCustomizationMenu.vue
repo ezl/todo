@@ -109,8 +109,9 @@ export default {
             {
               label: 'Yes',
               callback: async close => {
+                const tagId = this.selectedTag.id
                 await this.selectedTag.$delete();
-                await ChangeLogger.entityDeleted('tag', id);
+                await ChangeLogger.entityDeleted('tag', tagId);
                 close();
                 this.closeTagOptionsPopup();
               }
