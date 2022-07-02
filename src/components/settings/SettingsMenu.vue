@@ -86,6 +86,8 @@ export default {
       if (this.$refs.container === e.target) return;
       // Make sure that this element actually exists
       if (!document.body.contains(e.target)) return;
+      // We clicked a notification 
+      if(e.target.matches('.vue-notification-group *')) return
 
       this.open = false;
       this.showDropdownToggleButton = true;
