@@ -162,10 +162,6 @@ const buildManifestFile = (buffer, browser) => {
         }
       };
 
-      baseManifest.background = {
-        scripts: ['background-scripts/main.js']
-      };
-
       baseManifest.content_scripts = [
         {
           js: ['content-scripts/main.js'],
