@@ -3,11 +3,12 @@
     <div>
       <h4 class="text-secondary">Actions</h4>
       <button @click="onDelete" class="mt-2 w-full flex justify-start hover:text-primary">
-        <delete-icon :size="15" />
-        <span class="ml-2">Delete</span>
+        <delete-outline-icon :size="15" />
+        <span class="ml-1">Delete</span>
       </button>
     </div>
-    <div class="mt-3">
+    <div class="divider bg-secondary"></div>
+    <div>
       <h4 class="mb-1 text-secondary">Colors</h4>
       <div 
       @click="onChangeColor(color.hexValue)" 
@@ -28,12 +29,12 @@
 <script>
 import { TAG_COLORS, FALLBACK_TAG_COLOR } from '@/constants';
 import CheckIcon from 'vue-material-design-icons/Check';
-import DeleteIcon from 'vue-material-design-icons/Delete';
+import DeleteOutlineIcon from 'vue-material-design-icons/DeleteOutline';
 
 export default {
   components: {
     CheckIcon,
-    DeleteIcon
+    DeleteOutlineIcon
   },
   props: {
     tag: {
@@ -69,5 +70,12 @@ export default {
 
 .dark .popup {
   box-shadow: rgb(0 0 0 / 20%) 0px 7px 29px 0px;
+}
+
+.divider {
+  height: 1px;
+  margin: 15px 0;
+  background: #747378;
+  opacity: 50%
 }
 </style>
