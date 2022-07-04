@@ -3,7 +3,9 @@
     <nav class="flex justify-between items-center mx-4">
       <ul :class="{ 'blur-sm pointer-events-none': isSettingsMenuOpen }" class="flex items-center">
         <li class="text-lg cursor-pointer text-ree-500">
-          <router-link :class="{'text-bold text-black': isActive('tasks')}" :to="{name: 'tasks'}">Tasks</router-link>
+          <router-link :class="{'text-bold text-black': isActive('tasks')}" :to="{name: 'tasks'}">
+            Tasks <span v-if="itemsCount > 5">({{ itemsCount }})</span>
+          </router-link>
         </li>
         <li class="nav-item-divider"></li>
         <li class="text-lg cursor-pointer">
@@ -31,6 +33,7 @@ import ExtensionUpdatePrompt from '@/components/notifications/ExtensionUpdatePro
 import PromptNotification from '@/components/notifications/PromptNotification';
 import BasicNotification from '@/components/notifications/BasicNotification';
 import Setting from '@/models/Setting';
+import Item from '@/models/Item';
 import { setTheme } from '@/helpers/dom';
 
 export default {
@@ -46,6 +49,11 @@ export default {
     return {
       isSettingsMenuOpen: false
     };
+  },
+  computed: {
+    itemsCount(){
+      return Item.query().where('completed_at', null).get().length
+    }
   },
   methods: {
     onSettingsMenuToggled(isOpen) {
