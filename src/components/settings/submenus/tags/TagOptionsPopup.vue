@@ -2,15 +2,18 @@
   <div class="popup bg-lotion dark:bg-dark-gunmetal z-20 p-3 text-xs w-48">
     <div>
       <h4 class="text-secondary">Actions</h4>
-      <button @click="onDelete" class="w-full mt-2 text-left hover:text-primary">Delete</button>
+      <button @click="onDelete" class="mt-2 w-full flex justify-start hover:text-primary">
+        <delete-icon :size="15" />
+        <span class="ml-2">Delete</span>
+      </button>
     </div>
     <div class="mt-3">
       <h4 class="mb-1 text-secondary">Colors</h4>
-      <div
-        @click="onChangeColor(color.hexValue)"
-        v-for="(color, index) in colors"
-        :key="index"
-        class="flex items-center justify-between mt-3 cursor-pointer"
+      <div 
+      @click="onChangeColor(color.hexValue)" 
+      v-for="(color, index) in colors" 
+      :key="index" 
+      class="flex items-center justify-between mt-3 cursor-pointer"
       >
         <div class="flex items-center">
           <span class="w-5 h-5 block" :style="{ 'background-color': color.hexValue }"></span>
