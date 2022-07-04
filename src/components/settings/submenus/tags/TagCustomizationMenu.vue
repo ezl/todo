@@ -11,13 +11,16 @@
           <option value="custom_order">Custom order</option>
         </select>
       </div>
-      <div class="mt-6 overflow-auto list px-4">
+      <div v-if="tags.length" class="mt-6 overflow-auto list px-4">
         <div v-for="tag in tags" :key="tag.id" class="flex items-center justify-between mt-2">
           <span :style="tagStyles(tag)" class="px-3 py-1 tag">{{ tag.name }}</span>
           <div class="flex relative">
             <dots-vertical-icon :size="20" @click="showTagOptionsPopup(tag)" class="tag-options-popup-toggle-btn cursor-pointer text-secondary" />
           </div>
         </div>
+      </div>
+      <div v-else class="flex justify-center items-center h-full">
+        <span class="text-secondary">No tags</span>
       </div>
       <TagOptionsPopup
         v-if="openTagOptionsPopup"
