@@ -52,7 +52,10 @@ export default {
   },
   computed: {
     itemsCount(){
-      return Item.query().where('completed_at', null).get().length
+      return Item.query()
+                 .where('completed_at', null)
+                 .where('discarded_at', null)
+                 .get().length
     },
     settings(){
       return Setting.retrieve()

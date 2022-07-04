@@ -21,6 +21,7 @@ export default class Item extends BaseModel {
       created_at: this.attr(null),
       order: this.attr(null),
       tag_positions: this.attr(null),
+      discarded_at: this.attr(null),
       tags: this.belongsToMany(Tag, ItemTag, 'item_id', 'tag_id')
     };
   }
@@ -253,6 +254,12 @@ export default class Item extends BaseModel {
     }
 
     return positions;
+  }
+
+  async discard(){
+    this.discarded_at = moment.utc().format()
+    await this.$save()
+    await ChangeLogger.itemPropertyValueChanged(this.id, 'discarded_at', this.discarded_at);
   }
 
   set completed(completed) {

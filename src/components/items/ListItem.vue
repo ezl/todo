@@ -12,8 +12,9 @@
     <div
       ref="actions"
       :class="listItemActionsDynamicClasses"
-      class="flex-shrink-0 flex justify-between items-center list-item-actions px-2 pt-1 w-2/12 lg:3/12 flex md:ml-2"
+      class="flex-shrink-0 flex justify-between items-center list-item-actions pt-1 w-2/12 flex md:ml-2"
     >
+      <DiscardAction @click="onDiscardItem" class="hidden md:inline" />
       <SnoozeAction class="hidden md:inline" />
       <SelectAction :selected="selected" @click="onToggleSelection" class="select-action" />
       <DragAction />
@@ -49,6 +50,7 @@ import Input from '@/components/inputs/Input';
 import DragAction from '@/components/items/actions/DragAction';
 import SelectAction from '@/components/items/actions/SelectAction';
 import SnoozeAction from '@/components/items/actions/SnoozeAction';
+import DiscardAction from '@/components/items/actions/DiscardAction';
 import ChangeLogger from '../../sync/ChangeLogger';
 import moment from 'moment';
 
@@ -59,7 +61,8 @@ export default {
     Input,
     DragAction,
     SelectAction,
-    SnoozeAction
+    SnoozeAction,
+    DiscardAction
   },
   props: {
     item: {
@@ -129,7 +132,35 @@ export default {
 
       ChangeLogger.itemPropertyValueChanged(this.item.id, 'completed_at', this.item.completed_at);
     },
-
+    onDiscardItem() {
+      this.$notify({
+        group: 'prompt',
+        title: 'Discard',
+        text: `Do you really want to discard this task?`,
+        data: {
+          actions: [
+            {
+              label: 'Cancel',
+              callback: async close => {
+                close();
+              }
+            },
+            {
+              label: 'Yes',
+              callback: async close => {
+                await this.item.discard()
+                close();
+                this.$notify({
+                  group: 'basic',
+                  title: 'Discarded',
+                  text: 'Item successfully removed!'
+                });
+              }
+            }
+          ]
+        }
+      });
+    },
     startEditing() {
       this.editing = true;
       this.$emit('started-editing', this.item.id);
@@ -307,6 +338,9 @@ export default {
 
 .list-item-actions {
   margin-top: 9px;
+  width: 172px;
+  display: flex;
+  justify-content: space-around;
 }
 .items-selection-mode .select-action {
   visibility: visible;

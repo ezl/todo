@@ -6,8 +6,9 @@
     <div class="flex px-2">
       <div
         :class="actionLabelsWrapperDynamicClasses"
-        class="w-2/12 lg:3/12 hidden md:flex flex-shrink-0 justify-between items-center italic dark:text-white text-black h-8"
+        class="list-item-action-labels hidden md:flex flex-shrink-0 justify-between items-center italic dark:text-white text-black h-8"
       >
+        <span class="text-xs text-secondary opacity-60">discard</span>
         <span class="text-xs text-secondary opacity-60">snooze</span>
         <span v-if="!selectedItems.length" class="text-xs text-secondary opacity-60">select</span>
         <button @click="clearSelectedItems" v-else class="unselect-btn">
@@ -21,7 +22,7 @@
       </div>
     </div>
     <div class="mt-3 md:mt-8 list-items-container  overflow-x-hidden">
-      <ListItemForm v-if="!isMobile && !isTouchDevice" ref="form" :class="{'invisible': inSearchMode}" class="w-full md:w-10/12 lg:9/12 mr-0 m-auto px-2 pr-7 md:px-2 md:pl-10" />
+      <ListItemForm v-if="!isMobile && !isTouchDevice" ref="form" :class="{'invisible': inSearchMode}" class="list-item-form px-2 pl-10" />
       <draggable
         :class="listItemsWrapperDynamicClasses"
         :animation="100"
@@ -248,6 +249,7 @@ export default {
     items() {
       let items = Item.query()
         .with('tags')
+        .where('discarded_at', null)
         .get()
         .sort((a, b) => a.order - b.order);
 
@@ -380,6 +382,15 @@ export default {
   border-width: 2px;
   @apply border-primary;
   @apply text-primary;
+}
+
+.list-item-action-labels{
+  width: 168px;
+  padding-left: 10px;
+}
+
+.list-item-form{
+  margin-left: 171px;
 }
 
 @media only screen and (max-width: 768px) {
