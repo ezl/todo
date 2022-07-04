@@ -18,6 +18,7 @@ export default class Setting extends BaseModel {
       hide_tags_without_items: this.attr(true),
       show_only_items_matching_all_selected_tags: this.attr(false),
       display_number_of_items_per_tag: this.attr(true),
+      show_unfinished_tasks_count: this.attr(true),
     };
   }
 

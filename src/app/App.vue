@@ -4,7 +4,7 @@
       <ul :class="{ 'blur-sm pointer-events-none': isSettingsMenuOpen }" class="flex items-center">
         <li class="text-lg cursor-pointer text-ree-500">
           <router-link :class="{'text-bold text-black': isActive('tasks')}" :to="{name: 'tasks'}">
-            Tasks <span v-if="itemsCount > 5">({{ itemsCount }})</span>
+            Tasks <span v-if="settings.show_unfinished_tasks_count && itemsCount > 5">({{ itemsCount }})</span>
           </router-link>
         </li>
         <li class="nav-item-divider"></li>
@@ -53,6 +53,9 @@ export default {
   computed: {
     itemsCount(){
       return Item.query().where('completed_at', null).get().length
+    },
+    settings(){
+      return Setting.retrieve()
     }
   },
   methods: {
@@ -64,8 +67,7 @@ export default {
     }
   },
   mounted() {
-    const settings = Setting.retrieve();
-    setTheme(settings.theme);
+    setTheme(this.settings.theme);
   }
 };
 </script>

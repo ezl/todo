@@ -56,6 +56,17 @@
         <span class="ml-2">Remove it immediately</span>
       </label>
     </div>
+    <div class="mt-6 flex flex-col">
+      <span>Show count of tasks:</span>
+      <label class="flex items-center pl-1">
+        <input @change="updateSettings" type="radio" :value="true" v-model="settingValues.show_unfinished_tasks_count" />
+        <span class="ml-2">Yes</span>
+      </label>
+      <label class="flex items-center pl-1">
+        <input @change="updateSettings" type="radio" :value="false" v-model="settingValues.show_unfinished_tasks_count" />
+        <span class="ml-2">No</span>
+      </label>
+    </div>
     <div class="mt-4">
       <span
         >Appearance: <span class="text-primary">{{ settings.theme }} mode</span></span
