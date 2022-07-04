@@ -10,7 +10,6 @@
           ref="input"
           v-model="query"
           @input="onChange"
-          @keydown="onKeyDown"
           :class="{ '': expand }"
           :disabled="!expand"
           class=" w-full text-dark-jungle-green dark:text-white focus:outline-none caret-primary p-2"
@@ -73,10 +72,19 @@ export default {
     },
     onChange(e) {
       this.$emit('input', e.target.value);
-    },
-    onKeyDown(e){
-      if (e.key === 'Escape') this.close();
     }
+  },
+  mounted(){
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') this.close();
+
+      const searchShortcutExecuted = e.keyCode === 70 && e.ctrlKey || e.keyCode === 70 && e.metaKey
+
+      if(searchShortcutExecuted) {
+        e.preventDefault()
+        this.show()
+      }
+    })
   }
 };
 </script>

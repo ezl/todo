@@ -21,7 +21,7 @@
       </div>
     </div>
     <div class="mt-3 md:mt-8 list-items-container  overflow-x-hidden">
-      <ListItemForm v-if="!isMobile && !isTouchDevice" :class="{'invisible': inSearchMode}" class="w-full md:w-10/12 lg:9/12 mr-0 m-auto px-2 pr-7 md:px-2 md:pl-10" />
+      <ListItemForm v-if="!isMobile && !isTouchDevice" ref="form" :class="{'invisible': inSearchMode}" class="w-full md:w-10/12 lg:9/12 mr-0 m-auto px-2 pr-7 md:px-2 md:pl-10" />
       <draggable
         :class="listItemsWrapperDynamicClasses"
         :animation="100"
@@ -237,6 +237,11 @@ export default {
     },
     onSearchModeToggled(toggled){
       this.inSearchMode = toggled
+
+      // Making sure to set focus on task creation input when search input is closed by hitting the escape key
+      if(!this.inSearchMode) {
+        this.$nextTick(() => this.$refs.form.setFocusOnInput())
+      }
     }
   },
   computed: {
