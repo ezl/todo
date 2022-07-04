@@ -16,8 +16,8 @@
         <span class="text-xs text-secondary opacity-60 ">drag</span>
       </div>
       <div :class="{'blur-sm pointer-events-none': isMobile && selectedItems.length}" class="flex relative items-start	w-full ml-0 md:ml-8">
-        <SearchInput v-model="listItemSearchQuery" :results-count="items.length" @toggled="onSearchModeToggled" />
-        <TagGroup class="ml-3" />
+        <SearchInput v-if="shouldShowSearchIcon" v-model="listItemSearchQuery" :results-count="items.length" @toggled="onSearchModeToggled" />
+        <TagGroup :class="{'ml-3': shouldShowSearchIcon}" />
       </div>
     </div>
     <div class="mt-3 md:mt-8 list-items-container  overflow-x-hidden">
@@ -338,6 +338,9 @@ export default {
     },
     settings(){
       return Setting.retrieve()
+    },
+    shouldShowSearchIcon(){
+      return this.inSearchMode || this.selectedTagIds.length && this.items.length > 5 || this.items.length > 5
     }
   },
   mounted() {
