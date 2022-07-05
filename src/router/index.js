@@ -2,6 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Tasks from '@/pages/Tasks';
 import CompletedTasks from '@/pages/CompletedTasks';
+import SnoozedTasks from '@/pages/SnoozedTasks';
 
 Vue.use(VueRouter);
 
@@ -20,6 +21,11 @@ const routes = [
     path: '/tasks/completed',
     name: 'tasks.completed',
     component: CompletedTasks
+  },
+  {
+    path: '/tasks/snoozed',
+    name: 'tasks.snoozed',
+    component: SnoozedTasks
   },
 ];
 

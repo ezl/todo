@@ -11,6 +11,10 @@
         <li class="text-lg cursor-pointer">
           <router-link :to="{ name: 'tasks.completed' }">Completed Tasks</router-link>
         </li>
+        <li v-if="$route.name == 'tasks.snoozed'" class="nav-item-divider"></li>
+        <li v-if="$route.name == 'tasks.snoozed'" class="text-lg cursor-pointer">
+          <router-link :to="{ name: 'tasks.snoozed' }">Snoozed Tasks</router-link>
+        </li>
       </ul>
       <div>
         <SettingsMenu @toggled="onSettingsMenuToggled" />

@@ -279,6 +279,13 @@ export default class Item extends BaseModel {
     await ChangeLogger.itemPropertyValueChanged(this.id, 'snoozed_until', this.snoozed_until);
   }
 
+  async unsnooze(){
+    this.snoozed_until = null;
+
+    await this.$save()
+    await ChangeLogger.itemPropertyValueChanged(this.id, 'snoozed_until', this.snoozed_until);
+  }
+
   set completed(completed) {
     this.completed_at = completed ? moment.utc().format() : null;
   }

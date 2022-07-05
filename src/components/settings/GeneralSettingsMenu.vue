@@ -6,6 +6,10 @@
       <span>See completed tasks</span>
       <chevronRightIcon class="text-primary" />
     </router-link>
+    <router-link :to="{ name: 'tasks.snoozed' }" class="flex justify-between items-center mt-4 cursor-pointer">
+      <span>See snoozed tasks</span>
+      <chevronRightIcon class="text-primary" />
+    </router-link>
     <div @click="switchMenu(menuIds.hotkeys)" class="flex justify-between items-center mt-4 cursor-pointer">
       <span>See hotkeys (press ? to toggle)</span>
       <chevronRightIcon class="text-primary" />
