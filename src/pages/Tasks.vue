@@ -57,7 +57,7 @@
         </transition-group>
       </draggable>
     </div>
-    <div v-show="isMobile && selectedItems.length" class="fixed inset-x-0 bottom-0 p-4 bg-lotion dark:bg-dark-gunmetal z-40">
+    <div v-if="isMobile && selectedItems.length" class="fixed inset-x-0 bottom-0 p-4 bg-lotion dark:bg-dark-gunmetal z-40">
       <SnoozeAction />
     </div>
     <ListItemMobileForm v-if="openItemCreationFormForMobile" @close="openItemCreationFormForMobile = false" />
@@ -79,6 +79,7 @@ import SearchInput from '@/components/inputs/SearchInput';
 import SnoozeAction from '@/components/items/actions/SnoozeAction';
 import CloseIcon from 'vue-material-design-icons/Close';
 import ChangeLogger from '../sync/ChangeLogger';
+import moment from 'moment';
 
 export default {
   components: {
@@ -146,6 +147,11 @@ export default {
 
       if (this.dragging) return;
 
+      // Ignore if an item’s snooze popup is currently visible 
+      if(document.querySelector('.snooze-period-options')){
+        return
+      }
+
       if (this.dragging === false) {
         this.visibleActionsItemId = item.id;
       }
@@ -154,6 +160,11 @@ export default {
     },
     onMouseLeave(item) {
       if (this.isMobile) return;
+
+      // Ignore if an item’s snooze popup is currently visible 
+      if(document.querySelector('.snooze-period-options')){
+        return
+      }
 
       if (this.dragging === false) {
         this.visibleActionsItemId = null;
@@ -250,6 +261,15 @@ export default {
       let items = Item.query()
         .with('tags')
         .where('discarded_at', null)
+        .where('snoozed_until', value => {
+          // Default value is null, meaning this task has not been snoozed once since it was added
+          if(value === null) return true
+
+          const now =  moment.utc()
+          const snoozeEndDate = moment.utc(value)
+
+          return snoozeEndDate.isSameOrBefore(now)
+        })
         .get()
         .sort((a, b) => a.order - b.order);
 

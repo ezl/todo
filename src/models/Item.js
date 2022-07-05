@@ -22,6 +22,7 @@ export default class Item extends BaseModel {
       order: this.attr(null),
       tag_positions: this.attr(null),
       discarded_at: this.attr(null),
+      snoozed_until: this.attr(null),
       tags: this.belongsToMany(Tag, ItemTag, 'item_id', 'tag_id')
     };
   }
@@ -261,6 +262,22 @@ export default class Item extends BaseModel {
     await this.$save()
     await ChangeLogger.itemPropertyValueChanged(this.id, 'discarded_at', this.discarded_at);
   }
+  
+  async snooze(days){
+    if(typeof days === 'undefined'){
+      console.error('[days] param is required in order to snooze an item')
+      return
+    }
+
+    const date = moment.utc().add(days, 'days').format()
+
+    this.snoozed_until = date
+
+    console.log(`snoozing ${this.body} for ${days}, until ${date}`)
+
+    await this.$save()
+    await ChangeLogger.itemPropertyValueChanged(this.id, 'snoozed_until', this.snoozed_until);
+  }
 
   set completed(completed) {
     this.completed_at = completed ? moment.utc().format() : null;
@@ -268,5 +285,13 @@ export default class Item extends BaseModel {
 
   get completed() {
     return this.completed_at ? true : false;
+  }
+
+  get snoozed() {
+    const now =  moment.utc()
+    const snoozeEndDate = moment.utc(this.snoozed_until)
+
+    return now.isBefore(snoozeEndDate)
+
   }
 }

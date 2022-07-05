@@ -15,7 +15,7 @@
       class="flex-shrink-0 flex justify-between items-center list-item-actions pt-1 w-2/12 flex md:ml-2"
     >
       <DiscardAction @click="onDiscardItem" class="hidden md:inline" />
-      <SnoozeAction class="hidden md:inline" />
+      <SnoozeAction :item="item" @snoozed="onItemSnoozed" class="hidden md:inline" />
       <SelectAction :selected="selected" @click="onToggleSelection" class="select-action" />
       <DragAction />
     </div>
@@ -275,6 +275,9 @@ export default {
         selected: !this.selected,
         item: this.item
       });
+    },
+    onItemSnoozed(){
+      this.$el.classList.add('fade-out')
     }
   },
   async mounted() {
@@ -313,7 +316,12 @@ export default {
 
 <style scoped>
 .list-item-wrapper {
-  transition: none;
+  transition: opacity .5s ease-in ;
+  opacity: 100%;
+}
+
+.list-item-wrapper.fade-out {
+  opacity: 0;
 }
 
 .list-item-wrapper:hover {
