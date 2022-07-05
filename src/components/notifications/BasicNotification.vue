@@ -1,5 +1,5 @@
 <template>
-  <notifications group="basic" position="bottom center" :duration="5000" width="30%">
+  <notifications group="basic" position="bottom center" :duration="2500" width="30%">
     <template slot="body" slot-scope="{ item, close }">
       <div class="notification flex w-full items-center justify-between h-auto p-4 mb-4 rounded-md border border-red-500 bg-lotion dark:bg-dark-gunmetal">
         <div class="mr-4">
