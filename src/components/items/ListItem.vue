@@ -15,7 +15,7 @@
       class="flex-shrink-0 flex justify-between items-center list-item-actions pt-1 w-2/12 flex md:ml-2"
     >
       <DiscardAction @click="onDiscardItem" class="hidden md:inline" />
-      <SnoozeAction :item="item" @snoozed="onItemSnoozed" class="hidden md:inline" />
+      <SnoozeAction @snooze="onSnooze" :plural="selected" class="hidden md:inline" />
       <SelectAction :selected="selected" @click="onToggleSelection" class="select-action" />
       <DragAction />
     </div>
@@ -276,8 +276,24 @@ export default {
         item: this.item
       });
     },
-    onItemSnoozed(){
+    onSnooze(periodInDays){
+      // If this component is part of a multi-selection, delegate snoozing to parent component (Tasks)
+      if(this.selected){
+        this.$emit('snooze', periodInDays);
+        return
+      }
+
       this.$el.classList.add('fade-out')
+
+      setTimeout(() => {
+        this.item.snooze(periodInDays);
+
+        this.$notify({
+          group: 'basic',
+          title: 'Snoozed',
+          text: 'Task successfully snoozed!'
+        });
+      }, 350);
     }
   },
   async mounted() {

@@ -20,9 +20,9 @@ export default {
     SnoozeIcon
   },
   props: {
-    item: {
-      type: Object,
-      required: true
+    plural: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -38,7 +38,7 @@ export default {
       this.$notify({
         group: 'prompt',
         title: 'Snooze',
-        text: `Do you really want to snooze this task for ${days} ${days > 1 ? 'days' : 'day'}?`,
+        text: `Do you really want to snooze ${this.plural ? 'these tasks' : 'this task'} for ${days} ${days > 1 ? 'days' : 'day'}?`,
         data: {
           actions: [
             {
@@ -50,17 +50,7 @@ export default {
               callback: close => {
                 close();
 
-                this.$emit('snoozed');
-
-                setTimeout(() => {
-                  this.item.snooze(days);
-
-                  this.$notify({
-                    group: 'basic',
-                    title: 'Snoozed',
-                    text: 'Task successfully snoozed!'
-                  });
-                }, 350);
+                this.$emit('snooze', days);
               }
             }
           ]

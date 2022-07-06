@@ -51,6 +51,7 @@
             @mouseleave="onMouseLeave(item)"
             @selection-changed="onItemSelectionChanged"
             @completion-status-changed="onItemCompletionStatusChanged"
+            @snooze="onSnoozeItem"
             :selected="isItemSelected(item)"
             :class="{ 'select-none': holdingTouch }"
           />
@@ -254,6 +255,33 @@ export default {
       if(!this.inSearchMode) {
         this.$nextTick(() => this.$refs.form.setFocusOnInput())
       }
+    },
+    onSnoozeItem(periodInDays){
+      // First make sure we are in multi-selection mode
+      if(!this.selectedItems.length) return
+
+      const fadeOutAnimationDuration = 350
+      const snoozedItemsCount = this.selectedItems.length
+
+      // Snooze all selected items in multi-selection mode
+      for (const item of this.selectedItems) {
+        // Get reference to this item’s Vue component
+        const component = this.$refs[`item-${item.id}`][0];
+        // Let it fade out
+        component.$el.classList.add('fade-out')
+        // Snooze it after it fades out
+        setTimeout(() => item.snooze(periodInDays), fadeOutAnimationDuration);
+      }
+
+      this.clearSelectedItems()
+
+      setTimeout(() => {
+        this.$notify({
+          group: 'basic',
+          title: 'Snoozed',
+          text: `Successfully snoozed ${snoozedItemsCount} tasks!`
+        });
+      }, fadeOutAnimationDuration);
     }
   },
   computed: {
