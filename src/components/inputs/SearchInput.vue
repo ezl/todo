@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center">
+  <div class="search flex items-center">
     <button @click="show" :class="{'text-primary': expand}" class="text-secondary hover:text-primary z-10 relative h-10">
       <SearchIcon />
     </button>
@@ -84,6 +84,12 @@ export default {
         e.preventDefault()
         this.show()
       }
+    })
+
+    document.addEventListener('click', (e) => {
+      if(e.target.matches('.search *')) return
+
+      this.close()
     })
   }
 };
