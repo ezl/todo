@@ -10,7 +10,7 @@
 import Tag from '@/components/tags/Tag';
 import TagModel from '@/models/Tag';
 import Setting from '@/models/Setting';
-import moment from 'moment';
+import { isUtcDateInFuture } from '@/helpers/datetime';
 
 export default {
   components: {
@@ -23,14 +23,7 @@ export default {
         query
         .where('completed_at', null)
         .where('discarded_at', null)
-        .where('snoozed_until', value => {
-          if(value === null) return true
-
-          const now =  moment.utc()
-          const snoozeEndDate = moment.utc(value)
-
-          return snoozeEndDate.isSameOrBefore(now)
-        })
+        .where('snoozed_until', value => value === null || isUtcDateInFuture(value) === false)
       })
       .get()
 

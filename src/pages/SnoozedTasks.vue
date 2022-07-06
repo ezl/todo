@@ -17,7 +17,7 @@
 <script>
 import ListItemBody from '@/components/items/ListItemBody';
 import Item from '@/models/Item';
-import moment from 'moment';
+import { isUtcDateInFuture } from '@/helpers/datetime';
 
 export default {
   components: {
@@ -34,14 +34,7 @@ export default {
         .with('tags')
         .where('completed_at', null)
         .where('discarded_at', null)
-        .where('snoozed_until', value => {
-          if (value === null) return false;
-
-          const snoozeExpiryDate = moment.utc(value);
-          const today = moment.utc();
-
-          return today.isBefore(snoozeExpiryDate);
-        })
+        .where('snoozed_until', value => value != null || isUtcDateInFuture(value))
         .get();
     }
   },

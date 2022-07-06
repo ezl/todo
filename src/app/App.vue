@@ -39,7 +39,7 @@ import BasicNotification from '@/components/notifications/BasicNotification';
 import Setting from '@/models/Setting';
 import Item from '@/models/Item';
 import { setTheme } from '@/helpers/dom';
-import moment from 'moment';
+import { isUtcDateInFuture } from '@/helpers/datetime';
 
 export default {
   components: {
@@ -60,14 +60,7 @@ export default {
       return Item.query()
                  .where('completed_at', null)
                  .where('discarded_at', null)
-                 .where('snoozed_until', value => {
-                    if(value === null) return true
-
-                    const now =  moment.utc()
-                    const snoozeEndDate = moment.utc(value)
-
-                    return snoozeEndDate.isSameOrBefore(now)
-                 })
+                 .where('snoozed_until', value => value === null || isUtcDateInFuture(value) === false)
                  .get().length
     },
     settings(){

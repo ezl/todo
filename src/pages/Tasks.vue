@@ -79,7 +79,7 @@ import SearchInput from '@/components/inputs/SearchInput';
 import SnoozeAction from '@/components/items/actions/SnoozeAction';
 import CloseIcon from 'vue-material-design-icons/Close';
 import ChangeLogger from '../sync/ChangeLogger';
-import moment from 'moment';
+import { isUtcDateInFuture } from '@/helpers/datetime';
 
 export default {
   components: {
@@ -261,15 +261,7 @@ export default {
       let items = Item.query()
         .with('tags')
         .where('discarded_at', null)
-        .where('snoozed_until', value => {
-          // Default value is null, meaning this task has not been snoozed once since it was added
-          if(value === null) return true
-
-          const now =  moment.utc()
-          const snoozeEndDate = moment.utc(value)
-
-          return snoozeEndDate.isSameOrBefore(now)
-        })
+        .where('snoozed_until', value => value === null || isUtcDateInFuture(value) === false)
         .get()
         .sort((a, b) => a.order - b.order);
 

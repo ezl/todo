@@ -2,6 +2,7 @@ import BaseModel from './BaseModel';
 import Tag from './Tag';
 import ItemTag from './ItemTag';
 import LocalStorageHelper from '../helpers/LocalStorageHelper';
+import { isUtcDateInFuture } from '@/helpers/datetime';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 import Setting from './Setting';
@@ -295,10 +296,6 @@ export default class Item extends BaseModel {
   }
 
   get snoozed() {
-    const now =  moment.utc()
-    const snoozeEndDate = moment.utc(this.snoozed_until)
-
-    return now.isBefore(snoozeEndDate)
-
+    return isUtcDateInFuture(this.snoozed_until)
   }
 }
