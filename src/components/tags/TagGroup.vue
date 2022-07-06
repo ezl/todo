@@ -10,6 +10,7 @@
 import Tag from '@/components/tags/Tag';
 import TagModel from '@/models/Tag';
 import Setting from '@/models/Setting';
+import moment from 'moment';
 
 export default {
   components: {
@@ -17,13 +18,26 @@ export default {
   },
   computed: {
     tags() {
-      let tags = TagModel.getOrderedTags()
+      let tags = TagModel.query().with('items', (query) => {
+        // Exclude discarded, snoozed & incomplete items
+        query
+        .where('completed_at', null)
+        .where('discarded_at', null)
+        .where('snoozed_until', value => {
+          if(value === null) return true
+
+          const now =  moment.utc()
+          const snoozeEndDate = moment.utc(value)
+
+          return snoozeEndDate.isSameOrBefore(now)
+        })
+      })
+      .get()
+
+      tags = TagModel.orderTags(tags)
 
       tags = tags.filter(tag => {
-        if (this.settings.hide_tags_without_items) {
-          const notCompletedItems = tag.items.filter(item => item.completed_at === null)
-          if (!notCompletedItems.length) return false;
-        }
+        if (this.settings.hide_tags_without_items && !tag.items.length) return false;
 
         return true;
       });

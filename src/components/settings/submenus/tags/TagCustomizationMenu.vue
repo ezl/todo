@@ -71,7 +71,10 @@ export default {
   },
   computed: {
     tags() {
-      return Tag.getOrderedTags();
+      let tags = Tag.query().with('items').get()
+      tags = Tag.orderTags(tags);
+
+      return tags
     }
   },
   methods: {

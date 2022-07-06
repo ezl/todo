@@ -82,10 +82,17 @@ export default class Tag extends BaseModel {
   }
 
   // Returns tags in user preferred order
-  static getOrderedTags() {
-    let tags = this.query()
-      .with('items')
-      .get();
+  static orderTags(tags) {
+
+    if(typeof tags === 'undefined'){
+      console.error('[tags] param is required')
+      return
+    }
+
+    if(!Array.isArray(tags)){
+      console.error('[tags] must be am array. Got', typeof tags)
+      return
+    }
 
     const settings = Setting.query().first();
 

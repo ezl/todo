@@ -45,9 +45,7 @@ export default {
     },
     name() {
       if (this.settings.display_number_of_items_per_tag && this.interactive) {
-        // the number of not yet completed items
-        const count = this.tag.items.filter(item => item.completed_at === null).length;
-        return `${this.tag.name} (${count})`;
+         return `${this.tag.name} (${this.tag.items.length})`;
       }
 
       return this.tag.name;
