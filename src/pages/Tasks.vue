@@ -52,6 +52,7 @@
             @selection-changed="onItemSelectionChanged"
             @completion-status-changed="onItemCompletionStatusChanged"
             @snooze="onSnoozeItem"
+            @discard="onDiscard"
             :selected="isItemSelected(item)"
             :class="{ 'select-none': holdingTouch }"
           />
@@ -280,6 +281,33 @@ export default {
           group: 'basic',
           title: 'Snoozed',
           text: `Successfully snoozed ${snoozedItemsCount} tasks!`
+        });
+      }, fadeOutAnimationDuration);
+    },
+    onDiscard(){
+      // Return if we are not in multi-selection mode
+      if(!this.selectedItems.length) return
+
+      const discardedItemsCount = this.selectedItems.length
+      const fadeOutAnimationDuration = 350
+
+      // Discard all selected items
+      for (const item of this.selectedItems) {
+        const component = this.$refs[`item-${item.id}`][0];
+        
+        component.$el.classList.add('fade-out')
+        
+        // Wait for the component to fade out
+        setTimeout(() => item.discard(), fadeOutAnimationDuration);
+      }
+
+      this.clearSelectedItems()
+
+      setTimeout(() => {
+        this.$notify({
+          group: 'basic',
+          title: 'Discard',
+          text: `Successfully discarded ${discardedItemsCount} tasks!`
         });
       }, fadeOutAnimationDuration);
     }

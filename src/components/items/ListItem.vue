@@ -14,7 +14,7 @@
       :class="listItemActionsDynamicClasses"
       class="flex-shrink-0 flex justify-between items-center list-item-actions pt-1 w-2/12 flex md:ml-2"
     >
-      <DiscardAction @click="onDiscardItem" class="hidden md:inline" />
+      <DiscardAction @discard="onDiscard" :plural="selected" class="hidden md:inline" />
       <SnoozeAction @snooze="onSnooze" :plural="selected" class="hidden md:inline" />
       <SelectAction :selected="selected" @click="onToggleSelection" class="select-action" />
       <DragAction />
@@ -132,33 +132,20 @@ export default {
 
       ChangeLogger.itemPropertyValueChanged(this.item.id, 'completed_at', this.item.completed_at);
     },
-    onDiscardItem() {
+    onDiscard() {
+      this.$emit('discard')
+
+      // Delegate discarding of this item to parent component if we are in multi-selection mode
+      if(this.selected){
+        return
+      }
+
+      this.item.discard()
+    
       this.$notify({
-        group: 'prompt',
-        title: 'Discard',
-        text: `Do you really want to discard this task?`,
-        data: {
-          actions: [
-            {
-              label: 'Cancel',
-              callback: async close => {
-                close();
-              }
-            },
-            {
-              label: 'Yes',
-              callback: async close => {
-                await this.item.discard()
-                close();
-                this.$notify({
-                  group: 'basic',
-                  title: 'Discarded',
-                  text: 'Item successfully removed!'
-                });
-              }
-            }
-          ]
-        }
+        group: 'basic',
+        title: 'Discarded',
+        text: 'Item successfully removed!'
       });
     },
     startEditing() {
