@@ -52,15 +52,16 @@
             @selection-changed="onItemSelectionChanged"
             @completion-status-changed="onItemCompletionStatusChanged"
             @snooze="snoozeSelectedItems"
-            @discard="onDiscard"
+            @discard="discardSelectedItems"
             :selected="isItemSelected(item)"
             :class="{ 'select-none': holdingTouch }"
           />
         </transition-group>
       </draggable>
     </div>
-    <div v-if="isMobile && selectedItems.length" class="fixed inset-x-0 bottom-0 p-4 bg-lotion dark:bg-dark-gunmetal z-40">
+    <div v-if="isMobile && selectedItems.length" class="flex items-center fixed inset-x-0 bottom-0 p-4 bg-lotion dark:bg-dark-gunmetal z-40">
       <SnoozeAction @snooze="snoozeSelectedItems"/>
+      <DiscardAction @discard="discardSelectedItems" class="ml-4"/>
     </div>
     <ListItemMobileForm v-if="openItemCreationFormForMobile" @close="openItemCreationFormForMobile = false" />
     <ListItemMobileFormToggleButton v-model="openItemCreationFormForMobile" v-if="!selectedItems.length && isTouchDevice" />
@@ -79,6 +80,7 @@ import Setting from '@/models/Setting';
 import draggable from 'vuedraggable';
 import SearchInput from '@/components/inputs/SearchInput';
 import SnoozeAction from '@/components/items/actions/SnoozeAction';
+import DiscardAction from '@/components/items/actions/DiscardAction';
 import CloseIcon from 'vue-material-design-icons/Close';
 import ChangeLogger from '../sync/ChangeLogger';
 import { isUtcDateInFuture } from '@/helpers/datetime';
@@ -93,6 +95,7 @@ export default {
     draggable,
     SearchInput,
     SnoozeAction,
+    DiscardAction,
     CloseIcon
   },
   data() {
@@ -285,7 +288,7 @@ export default {
         this.clearSelectedItems()
       }, fadeOutAnimationDuration);
     },
-    onDiscard(){
+    discardSelectedItems(){
       // Return if we are not in multi-selection mode
       if(!this.selectedItems.length) return
 
@@ -302,7 +305,6 @@ export default {
         setTimeout(() => item.discard(), fadeOutAnimationDuration);
       }
 
-      this.clearSelectedItems()
 
       setTimeout(() => {
         this.$notify({
@@ -310,6 +312,8 @@ export default {
           title: 'Discard',
           text: `Successfully discarded ${discardedItemsCount} tasks!`
         });
+
+        this.clearSelectedItems()
       }, fadeOutAnimationDuration);
     }
   },
