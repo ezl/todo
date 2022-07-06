@@ -76,7 +76,7 @@ export default {
   },
   mounted(){
     window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') this.close();
+      if (e.key === 'Escape' && this.expand) this.close();
 
       const searchShortcutExecuted = e.keyCode === 70 && e.ctrlKey || e.keyCode === 70 && e.metaKey
 

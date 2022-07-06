@@ -289,6 +289,9 @@ export default {
       if (e.key === 'Enter') this.submit(e);
 
       if (e.key === 'Escape' || e.key === 'Esc') {
+        // Blur the input if suggestions are not visible
+        if(!this.suggestionsPopupCoordinates) this.$refs.input.blur()
+
         this.ignoredTagsStartIndexes.push(this.tagThatIsBeingTyped.startIndex);
 
         this.suggestionsPopupCoordinates = null;
@@ -296,7 +299,9 @@ export default {
         this.tagThatIsBeingTyped.startIndex = null;
         this.tagThatIsBeingTyped.endIndex = null;
         this.hideTagAssignmentGuide();
+
       }
+      
     },
     onKeyPress(e){
       // Prevent the user from creating tags containing disallowed characters 
