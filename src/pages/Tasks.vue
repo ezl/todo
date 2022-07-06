@@ -51,7 +51,7 @@
             @mouseleave="onMouseLeave(item)"
             @selection-changed="onItemSelectionChanged"
             @completion-status-changed="onItemCompletionStatusChanged"
-            @snooze="onSnoozeItem"
+            @snooze="snoozeSelectedItems"
             @discard="onDiscard"
             :selected="isItemSelected(item)"
             :class="{ 'select-none': holdingTouch }"
@@ -60,7 +60,7 @@
       </draggable>
     </div>
     <div v-if="isMobile && selectedItems.length" class="fixed inset-x-0 bottom-0 p-4 bg-lotion dark:bg-dark-gunmetal z-40">
-      <SnoozeAction />
+      <SnoozeAction @snooze="snoozeSelectedItems"/>
     </div>
     <ListItemMobileForm v-if="openItemCreationFormForMobile" @close="openItemCreationFormForMobile = false" />
     <ListItemMobileFormToggleButton v-model="openItemCreationFormForMobile" v-if="!selectedItems.length && isTouchDevice" />
@@ -257,7 +257,7 @@ export default {
         this.$nextTick(() => this.$refs.form.setFocusOnInput())
       }
     },
-    onSnoozeItem(periodInDays){
+    snoozeSelectedItems(periodInDays){
       // First make sure we are in multi-selection mode
       if(!this.selectedItems.length) return
 
@@ -274,7 +274,6 @@ export default {
         setTimeout(() => item.snooze(periodInDays), fadeOutAnimationDuration);
       }
 
-      this.clearSelectedItems()
 
       setTimeout(() => {
         this.$notify({
@@ -282,6 +281,8 @@ export default {
           title: 'Snoozed',
           text: `Successfully snoozed ${snoozedItemsCount} tasks!`
         });
+        
+        this.clearSelectedItems()
       }, fadeOutAnimationDuration);
     },
     onDiscard(){

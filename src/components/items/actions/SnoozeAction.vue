@@ -90,4 +90,10 @@ export default {
 .dark .btn:hover{
   background: #2d2b36;
 }
+
+@media only screen and (max-width: 768px) {
+  .snooze-period-options{
+    top: -72px;
+  }
+}
 </style>
