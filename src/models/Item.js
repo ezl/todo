@@ -4,6 +4,7 @@ import ItemTag from './ItemTag';
 import User from './User';
 import ItemUser from './ItemUser';
 import { isUtcDateInFuture } from '@/helpers/datetime';
+import auth from '@/helpers/auth';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 import Setting from './Setting';
@@ -62,7 +63,7 @@ export default class Item extends BaseModel {
       if (bottomMostItem) newItemOrder = bottomMostItem.order + 1;
     }
 
-    const item = new this();
+    let item = new this();
     item.body = body;
     item.completed_at = completed ? moment.utc().format() : null;
     item.created_at = moment.utc().format();
@@ -76,7 +77,23 @@ export default class Item extends BaseModel {
       if(options.uuid != undefined) item.id = options.uuid
     }    
 
-    await item.$save();
+    // If the user is authenticated, attach this new item to them
+    // If not, saved it without author.
+    // Items that are not attached to any particular user, will be attached to 
+    // the next authenticated user
+    if (auth().isLoggedIn()) {
+      const entities = await User.insertOrUpdate({
+        data: {
+          id: auth().user().id,
+          items: [item]
+        }
+      })
+
+      item = entities.items[0]
+    } else {
+      await item.$save()
+    }
+
 
     if(shouldSync){
       await ChangeLogger.itemCreated(item)

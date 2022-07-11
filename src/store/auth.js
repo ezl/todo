@@ -11,7 +11,7 @@ export default {
   },
   getters: {
     isLoggedIn(state) {
-      return state.token && state.email;
+      return state.token != null && state.email != null;
     },
     email(state) {
       return state.email;
