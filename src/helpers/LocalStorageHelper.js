@@ -1,140 +1,115 @@
-import Item from '../models/Item';
 import Setting from '../models/Setting';
-import ItemTag from '../models/ItemTag';
-import Tag from '../models/Tag';
+import store from '../store';
+import { isRunningAsAnExtension } from './extension';
+
+let storage = {};
+let initializedStore = false;
+let storageCommitTimerId = null;
 
 export default class LocalStorageHelper {
-  static async restore() {
-    await Setting.restore();
-    await Tag.restore();
-    await Item.restore();
-    await ItemTag.restore();
+  static async init() {
+    storage = await this.getAllStorageItems();
+
+    let settings = Setting.query().first();
+    
+    if (!settings) {
+      const defaultSetting = new Setting();
+      const entities = await Setting.insert({
+        data: defaultSetting
+      });
+
+      settings = entities.settings[0];
+    }
+
+    const oldStore = await this.getValue({ store: null });
+
+    if (oldStore) {
+      store.commit('initialiseStore', oldStore);
+    }
+
+    initializedStore = true;
   }
 
-  static async getItems() {
-    let items = await this.getValue({ items: []})
+  static async getAllStorageItems() {
+    let items = {};
+
+    if (isRunningAsAnExtension()) {
+      items = await browser.storage.local.get(null);
+    } else {
+      for (const key in localStorage) {
+        if (localStorage.hasOwnProperty(key)) {
+          const value = localStorage[key];
+
+          if (value) items[key] = JSON.parse(value);
+        }
+      }
+    }
 
     return items;
   }
 
-  static async getTags() {
-    let tags = await this.getValue({ tags: [] });
+  static async commit() {
+    try {
+      for (const key in storage) {
+        if (!storage.hasOwnProperty(key)) continue;
+        const value = storage[key];
 
-    return tags;
-  }
-
-  static async getItemTagRelationships() {
-    let itemTagRelationships = await this.getValue({ itemTagRelationships: [] });
-
-    return itemTagRelationships;
-  }
-
-  static async getSettings() {
-    let settings  = await this.getValue({ settings: {} });
-
-    return settings;
-  }
-
-  static update(entity) {
-    switch (entity) {
-      case 'items':
-        this.updateItems();
-        break;
-      case 'tags':
-        this.updateTags();
-        break;
-      case 'item_tag':
-        this.updateItemTagRelationships();
-        break;
-      case 'settings':
-        this.updateSettings();
-        break;
-      default:
-        break;
-    }
-  }
-
-  static async updateItems() {
-    const items = Item.all();
-
-    const json = [];
-    items.forEach(item => {
-      json.push(item.$toJson());
-    });
-
-    await this.setValue({
-      items: json
-    });
-  }
-
-  static async updateTags() {
-    const tags = Tag.all();
-
-    const json = [];
-    tags.forEach(tag => {
-      json.push(tag.$toJson());
-    });
-
-    await this.setValue({
-      tags: json
-    });
-  }
-
-  static async updateSettings() {
-    const setting = Setting.query().first();
-
-    const json = setting.$toJson();
-
-    await this.setValue({
-      settings: json
-    });
-  }
-
-  static async updateItemTagRelationships() {
-    const itemTagRelationships = ItemTag.all();
-
-    const json = [];
-    itemTagRelationships.forEach(itemTagRelationship => {
-      json.push(itemTagRelationship.$toJson());
-    });
-
-    await this.setValue({
-      itemTagRelationships: json
-    });
-  }
-
-  static async setValue(value){
-    if(typeof value !== 'object'){
-      throw '"value" must be an object'
+        if (isRunningAsAnExtension()) {
+          const obj = {};
+          obj[key] = value;
+          await browser.storage.local.set(obj);
+        } else {
+          localStorage.setItem(key, JSON.stringify(value));
+        }
+      }
+    } catch (error) {
+      console.error(error);
     }
 
-    if(typeof browser !== 'undefined' && browser.storage){
-      await browser.storage.local.set(value);
-    }else{
-      const key = Object.keys(value)[0]
-
-      localStorage.setItem(key, JSON.stringify(value[key]));
-    }
+    clearTimeout(storageCommitTimerId);
+    storageCommitTimerId = null;
   }
 
-  static async getValue(value){
-    if(typeof value !== 'object'){
-      throw '"value" must be an object'
+  static scheduleCommit() {
+    if (storageCommitTimerId) {
+      return;
     }
 
-    const key = Object.keys(value)[0]
-    const defaultValue = value[key]
+    storageCommitTimerId = setTimeout(this.commit, 1000);
+  }
 
-    if(typeof browser !== 'undefined' && browser.storage){
-      const result = await browser.storage.local.get(value);
-
-      return result[key]
-    }else{
-      const result = localStorage.getItem(key)
-
-      if(result !== null) return JSON.parse(result)
-
-      return defaultValue
+  static async setValue(value) {
+    if (typeof value !== 'object') {
+      throw '"value" must be an object';
     }
+
+    const key = Object.keys(value)[0];
+
+    storage[key] = value[key];
+
+    this.scheduleCommit();
+  }
+
+  static async getValue(value) {
+    if (typeof value !== 'object') {
+      throw '"value" must be an object';
+    }
+
+    const key = Object.keys(value)[0];
+    const defaultValue = value[key];
+
+    if (storage.hasOwnProperty(key)) {
+      return storage[key];
+    }
+
+    storage[key] = defaultValue;
+
+    this.scheduleCommit();
+
+    return defaultValue;
+  }
+
+  static isStoreInitialized() {
+    return initializedStore;
   }
 }

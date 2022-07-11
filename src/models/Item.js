@@ -1,7 +1,8 @@
 import BaseModel from './BaseModel';
 import Tag from './Tag';
 import ItemTag from './ItemTag';
-import LocalStorageHelper from '../helpers/LocalStorageHelper';
+import User from './User';
+import ItemUser from './ItemUser';
 import { isUtcDateInFuture } from '@/helpers/datetime';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
@@ -24,16 +25,9 @@ export default class Item extends BaseModel {
       tag_positions: this.attr(null),
       discarded_at: this.attr(null),
       snoozed_until: this.attr(null),
+      users: this.belongsToMany(User, ItemUser, 'item_id', 'user_id'),
       tags: this.belongsToMany(Tag, ItemTag, 'item_id', 'tag_id')
     };
-  }
-
-  static async restore() {
-    let items = await LocalStorageHelper.getItems();
-    
-    this.insert({
-      data: [...items]
-    });
   }
 
   static async add(body, completed, shouldSync, options) {

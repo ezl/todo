@@ -10,6 +10,7 @@ import Notifications from 'vue-notification'
 import { sync } from '../sync'
 import { isRunningAsAnExtension } from '@/helpers/extension'
 
+require('../store/subscriber')
 require('../authentication')
 
 Vue.use(LottieAnimation);
@@ -25,7 +26,8 @@ if (isRunningAsAnExtension()) {
 axios.defaults.baseURL = 'https://www.badtodo.com/api';
 
 const init = async () => {
-  await LocalStorageHelper.restore();
+  await LocalStorageHelper.init();
+  
   const auth = await LocalStorageHelper.getValue({ auth: {} });
 
   const currentAppVersion = await LocalStorageHelper.getValue({ appVersion: null })

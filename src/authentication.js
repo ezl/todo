@@ -1,6 +1,7 @@
 import store from './store';
 import axios from 'axios';
 import LocalStorageHelper from './helpers/LocalStorageHelper';
+import User from './models/User';
 import Item from './models/Item';
 import Tag from './models/Tag';
 
@@ -64,12 +65,11 @@ const onLogout = async (isVerified) => {
   }
 
   if(isVerified){
-    // clear items/tags
+    // Clear every data in Vuex ORM, excluding settings 
+    User.deleteAll()
     Item.deleteAll()
     Tag.deleteAll()
-    LocalStorageHelper.setValue({items: []})
-    LocalStorageHelper.setValue({tags: []})
-    LocalStorageHelper.setValue({itemTagRelationships: []})
+
     LocalStorageHelper.setValue({ changeLogs: [] });
     LocalStorageHelper.setValue({ lastSyncedAt: null });
   }
@@ -134,12 +134,8 @@ const getUserData = async () => {
       change_logs: changeLogs
     });
 
-    Tag.insert({
-      data: [...response.data.tags]
-    });
-
-    Item.insert({
-      data: [...response.data.items]
+    User.insert({
+      data: [response.data.user]
     });
 
     const auth = await LocalStorageHelper.getValue({ auth: {} });

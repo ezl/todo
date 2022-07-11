@@ -2,7 +2,6 @@ import BaseModel from './BaseModel';
 import Item from './Item';
 import ItemTag from './ItemTag';
 import Setting from './Setting';
-import LocalStorageHelper from '../helpers/LocalStorageHelper';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 import ChangeLogger from '../sync/ChangeLogger';
@@ -51,14 +50,6 @@ export default class Tag extends BaseModel {
     if (sync) ChangeLogger.tagCreated(tag);
 
     return tag;
-  }
-
-  static async restore() {
-    let tags = await LocalStorageHelper.getTags();
-
-    this.insert({
-      data: [...tags]
-    });
   }
 
   static async findOrCreateTags(names) {

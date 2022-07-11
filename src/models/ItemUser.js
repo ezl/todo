@@ -1,19 +1,19 @@
 import BaseModel from './BaseModel';
 
-export default class ItemTag extends BaseModel {
+export default class ItemUser extends BaseModel {
 
   static get entity () {
-    return 'item_tag'
+    return 'item_user'
   }
 
   static get primaryKey () {
-    return ['item_id', 'tag_id'];
+    return ['item_id', 'user_id'];
   }
 
   static fields() {
     return {
       item_id: this.attr(null),
-      tag_id: this.attr(null)
+      user_id: this.attr(null)
     };
   }
 }
