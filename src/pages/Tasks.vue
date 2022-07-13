@@ -430,7 +430,7 @@ export default {
       const itemComponentRef = this.$refs[`item-${this.itemBeingEditedId}`][0];
 
       if (itemComponentRef.$el.contains(e.target)) return;
-      if (e.target.matches('.tag-suggestion')) return;
+      if (e.target.matches('.suggestion-box-option')) return;
       itemComponentRef.stopEditing();
       this.itemBeingEditedId = null;
     });

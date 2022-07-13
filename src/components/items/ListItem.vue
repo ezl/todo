@@ -32,7 +32,7 @@
           <div v-show="!editing && !item.completed" @click="startEditing">
             <ListItemBody :item="item" :class="{ 'line-through': item.completed }" class="body" />
           </div>
-          <Input v-if="editing && !item.completed" v-model="body" @submit="submit" ref="input" @tag-selected="onTagSelected" inputClasses="p-0" />
+          <NewTaskInput v-if="editing && !item.completed" v-model="body" @submit="submit" ref="input" @tag-selected="onTagSelected" inputClasses="p-0" />
           <p v-show="item.completed" ref="animatedBody" :class="{ strikethrough: item.completed }" class="">{{ body }}</p>
         </div>
         <span class="creation-date visible md:invisible ml-5 text-secondary">{{ creationDate }}</span>
@@ -46,7 +46,7 @@ import Checkbox from '@/components/inputs/Checkbox';
 import Item from '@/models/Item';
 import Setting from '@/models/Setting';
 import ListItemBody from '@/components/items/ListItemBody';
-import Input from '@/components/inputs/Input';
+import NewTaskInput from '@/components/items/input/NewTaskInput';
 import DragAction from '@/components/items/actions/DragAction';
 import SelectAction from '@/components/items/actions/SelectAction';
 import SnoozeAction from '@/components/items/actions/SnoozeAction';
@@ -58,7 +58,7 @@ export default {
   components: {
     Checkbox,
     ListItemBody,
-    Input,
+    NewTaskInput,
     DragAction,
     SelectAction,
     SnoozeAction,
@@ -304,8 +304,8 @@ export default {
       handler: function(newVal, oldVal) {
         // Changes made from outside of this component
 
-        // Ignore if tag suggestions box is visible
-        if (!document.querySelector('#tags-suggestion-popup')) this.body = newVal.body;
+        // Ignore if suggestions box is visible
+        if (!document.querySelector('#suggestion-popup')) this.body = newVal.body;
 
         if (newVal.completed_at != oldVal.completed_at) {
           this.onCompletionStatusChanged();

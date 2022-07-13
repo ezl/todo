@@ -13,7 +13,7 @@
     ></span>
     <TagsSuggestionPopup
       ref="suggestionsPopup"
-      :tags="tagSuggestions"
+      :options="tagSuggestions"
       v-if="suggestionsPopupCoordinates"
       :x="suggestionsPopupCoordinates.x"
       :y="suggestionsPopupCoordinates.y"
@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import TagsSuggestionPopup from '@/components/tags/TagsSuggestionPopup';
+import TagsSuggestionPopup from '@/components/items/input/suggestions/TagsSuggestionPopup';
 import Tag from '@/models/Tag';
 import { findParent } from '@/helpers/dom.js';
 

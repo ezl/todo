@@ -7,7 +7,7 @@
       <button @click="save" :class="{ 'opacity-60': !body.length }" class="p-2 px-4">Save</button>
     </div>
     <div @click.self="giveFucusToTheInput" class="body">
-      <Input
+      <NewTaskInput
       v-model="body"
       @submit="save"
       ref="input"
@@ -22,14 +22,14 @@
 
 <script>
 import Checkbox from '@/components/inputs/Checkbox';
-import Input from '@/components/inputs/Input';
+import NewTaskInput from '@/components/items/input/NewTaskInput';
 import createItem from '@/mixins/createItem';
 import ChevronLeftIcon from '@/assets/images/icons/chevron-left.svg';
 
 export default {
   components: {
     Checkbox,
-    Input,
+    NewTaskInput,
     ChevronLeftIcon
   },
   methods: {

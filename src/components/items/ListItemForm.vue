@@ -4,7 +4,7 @@
       <Checkbox v-model="completed" class="opacity-60" />
     </div>
     <div class="w-full">
-      <Input
+      <NewTaskInput
         v-model="body"
         @submit="submit"
         ref="input"
@@ -19,13 +19,13 @@
 
 <script>
 import Checkbox from '@/components/inputs/Checkbox';
-import Input from '@/components/inputs/Input';
+import NewTaskInput from '@/components/items/input/NewTaskInput';
 import createItem from '@/mixins/createItem';
 
 export default {
   components: {
     Checkbox,
-    Input
+    NewTaskInput
   },
   data() {
     return {
