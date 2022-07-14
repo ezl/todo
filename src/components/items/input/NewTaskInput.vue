@@ -60,7 +60,7 @@ export default {
       // We have to keep track of the caret's position to reset it back later,
       // bcause changing contenteditable resets caret position
       this.saveCurrentCaretPosition();
-      this.hideTagAssignmentGuide();
+      this.hideAssignmentGuide();
 
       this.$emit('input', e.target.textContent);
       this.resize();
@@ -81,11 +81,11 @@ export default {
           }
 
           if (justStartedTypingIt) {
-            this.showTagAssignmentGuide();
+            this.showAssignmentGuide('type to add tag or press ESC to cancel');
           }
         } else {
           this.suggestionsPopupCoordinates = null;
-          this.hideTagAssignmentGuide();
+          this.hideAssignmentGuide();
         }
       });
     },
@@ -152,7 +152,7 @@ export default {
     },
     onTagSelected(tag) {
       this.focus();
-      this.hideTagAssignmentGuide();
+      this.hideAssignmentGuide();
       this.autoCompleteTagRemainingCharacters(tag.name);
       this.suggestionsPopupCoordinates = null;
 
@@ -246,21 +246,19 @@ export default {
 
       return pos;
     },
-    showTagAssignmentGuide() {
-      if (document.querySelector('#tag-assignment-guide')) return;
+    showAssignmentGuide(label) {
+      if (document.querySelector('#assignment-guide')) return;
       // Don’t show if the caret is not at the end
       if (this.getCurrentCaretPosition() !== this.value.length) return;
 
-      const label = 'type to add tag or press ESC to cancel';
-
       const span = document.createElement('span');
       span.innerText = `  ${label}`;
-      span.id = 'tag-assignment-guide';
+      span.id = 'assignment-guide';
       span.className = 'dark:text-white text-black opacity-60';
       this.$refs.input.appendChild(span);
     },
-    hideTagAssignmentGuide() {
-      const span = document.querySelector('#tag-assignment-guide');
+    hideAssignmentGuide() {
+      const span = document.querySelector('#assignment-guide');
 
       if (span) {
         span.parentElement.removeChild(span);
@@ -298,29 +296,34 @@ export default {
         this.tagThatIsBeingTyped.body = '';
         this.tagThatIsBeingTyped.startIndex = null;
         this.tagThatIsBeingTyped.endIndex = null;
-        this.hideTagAssignmentGuide();
-
+        this.hideAssignmentGuide();
       }
-      
     },
-    onKeyPress(e){
-      // Prevent the user from creating tags containing disallowed characters 
+    onKeyPress(e) {
+      // Prevent the user from creating tags containing disallowed characters
+      this.validateTag(e);
+    },
+    // Checks if user is typing a valid tag
+    validateTag(e) {
       if (this.suggestionsPopupCoordinates) {
         const typedChar = String.fromCharCode(e.keyCode);
         const allowedKeys = [38, 40, 13, 27];
 
         if (!/[0-9a-zA-Z ]/.test(typedChar) && !allowedKeys.includes(e.keyCode)) {
-          this.$notify({ group: 'general', title: `Oops, are you trying to create a tag with a '${typedChar}' in it? Tags can only contain the following characters: A-Z, a-z, 0-9, space and "_".` });
-          e.preventDefault()
+          this.$notify({
+            group: 'general',
+            title: `Oops, are you trying to create a tag with a '${typedChar}' in it? Tags can only contain the following characters: A-Z, a-z, 0-9, space and "_".`
+          });
+          e.preventDefault();
         }
       }
     },
     onClick(e) {
       //Close tags suggestion popup when the user clicks somewhere on the input
       this.suggestionsPopupCoordinates = null;
-      this.hideTagAssignmentGuide();
+      this.hideAssignmentGuide();
     },
-    isFocused(){
+    isFocused() {
       return document.activeElement === this.$refs.input
     }
   },
@@ -353,7 +356,7 @@ export default {
       if (this.$el.contains(e.target)) return;
 
       this.suggestionsPopupCoordinates = null;
-      this.hideTagAssignmentGuide();
+      this.hideAssignmentGuide();
     });
   },
   watch: {
