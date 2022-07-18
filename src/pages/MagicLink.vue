@@ -74,6 +74,11 @@ export default {
         return;
       }
 
+      if(this.isLoggedIn){
+        this.$router.push({ name: 'home' });
+        return
+      }
+
       await this.forceLogin({
         email,
         token: access_token

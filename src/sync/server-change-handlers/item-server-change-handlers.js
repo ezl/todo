@@ -5,6 +5,7 @@ import ItemTag from '@/models/ItemTag';
 import ItemUser from '@/models/ItemUser';
 import { ENTYTY_TYPE_ITEM } from '../entity-types';
 import LocalStorageHelper from '@/helpers/LocalStorageHelper';
+import auth from '@/helpers/auth';
 
 
 export const handleItemCreation = async remoteChangeLog => {
@@ -59,6 +60,22 @@ export const handleItemAttachedTagsChange = async remoteChangeLog => {
 
 export const handleItemUserAssignment = async remoteChangeLog => {
   const email = remoteChangeLog.meta.assigned_user_email
+
+  let item = Item.find(remoteChangeLog.entity_uuid)
+  const user = User.query().where('email', email).first()
+
+  if(!item){
+    console.log('assigned task does not exist... created now')
+    const options = remoteChangeLog.meta.item
+    if(user){
+      options.userId = user.id
+      options.isAssigned = true
+      options.isOwner = false
+    }
+    console.log('ops: ', options)
+    item = await Item.add(remoteChangeLog.meta.item.body, null, false, options);
+  }
+
   // Make sure we don’t assign a user twice to the same item
   const isAlreadyAssigned = User.query().where('email', email).whereHas('items', (query) => {
     query.where('id', remoteChangeLog.entity_uuid)
@@ -66,18 +83,16 @@ export const handleItemUserAssignment = async remoteChangeLog => {
 
   console.log('isAlreadyAssigned: ', isAlreadyAssigned)
   if(!isAlreadyAssigned){
-    const item = Item.find(remoteChangeLog.entity_uuid);
-    if(!item) return
-    
-    const user = User.query().where('email', email).first()
     await item.assignSelectedUsers([user || email], false)
   }
 }
 
 export const handleItemUserAssignmentResponse = async remoteChangeLog => {
+
+  
   const item = Item.find(remoteChangeLog.entity_uuid);
   const user = User.query().where('email', remoteChangeLog.meta.user.email).with('items').first()
-
+  
   if(!item || !user) return
 
   const newId = remoteChangeLog.meta.user.id

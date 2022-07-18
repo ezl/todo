@@ -321,6 +321,8 @@ export default {
     items() {
       let items = Item.query()
         .with('tags')
+        .with('item_user_pivot')
+        .with('users')
         .where('discarded_at', null)
         .where('snoozed_until', value => value === null || isUtcDateInFuture(value) === false)
         .get()

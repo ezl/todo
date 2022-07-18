@@ -35,7 +35,8 @@
           <NewTaskInput v-if="editing && !item.completed" v-model="body" @submit="submit" ref="input" @tag-selected="onTagSelected" inputClasses="p-0" />
           <p v-show="item.completed" ref="animatedBody" :class="{ strikethrough: item.completed }" class="">{{ body }}</p>
         </div>
-        <span class="creation-date visible md:invisible ml-5 text-secondary">{{ creationDate }}</span>
+        <span class="label visible md:invisible ml-5 text-secondary">{{ creationDate }}</span>
+        <span class="label visible md:invisible ml-5 text-secondary">{{ assignedUsersLabel }}</span>
       </div>
     </div>
   </div>
@@ -53,6 +54,7 @@ import SnoozeAction from '@/components/items/actions/SnoozeAction';
 import DiscardAction from '@/components/items/actions/DiscardAction';
 import ChangeLogger from '../../sync/ChangeLogger';
 import moment from 'moment';
+import auth from '@/helpers/auth';
 
 export default {
   components: {
@@ -104,6 +106,33 @@ export default {
         .utc(this.item.created_at)
         .local()
         .format('M/DD');
+    },
+    isAssignedToCurrentUser(){
+      return this.item.item_user_pivot.some(pivot => {
+        if(!auth().isLoggedIn()) return false
+        return pivot.user_id == auth().user().id && pivot.is_assigned && !pivot.is_owner
+      })
+    },
+    assignedUsersLabel(){
+      const assignedUsers = []
+      this.item.users.forEach(user => {
+        if(!auth().isLoggedIn()) return
+
+        const assigned = this.item.item_user_pivot.some(pivot => {
+          return pivot.user_id == user.id && pivot.is_assigned && !pivot.is_owner
+        })
+        if(assigned) assignedUsers.push(user.email)
+      })
+
+      let label = ''
+
+      if(this.isAssignedToCurrentUser){
+        label = assignedUsers.length > 1 ? 'you & ' + assignedUsers.length -1 + ' others' : 'you'
+      }else{
+        label = assignedUsers.length > 1 ? assignedUsers[0] + ' & ' + assignedUsers.length -1 + ' others' : assignedUsers[0]
+      }
+
+      return label
     }
   },
   methods: {
@@ -357,12 +386,12 @@ export default {
   visibility: visible;
 }
 
-.list-item-wrapper:hover .creation-date {
+.list-item-wrapper:hover .label {
   visibility: visible;
 }
 
 .body,
-.creation-date {
+.label {
   -webkit-user-select: none;
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;

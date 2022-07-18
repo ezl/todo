@@ -142,12 +142,16 @@ export default class ChangeLogger {
       return;
     }
 
+    const itemProps = item.$toJson()
+    itemProps.uuid = itemProps.id
+
     await this.createChange({
       entity_type: ENTYTY_TYPE_ITEM,
       entity_uuid: item.id,
       change_type: CHANGE_TYPE_USER_ASSIGNMENT,
       meta: {
-        assigned_user_email: user.email
+        assigned_user_email: user.email,
+        item: itemProps
       },
     })
 

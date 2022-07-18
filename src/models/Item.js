@@ -27,7 +27,8 @@ export default class Item extends BaseModel {
       discarded_at: this.attr(null),
       snoozed_until: this.attr(null),
       users: this.belongsToMany(User, ItemUser, 'item_id', 'user_id'),
-      tags: this.belongsToMany(Tag, ItemTag, 'item_id', 'tag_id')
+      tags: this.belongsToMany(Tag, ItemTag, 'item_id', 'tag_id'),
+      item_user_pivot: this.hasMany(ItemUser, 'item_id'),
     };
   }
 
@@ -74,6 +75,8 @@ export default class Item extends BaseModel {
       if(options.completed_at != undefined) item.completed_at = options.completed_at
       if(options.created_at != undefined) item.created_at = options.created_at
       if(options.order != undefined) item.order = options.order
+      if(options.snoozed_until != undefined) item.snoozed_until = options.snoozed_until
+      if(options.discarded_at != undefined) item.discarded_at = options.discarded_at
       if(options.uuid != undefined) item.id = options.uuid
     }    
 
@@ -82,14 +85,15 @@ export default class Item extends BaseModel {
     // Items that are not attached to any particular user, will be attached to 
     // the next authenticated user
     if (auth().isLoggedIn()) {
+      const userId = options && options.userId != undefined ? options.userId : auth().user().id
       const entities = await User.insertOrUpdate({
         data: {
-          id: auth().user().id,
+          id: userId,
           items: [{
             ...item.$toJson(),
             pivot: {
-              is_owner: true,
-              is_assigned: false,
+              is_owner: options && options.isOwner != undefined ? options.isOwner : true,
+              is_assigned: options && options.isAssigned != undefined ? options.isAssigned : false,
             }
           }]
         }

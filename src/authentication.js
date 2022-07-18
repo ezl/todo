@@ -4,6 +4,8 @@ import LocalStorageHelper from './helpers/LocalStorageHelper';
 import User from './models/User';
 import Item from './models/Item';
 import Tag from './models/Tag';
+import ItemTag from './models/ItemTag';
+import ItemUser from './models/ItemUser';
 
 let verificationStatusCheckTimerId = null;
 
@@ -71,6 +73,8 @@ const onLogout = async (isVerified) => {
     User.deleteAll()
     Item.deleteAll()
     Tag.deleteAll()
+    ItemUser.deleteAll()
+    ItemTag.deleteAll()
 
     LocalStorageHelper.setValue({ changeLogs: [] });
     LocalStorageHelper.setValue({ lastSyncedAt: null });
@@ -136,13 +140,15 @@ const getUserData = async () => {
       change_logs: changeLogs
     });
 
-    // Logged in user
-    User.insert({
-      data: response.data.user
-    });
+
     // His items, assigned & his own items
-    Item.insert({
+    await Item.insert({
       data: response.data.items
+    });
+
+    // Logged in user
+    await User.insert({
+      data: [response.data.user]
     });
 
     const auth = await LocalStorageHelper.getValue({ auth: {} });
