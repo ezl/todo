@@ -1,7 +1,12 @@
 import LocalStorageHelper from '../helpers/LocalStorageHelper';
 import moment from 'moment';
 import { ENTYTY_TYPE_ITEM, ENTYTY_TYPE_TAG } from './entity-types';
-import { CHANGE_TYPE_PROPERTY_VALUE_CHANGE, CHANGE_TYPE_ITEM_ATTACHED_TAGS_CHANGE, CHANGE_TYPE_CREATION, CHANGE_TYPE_DELETION } from './change-types';
+import { 
+  CHANGE_TYPE_PROPERTY_VALUE_CHANGE, 
+  CHANGE_TYPE_ITEM_ATTACHED_TAGS_CHANGE, 
+  CHANGE_TYPE_CREATION, 
+  CHANGE_TYPE_DELETION, 
+  CHANGE_TYPE_USER_ASSIGNMENT } from './change-types';
 import { syncDelayed } from './index'
 
 export default class ChangeLogger {
@@ -122,6 +127,29 @@ export default class ChangeLogger {
     }
 
     await LocalStorageHelper.setValue({ changeLogs });
+
+    syncDelayed()
+  }
+
+  static async userAssignedToItem(item, user) {
+    if (!item) {
+      console.error('item is required');
+      return;
+    }
+
+    if (!user) {
+      console.error('user is required');
+      return;
+    }
+
+    await this.createChange({
+      entity_type: ENTYTY_TYPE_ITEM,
+      entity_uuid: item.id,
+      change_type: CHANGE_TYPE_USER_ASSIGNMENT,
+      meta: {
+        assigned_user_email: user.email
+      },
+    })
 
     syncDelayed()
   }

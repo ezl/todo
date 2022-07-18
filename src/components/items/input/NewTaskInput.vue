@@ -14,23 +14,36 @@
     <TagsSuggestionPopup
       ref="suggestionsPopup"
       :options="tagSuggestions"
-      v-if="suggestionsPopupCoordinates"
+      v-if="suggestionsPopupCoordinates && autocomplete.type == 'tag'"
       :x="suggestionsPopupCoordinates.x"
       :y="suggestionsPopupCoordinates.y"
-      :query="tagThatIsBeingTyped.body"
+      :query="autocomplete.body"
       @select="onTagSelected"
+    />
+    <UserSuggestionPopup
+      ref="suggestionsPopup"
+      :options="userSuggestions"
+      v-if="suggestionsPopupCoordinates && autocomplete.type == 'mention'"
+      :x="suggestionsPopupCoordinates.x"
+      :y="suggestionsPopupCoordinates.y"
+      :query="autocomplete.body"
+      @select="onUserSelected"
     />
   </div>
 </template>
 
 <script>
 import TagsSuggestionPopup from '@/components/items/input/suggestions/TagsSuggestionPopup';
+import UserSuggestionPopup from '@/components/items/input/suggestions/UserSuggestionPopup';
 import Tag from '@/models/Tag';
+import User from '@/models/User';
 import { findParent } from '@/helpers/dom.js';
+import auth from '@/helpers/auth';
 
 export default {
   components: {
-    TagsSuggestionPopup
+    TagsSuggestionPopup,
+    UserSuggestionPopup
   },
   props: {
     value: {
@@ -46,13 +59,14 @@ export default {
     return {
       initialInputHeight: null,
       currentCaretOffset: 0,
-      tagThatIsBeingTyped: {
+      autocomplete: {
         body: '',
         startIndex: null,
-        endIndex: null
+        endIndex: null,
+        ignoredStartIndexes: [],
+        type: null
       },
       suggestionsPopupCoordinates: null,
-      ignoredTagsStartIndexes: []
     };
   },
   methods: {
@@ -65,29 +79,7 @@ export default {
       this.$emit('input', e.target.textContent);
       this.resize();
 
-      this.$nextTick(() => {
-        // Frequently reset and update the ignored tag indexes
-        this.ignoredTagsStartIndexes = this.ignoredTagsStartIndexes.filter(index => {
-          return index <= this.value.length - 1;
-        });
-
-        const isTypingATag = this.userIsTypingATag();
-        const justStartedTypingIt = this.tagThatIsBeingTyped.body.length === 1;
-        const shouldBeIgnored = this.ignoredTagsStartIndexes.some(index => index === this.tagThatIsBeingTyped.startIndex);
-
-        if (isTypingATag && !shouldBeIgnored) {
-          if (!this.suggestionsPopupCoordinates && justStartedTypingIt) {
-            this.suggestionsPopupCoordinates = this.getCaretAbsolutePosition();
-          }
-
-          if (justStartedTypingIt) {
-            this.showAssignmentGuide('type to add tag or press ESC to cancel');
-          }
-        } else {
-          this.suggestionsPopupCoordinates = null;
-          this.hideAssignmentGuide();
-        }
-      });
+      this.$nextTick(this.handleAutoCompletion);
     },
     submit(e) {
       e.preventDefault();
@@ -97,7 +89,7 @@ export default {
       this.$emit('submit');
       this.$refs.input.style.height = this.initialInputHeight;
       this.suggestionsPopupCoordinates = null;
-      this.ignoredTagsStartIndexes = [];
+      this.autocomplete.ignoredStartIndexes = [];
     },
     focus() {
       this.$refs.input.focus();
@@ -150,6 +142,31 @@ export default {
         document.execCommand('insertHTML', false, str);
       });
     },
+    handleAutoCompletion() {
+      // Frequently reset and update the ignored tag indexes
+      this.autocomplete.ignoredStartIndexes = this.autocomplete.ignoredStartIndexes.filter(index => {
+        return index <= this.value.length - 1;
+      });
+
+      const showSuggestions = this.shouldShowSuggestions();
+      const justStartedTypingIt = this.autocomplete.body.length === 1;
+      const shouldBeIgnored = this.autocomplete.ignoredStartIndexes.some(index => index === this.autocomplete.startIndex);
+
+      if (showSuggestions && !shouldBeIgnored) {
+        if (!this.suggestionsPopupCoordinates && justStartedTypingIt) {
+          this.suggestionsPopupCoordinates = this.getCaretAbsolutePosition();
+        }
+
+        if (justStartedTypingIt) {
+          let guideMsg = 'type to add tag or press ESC to cancel'
+          if(this.autocomplete.type == 'mention') guideMsg = 'type an email to assigned someone or press ESC to cancel'
+          this.showAssignmentGuide(guideMsg);
+        }
+      } else {
+        this.suggestionsPopupCoordinates = null;
+        this.hideAssignmentGuide();
+      }
+    },
     onTagSelected(tag) {
       this.focus();
       this.hideAssignmentGuide();
@@ -158,43 +175,79 @@ export default {
 
       this.$emit('tag-selected', {
         tag,
-        startIndex: this.tagThatIsBeingTyped.startIndex,
-        endIndex: this.tagThatIsBeingTyped.endIndex
+        startIndex: this.autocomplete.startIndex,
+        endIndex: this.autocomplete.endIndex
       });
     },
-    userIsTypingATag() {
+    onUserSelected(user) {
+      console.log(user)
+      this.focus();
+      this.hideAssignmentGuide();
+      //Could be just an email if the user doesn’t exist 
+      this.autoCompleteTagRemainingCharacters(typeof user === 'string' ? user : user.email);
+      this.suggestionsPopupCoordinates = null;
+
+      this.$emit('assign-user', user);
+    },
+    shouldShowSuggestions() {
       // retrieve current caret position
       const currentCaretOffset = this.getCurrentCaretPosition();
       // get all words that precede current caret position, and ignore words that come after that
       const words = this.value.substring(0, currentCaretOffset);
+      
       // extract tags
-      const matches = words.match(/(#[0-9a-zA-Z ]*)/g);
-      // take the last one
-      let tag;
-      if (matches != null) {
-        tag = matches[matches.length - 1];
+      let matches = words.match(/(#[0-9a-zA-Z ]*)/g );
+
+      // If what they are not currently typing is not a tag
+      if(!matches){
+        // Check if they are mentioning/assigning a user
+        matches = words.match(/(@([0-9a-zA-Z@.])*)+/g)
+        if(matches) this.autocomplete.type = 'mention'
+      }else{
+        // It's a tag
+        this.autocomplete.type = 'tag'
       }
 
-      const tagStartIndex = tag ? currentCaretOffset - tag.length : null;
-      const tagEndIndex = tag ? currentCaretOffset : null;
+      // take the last match
+      let match;
+      if (matches != null) {
+        match = matches[matches.length - 1];
+      }
+
+      const startIndex = match ? currentCaretOffset - match.length : null;
+      const endIndex = match ? currentCaretOffset : null;
+      let showSuggestions = false
 
       // check if it's a valid tag
-      if (/^#[0-9a-zA-Z ]*?$/.test(tag)) {
-        this.tagThatIsBeingTyped.body = tag;
-        this.tagThatIsBeingTyped.startIndex = tagStartIndex;
-        this.tagThatIsBeingTyped.endIndex = tagEndIndex;
-        return true;
+      if (this.autocomplete.type == 'tag' && /^#[0-9a-zA-Z ]*?$/.test(match)) {
+        showSuggestions = true;
+      }
+      // or if it's a valid mention
+      if (this.autocomplete.type == 'mention' && /^@[^\s]*$/.test(match)) {
+        showSuggestions = true;
       }
 
-      this.tagThatIsBeingTyped.body = '';
-      this.tagThatIsBeingTyped.startIndex = null;
-      this.tagThatIsBeingTyped.endIndex = null;
+      if (showSuggestions) {
+        this.autocomplete.body = match;
+        this.autocomplete.startIndex = startIndex;
+        this.autocomplete.endIndex = endIndex;
+        
+      } else {
+        this.autocomplete.body = '';
+        this.autocomplete.startIndex = null;
+        this.autocomplete.endIndex = null;
+      }
 
-      return false;
+      return showSuggestions;
     },
-    autoCompleteTagRemainingCharacters(str) {
+    autoCompleteTagRemainingCharacters(fullString) {
+      // In case what we’re auto completing is an email, the typed str will include a ‘@’ character at the beginning 
+      // while the full str will not. So we should account for the character difference when determine remaining characters 
+      let typedStrLength = this.autocomplete.body.length
+      if(this.autocomplete.type === 'mention') typedStrLength - 1
+      const remainingCharacters = fullString.slice(typedStrLength) + ' ';
+
       const selection = window.getSelection();
-      const remainingCharacters = str.slice(this.tagThatIsBeingTyped.body.length) + ' ';
       const textNode = document.createTextNode(remainingCharacters);
       const range = selection.getRangeAt(0);
 
@@ -208,7 +261,7 @@ export default {
       this.saveCurrentCaretPosition();
       this.updateInputValue(this.$refs.input.textContent);
       this.$emit('input', this.$refs.input.textContent);
-      this.tagThatIsBeingTyped.endIndex += remainingCharacters.length;
+      this.autocomplete.endIndex += remainingCharacters.length;
     },
     getCaretAbsolutePosition() {
       const selection = document.getSelection();
@@ -290,12 +343,12 @@ export default {
         // Blur the input if suggestions are not visible
         if(!this.suggestionsPopupCoordinates) this.$refs.input.blur()
 
-        this.ignoredTagsStartIndexes.push(this.tagThatIsBeingTyped.startIndex);
+        this.autocomplete.ignoredStartIndexes.push(this.autocomplete.startIndex);
 
         this.suggestionsPopupCoordinates = null;
-        this.tagThatIsBeingTyped.body = '';
-        this.tagThatIsBeingTyped.startIndex = null;
-        this.tagThatIsBeingTyped.endIndex = null;
+        this.autocomplete.body = '';
+        this.autocomplete.startIndex = null;
+        this.autocomplete.endIndex = null;
         this.hideAssignmentGuide();
       }
     },
@@ -305,7 +358,7 @@ export default {
     },
     // Checks if user is typing a valid tag
     validateTag(e) {
-      if (this.suggestionsPopupCoordinates) {
+      if (this.suggestionsPopupCoordinates && this.autocomplete.type == 'tag') {
         const typedChar = String.fromCharCode(e.keyCode);
         const allowedKeys = [38, 40, 13, 27];
 
@@ -335,14 +388,32 @@ export default {
 
       if (tags) {
         tags = tags
-          .filter(tag => tag.name.toLowerCase().includes(this.tagThatIsBeingTyped.body.toLowerCase().trim()))
+          .filter(tag => tag.name.toLowerCase().includes(this.autocomplete.body.toLowerCase().trim()))
           // Sort by usage frequency
           .sort((a, b) => b.items.length - a.items.length)
           .slice(0, 8);
       }
 
       return tags;
-    }
+    },
+    userSuggestions() {
+      let users = User.query()
+        .with('items')
+        .get();
+
+      if (users) {
+        const email = this.autocomplete.body.slice(1) // exclude the leading '@'
+        users = users
+          .filter(user => {
+            if(user.id === auth().user().id) return false
+
+            return user.email.toLowerCase().startsWith(email.toLowerCase().trim())
+          })
+          .slice(0, 8);
+      }
+
+      return users;
+    },
   },
   mounted() {
     this.initialInputHeight = window.getComputedStyle(this.$refs.input, null).getPropertyValue('height');

@@ -62,6 +62,21 @@ export default {
         throw('Could not send verification email')
       }
     },
+    // Log user in without verifying their email using the provided token
+    forceLogin({ commit }, { email, token }){
+      commit('SET_EMAIL', email);
+      commit('SET_TOKEN', token);
+      commit('SET_CLIENT_TRACKING_TOKEN', null);
+
+      LocalStorageHelper.setValue({
+        auth: {
+          email,
+          token,
+          clientTrackingToken: null,
+          verified: true
+        }
+      });
+    },
     logout({ commit }){
       commit('SET_EMAIL', null);
       commit('SET_CLIENT_TRACKING_TOKEN', null);

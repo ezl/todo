@@ -85,7 +85,13 @@ export default class Item extends BaseModel {
       const entities = await User.insertOrUpdate({
         data: {
           id: auth().user().id,
-          items: [item]
+          items: [{
+            ...item.$toJson(),
+            pivot: {
+              is_owner: true,
+              is_assigned: false,
+            }
+          }]
         }
       })
 
@@ -296,6 +302,57 @@ export default class Item extends BaseModel {
 
     await this.$save()
     await ChangeLogger.itemPropertyValueChanged(this.id, 'snoozed_until', this.snoozed_until);
+  }
+
+  async assignSelectedUsers(users, shouldSync){
+    if(shouldSync === undefined) shouldSync = true
+
+    for (let index = 0; index < users.length; index++) {
+      let user = users[index];
+
+      // If it is a string, then this means it is just the email of the assigned user
+      if(typeof user === 'string'){
+        // This user doesn’t exist yet in our local storage, but we will create a new user with 
+        // the little information we currently have (his email)
+        // We’ll fill the missing information such as their ID, once they accept the invitation 
+        // (we’ll get them through the syncing)
+        const email = user
+        user = new User()
+        user.id = uuidv4()
+        user.email = email
+        user.missing_info = true
+        await user.$save()
+      }
+
+      // Whether or not this user has already accepted this user’s initial invitation. 
+      // This will help us decide if we should assign them directly or wait for their response to the invitation 
+      let invitationAccepted = User.query().where('email', user.email).whereHas('item_user_pivot', (q) => {
+        q.where('is_assigned', true).where('invitation_accepted_at',  (value) => value != null)
+      }).exists()
+
+      if(!invitationAccepted){
+        console.log('user needs to accept invitation')
+      }else{
+        console.log('Assignment invitation already accepted')
+      }
+
+      // Attach this instance, which is the assigned item
+      await User.insertOrUpdate({
+        data: {
+          id: user.id,
+          items: [{
+            ...this.$toJson(),
+            pivot: {
+              is_owner: false,
+              is_assigned: true,
+              invitation_accepted_at: invitationAccepted ? moment.utc().format() : null
+            }
+          }]
+        }
+      })
+
+      if(shouldSync) await ChangeLogger.userAssignedToItem(this, user)
+    }
   }
 
   set completed(completed) {

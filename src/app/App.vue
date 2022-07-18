@@ -1,6 +1,6 @@
 <template>
   <div class="h-full text-black dark:text-white py-3 md:px-8 lg:py-4 lg:px-20 text-base">
-    <nav class="flex justify-between items-center mx-4">
+    <nav v-if="shouldHideNav == false" class="flex justify-between items-center mx-4">
       <ul :class="{ 'blur-sm pointer-events-none': isSettingsMenuOpen }" class="flex items-center">
         <li class="text-lg cursor-pointer text-ree-500">
           <router-link :class="{'text-bold text-black': isActive('tasks')}" :to="{name: 'tasks'}">
@@ -65,6 +65,11 @@ export default {
     },
     settings(){
       return Setting.retrieve()
+    },
+    shouldHideNav(){
+      if(this.$route.name == 'magic-link') return true
+
+      return false
     }
   },
   methods: {

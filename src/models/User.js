@@ -13,8 +13,10 @@ export default class User extends BaseModel {
     return {
       id: this.attr(null),
       email: this.attr(null),
+      missing_info: this.attr(false),
       items: this.belongsToMany(Item, ItemUser, 'user_id', 'item_id'),
       tags: this.hasMany(Tag, 'user_id'),
+      item_user_pivot: this.hasMany(ItemUser, 'user_id'),
     };
   }
 }

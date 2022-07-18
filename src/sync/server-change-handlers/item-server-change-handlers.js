@@ -1,6 +1,8 @@
+import User from '@/models/User';
 import Item from '@/models/Item';
 import Tag from '@/models/Tag';
 import ItemTag from '@/models/ItemTag';
+import ItemUser from '@/models/ItemUser';
 import { ENTYTY_TYPE_ITEM } from '../entity-types';
 import LocalStorageHelper from '@/helpers/LocalStorageHelper';
 
@@ -54,3 +56,57 @@ export const handleItemAttachedTagsChange = async remoteChangeLog => {
 
   await item.updateTagPositionsInBody(false);
 };
+
+export const handleItemUserAssignment = async remoteChangeLog => {
+  const email = remoteChangeLog.meta.assigned_user_email
+  // Make sure we don’t assign a user twice to the same item
+  const isAlreadyAssigned = User.query().where('email', email).whereHas('items', (query) => {
+    query.where('id', remoteChangeLog.entity_uuid)
+  }).exists()
+
+  console.log('isAlreadyAssigned: ', isAlreadyAssigned)
+  if(!isAlreadyAssigned){
+    const item = Item.find(remoteChangeLog.entity_uuid);
+    if(!item) return
+    
+    const user = User.query().where('email', email).first()
+    await item.assignSelectedUsers([user || email], false)
+  }
+}
+
+export const handleItemUserAssignmentResponse = async remoteChangeLog => {
+  const item = Item.find(remoteChangeLog.entity_uuid);
+  const user = User.query().where('email', remoteChangeLog.meta.user.email).with('items').first()
+
+  if(!item || !user) return
+
+  const newId = remoteChangeLog.meta.user.id
+
+  const itemUserRelations = ItemUser.query().where('user_id', user.id).get();
+  for (let index = 0; index < itemUserRelations.length; index++) {
+    const relation = itemUserRelations[index];
+
+    if(user.missing_info) relation.user_id = newId
+
+    if(relation.item_id == item.id){
+      relation.invitation_accepted_at = remoteChangeLog.changed_at
+    }
+
+    await relation.$save()
+  }
+
+  if(user.missing_info){
+    const oldLocalId = user.id
+
+    user.id = newId
+    user.missing_info = false
+    console.log(user.email+' was missing info')
+    await user.$save()
+
+    const oldInstance = User.query().where('id', oldLocalId).first()
+    console.log('oldInstance ', oldInstance)
+    await oldInstance.$delete()
+  }else{
+    console.log('no missing info for ', user.email)
+  }
+}

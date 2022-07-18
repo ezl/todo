@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import Tasks from '@/pages/Tasks';
 import CompletedTasks from '@/pages/CompletedTasks';
 import SnoozedTasks from '@/pages/SnoozedTasks';
+import MagicLink from '@/pages/MagicLink';
 
 Vue.use(VueRouter);
 
@@ -26,6 +27,15 @@ const routes = [
     path: '/tasks/snoozed',
     name: 'tasks.snoozed',
     component: SnoozedTasks
+  },
+  {
+    path: '/magic-link',
+    redirect: 'tasks'
+  },
+  {
+    path: '/magic-link/:token',
+    name: 'magic-link',
+    component: MagicLink
   },
 ];
 

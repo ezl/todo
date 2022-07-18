@@ -5,7 +5,8 @@ export default {
     return {
       completed: false,
       body: '',
-      selectedTags: []
+      selectedTags: [],
+      assignedUsers: []
     };
   },
   methods: {
@@ -16,16 +17,21 @@ export default {
 
       const item = await Item.add(this.body, this.completed);
       await item.assignSelectedTags(this.selectedTags);
+      await item.assignSelectedUsers(this.assignedUsers);
       item.updateTagPositionsInBody();
 
       this.body = '';
       this.completed = false;
       this.selectedTags = [];
+      this.assignedUsers = [];
 
       return true
     },
     onTagSelected(tagInfo) {
       this.selectedTags.push(tagInfo);
-    }
+    },
+    onAssignUser(user) {
+      this.assignedUsers.push(user);
+    },
   }
 };

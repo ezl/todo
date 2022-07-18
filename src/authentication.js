@@ -14,6 +14,8 @@ store.subscribeAction({
       startCheckingVerificationStatus(state.auth.client_tracking_token);
     }
 
+    if (action.type === 'auth/forceLogin') onLogin(state.auth.token);
+
   },
   before: (action, state) => {
     // Whether or not the user is logging out after successfully verifying their email
@@ -134,8 +136,13 @@ const getUserData = async () => {
       change_logs: changeLogs
     });
 
+    // Logged in user
     User.insert({
-      data: [response.data.user]
+      data: response.data.user
+    });
+    // His items, assigned & his own items
+    Item.insert({
+      data: response.data.items
     });
 
     const auth = await LocalStorageHelper.getValue({ auth: {} });

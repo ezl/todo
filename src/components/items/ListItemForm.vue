@@ -12,6 +12,7 @@
         class="ml-3"
         input-classes="px-3"
         @tag-selected="onTagSelected"
+        @assign-user="onAssignUser"
       />
     </div>
   </div>
