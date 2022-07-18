@@ -4,10 +4,11 @@
       <Spinner class="w-10 h-10" />
       <p class="mt-4 text-secondary">Logging you in</p>
     </div>
-    <div v-else class="flex flex-col items-center">
+    <div v-else class="flex flex-col items-center justify-center">
       <alert-circle-outline-icon :size="30" class="text-primary" />
       <p class="mt-4 text-secondary">{{ error }}</p>
-      <router-link to="/" class="px-2 py-1 text-sm mt-10 hover:text-primary">Go to home</router-link>
+      <button v-if="shouldSwitchAccount" @click="switchAccount" class="px-2 py-1 text-sm mt-10 hover:text-primary">Switch account</button>
+      <router-link to="/" class="px-2 py-1 text-sm mt-2 hover:text-primary">Go to home</router-link>
     </div>
   </div>
 </template>
@@ -27,7 +28,12 @@ export default {
   data() {
     return {
       loading: true,
-      error: null
+      error: null,
+      newAccount: {
+        email: null,
+        token: null,
+      },
+      shouldSwitchAccount: false
     };
   },
   computed: {
@@ -38,8 +44,18 @@ export default {
   },
   methods: {
     ...mapActions({
-      forceLogin: 'auth/forceLogin'
-    })
+      forceLogin: 'auth/forceLogin',
+      logout: 'auth/logout'
+    }),
+    async switchAccount(){
+      this.loading = true
+      await this.logout()
+
+      setTimeout(async () => {
+        await this.forceLogin(this.newAccount);
+        this.$router.push({ name: 'home' });
+      }, 2000);
+    }
   },
   async mounted() {
     this.loading = true;
@@ -51,7 +67,10 @@ export default {
 
       if (this.isLoggedIn && this.email!= email) {
         this.loading = false;
-        this.error = 'Switch account'; // TODO
+        this.shouldSwitchAccount = true
+        this.newAccount.email = email
+        this.newAccount.token = access_token
+        this.error = `You are already logged in as ${this.email}, do you want to switch to ${email}?`
         return;
       }
 
