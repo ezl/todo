@@ -23,7 +23,7 @@ if (isRunningAsAnExtension()) {
   window.browser = require('webextension-polyfill');
 }
 
-axios.defaults.baseURL = 'https://badtodo.com/api';
+axios.defaults.baseURL = 'https://www.badtodo.com/api';
 
 const init = async () => {
   await LocalStorageHelper.init();
