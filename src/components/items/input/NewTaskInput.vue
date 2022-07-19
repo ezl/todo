@@ -196,8 +196,7 @@ export default {
       const words = this.value.substring(0, currentCaretOffset);
       
       // extract tags
-      let matches = words.match(/(#[0-9a-zA-Z ]*)/g );
-
+      let matches = words.match(/(#[0-9a-zA-Z ]*)$/g );
       // If what they are not currently typing is not a tag
       if(!matches){
         // Check if they are mentioning/assigning a user
