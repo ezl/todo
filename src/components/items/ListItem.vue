@@ -124,12 +124,22 @@ export default {
         if(assigned) assignedUsers.push(user.email)
       })
 
-      let label = ''
+      if(! assignedUsers.length) return
+      
+      let label = 'assigned to: '
 
       if(this.isAssignedToCurrentUser){
-        label = assignedUsers.length > 1 ? 'you & ' + assignedUsers.length -1 + ' others' : 'you'
+        if(assignedUsers.length > 1){
+          label += `you & ${assignedUsers.length - 1} others`
+        }else{
+          label += 'you'
+        }
       }else{
-        label = assignedUsers.length > 1 ? assignedUsers[0] + ' & ' + assignedUsers.length -1 + ' others' : assignedUsers[0]
+        if(assignedUsers.length > 1){
+          label += `${assignedUsers[0]} & ${assignedUsers.length - 1} others`
+        }else{
+          label += assignedUsers[0]
+        }   
       }
 
       return label
