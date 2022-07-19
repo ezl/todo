@@ -5,6 +5,7 @@
 <script>
 import Tag from '@/components/tags/Tag';
 import TagModel from '@/models/Tag';
+import listItemEntity from '@/mixins/listItemEntity'
 
 export default {
   components: {
@@ -21,11 +22,6 @@ export default {
       return TagModel.query().where('name', name => name.toLowerCase() == this.tagName.toLowerCase()).first();
     }
   },
-  mounted(){
-    // Add some margin if previous sibling was also a tag 
-    if(this.$el.previousSibling.nodeType === Node.ELEMENT_NODE){
-      this.$el.classList.add('!ml-1')
-    }
-  }
+  mixins: [listItemEntity]
 };
 </script>

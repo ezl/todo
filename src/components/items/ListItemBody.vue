@@ -1,9 +1,11 @@
 <script>
 import ListItemTagEntity from '@/components/items/entities/ListItemTagEntity';
+import ListItemMentionEntity from '@/components/items/entities/ListItemMentionEntity';
 
 export default {
   components: {
-    ListItemTagEntity
+    ListItemTagEntity,
+    ListItemMentionEntity
   },
   props: {
     item: {
@@ -38,10 +40,23 @@ export default {
 
       return entities.sort((a, b) => a.startIndex - b.startIndex)
     },
+    mentionEntities(){
+      const pattern = /@(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/g;
+      const entities = [];
+
+      let match;
+      while ((match = pattern.exec(this.item.body)) != null) {
+        const entity = {};
+        entity.body = match[0];
+        entity.startIndex = match[0].startsWith(' ') ? match.index + 1 : match.index;
+        entity.endIndex = entity.startIndex + entity.body.length;
+        entity.type = 'mention';
+        entities.push(entity);
+      }
+      return entities;
+    },
     allEntities() {
-      return this.hashTagEntities;
-      // In future
-      // return [...this.hashTagEntities, ...this.urlEntities]
+      return [...this.hashTagEntities, ...this.mentionEntities].sort((a,b) => a.startIndex - b.startIndex)
     }
   },
   methods: {
@@ -80,6 +95,9 @@ export default {
       switch (entityType) {
         case 'tag':
           return <ListItemTagEntity tag-name={content} />;
+          break;
+        case 'mention':
+          return <ListItemMentionEntity content={content} />;
           break;
         default:
           break;
