@@ -244,7 +244,7 @@ export default {
       // In case what we’re auto completing is an email, the typed str will include a ‘@’ character at the beginning 
       // while the full str will not. So we should account for the character difference when determine remaining characters 
       let typedStrLength = this.autocomplete.body.length
-      if(this.autocomplete.type === 'mention') typedStrLength - 1
+      if(this.autocomplete.type === 'mention') typedStrLength--
       const remainingCharacters = fullString.slice(typedStrLength) + ' ';
 
       const selection = window.getSelection();
