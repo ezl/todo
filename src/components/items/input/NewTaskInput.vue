@@ -159,7 +159,7 @@ export default {
 
         if (justStartedTypingIt) {
           let guideMsg = 'type to add tag or press ESC to cancel'
-          if(this.autocomplete.type == 'mention') guideMsg = 'type an email to assigned someone or press ESC to cancel'
+          if(this.autocomplete.type == 'mention') guideMsg = 'type an email to assign someone or press ESC to cancel'
           this.showAssignmentGuide(guideMsg);
         }
       } else {
