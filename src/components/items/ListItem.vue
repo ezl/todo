@@ -407,6 +407,10 @@ export default {
   -webkit-tap-highlight-color: transparent;
 }
 
+.list-item-wrapper >>> [contenteditable='true'] {
+  min-width: 78px;
+}
+
 @media only screen and (max-width: 768px) {
   .list-item-actions {
     position: absolute;
