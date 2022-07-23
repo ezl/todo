@@ -1,5 +1,5 @@
 <template>
-  <span @click="$emit('click')" :class="{'!border-primary bg-primary !text-white': selected}" class="select-action w-5 h-5 rounded-full border-2 border-secondary cursor-pointer text-transparent hover:border-primary">
+  <span @click="onClick" :class="{'!border-primary bg-primary !text-white': selected}" class="select-action w-5 h-5 rounded-full border-2 border-secondary cursor-pointer text-transparent hover:border-primary">
     <check-icon :size="16" class="flex justify-center items-center"/>
   </span>
 </template>
@@ -15,6 +15,21 @@ export default {
     selected: {
       type: Boolean,
       default: false
+    },
+    usable: {
+      type: Boolean,
+      default: true
+    },
+  },
+  methods: {
+    onClick(){
+      if(this.usable || this.selected) this.$emit('click')
+ 
+      if(!this.selected){
+        this.$emit('begin-action', 'select')
+      }else{
+        this.$emit('end-action')
+      }
     }
   }
 };

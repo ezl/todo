@@ -14,9 +14,9 @@
       :class="listItemActionsDynamicClasses"
       class="flex-shrink-0 flex justify-between items-center list-item-actions pt-1 w-2/12 flex md:ml-2"
     >
-      <DiscardAction @discard="onDiscard" :plural="selected" class="hidden md:inline" />
-      <SnoozeAction @snooze="onSnooze" :plural="selected" class="hidden md:inline" />
-      <SelectAction :selected="selected" @click="onToggleSelection" class="select-action" />
+      <DiscardAction @discard="onDiscard" :plural="selected" :usable="canUseAction('discard')" @begin-action="onActionStart" @end-action="onActionEnd" class="hidden md:inline" />
+      <SnoozeAction @snooze="onSnooze" :plural="selected" :usable="canUseAction('snooze')" @begin-action="onActionStart" @end-action="onActionEnd" class="hidden md:inline" />
+      <SelectAction :selected="selected" @click="onToggleSelection" :usable="canUseAction('select')" @begin-action="onActionStart" @end-action="onActionEnd" class="select-action" />
       <DragAction />
     </div>
 
@@ -80,14 +80,24 @@ export default {
     selected: {
       type: Boolean,
       default: false
-    }
+    },
+    interactable: {
+      type: Boolean,
+      default: true
+    },
+    inMultiSelectionMode: {
+      type: Boolean,
+      default: false
+    },
   },
   data() {
     return {
       editing: false,
       body: this.item.body,
       isMobile: screen.width <= 768,
-      selectedTags: []
+      selectedTags: [],
+      pendingAction: false,
+      pendingActionName: null,
     };
   },
   computed: {
@@ -188,6 +198,8 @@ export default {
       });
     },
     startEditing() {
+      if(!this.interactable) return
+
       this.editing = true;
       this.$emit('started-editing', this.item.id);
     },
@@ -320,7 +332,27 @@ export default {
           text: 'Task successfully snoozed!'
         });
       }, 350);
-    }
+    },
+    onActionStart(actionName){
+      this.pendingAction = true
+      this.pendingActionName = actionName
+      this.$emit('begin-action')
+    },
+    onActionEnd(){
+      this.pendingAction = false
+      this.pendingActionName = null
+
+      if(this.inMultiSelectionMode) this.pendingActionName = 'select'
+
+      this.$emit('end-action')
+    },
+    canUseAction(action){
+      if(action == 'select'){
+        return !this.pendingAction && this.interactable || this.inMultiSelectionMode
+      }
+
+      return !this.pendingAction && this.interactable || this.pendingActionName == 'select'
+    },
   },
   async mounted() {
     if (this.item.completed) {

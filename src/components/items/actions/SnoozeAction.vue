@@ -23,7 +23,11 @@ export default {
     plural: {
       type: Boolean,
       default: false
-    }
+    },
+    usable: {
+      type: Boolean,
+      default: true
+    },
   },
   data() {
     return {
@@ -32,9 +36,12 @@ export default {
   },
   methods: {
     toggleSnoozeOptions() {
+      if(!this.usable) return
       this.showSnoozePeriodOptions = !this.showSnoozePeriodOptions;
     },
     onSnooze(days) {
+     this.$emit('begin-action', 'snooze')
+
       this.$notify({
         group: 'prompt',
         title: 'Snooze',
@@ -43,7 +50,10 @@ export default {
           actions: [
             {
               label: 'Cancel',
-              callback: async close => close()
+              callback: async close => {
+                close()
+                this.$emit('end-action')
+              }
             },
             {
               label: 'Yes',
@@ -51,6 +61,7 @@ export default {
                 close();
 
                 this.$emit('snooze', days);
+                this.$emit('end-action')
               }
             }
           ]

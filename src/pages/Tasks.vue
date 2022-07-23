@@ -53,7 +53,11 @@
             @completion-status-changed="onItemCompletionStatusChanged"
             @snooze="snoozeSelectedItems"
             @discard="discardSelectedItems"
+            @begin-action="pendingActionItemId = item.id"
+            @end-action="pendingActionItemId = null"
             :selected="isItemSelected(item)"
+            :interactable="isItemInteractable(item)"
+            :in-multi-selection-mode="selectedItems.length > 0"
             :class="{ 'select-none': holdingTouch }"
           />
         </transition-group>
@@ -113,7 +117,8 @@ export default {
       orderedSelectedItems: [],
       itemsMarkedAsCompletedIds: [],
       openItemCreationFormForMobile: false,
-      inSearchMode: false
+      inSearchMode: false,
+      pendingActionItemId: null // The id of the task that currently has an action pending (started but not completed yet)
     };
   },
   methods: {
@@ -230,6 +235,13 @@ export default {
     },
     isItemSelected(item) {
       return this.selectedItems.some(_item => _item.id == item.id);
+    },
+    isItemInteractable(item) {
+      // It cannot be interacted with, if there’s an item which has an action being executed currently 
+      // and it is not that that item
+      if(this.pendingActionItemId != null && this.pendingActionItemId != item.id) return false
+
+      return true
     },
     onStartedDragging(e) {
       this.dragging = true;

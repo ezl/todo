@@ -15,10 +15,18 @@ export default {
     plural: {
       type: Boolean,
       default: false
-    }
+    },
+    usable: {
+      type: Boolean,
+      default: true
+    },
   },
   methods: {
     onDiscard() {
+      if(!this.usable) return
+
+      this.$emit('begin-action', 'discard')
+
       this.$notify({
         group: 'prompt',
         title: 'Discard',
@@ -29,12 +37,14 @@ export default {
               label: 'Cancel',
               callback: close => {
                 close();
+                this.$emit('end-action')
               }
             },
             {
               label: 'Yes',
               callback: close => {
                 this.$emit('discard');
+                this.$emit('end-action')
                 close();
               }
             }
