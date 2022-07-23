@@ -82,6 +82,13 @@ export default {
   },
   mounted() {
     setTheme(this.settings.theme);
+  },
+  watch: {
+    '$route' (to, from) {
+      // Clear notifications when we navigate to another route
+      this.$notify({ group: 'basic', clean: true })
+      this.$notify({ group: 'prompt', clean: true })
+    }
   }
 };
 </script>
