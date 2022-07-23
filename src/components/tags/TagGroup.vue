@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex flex-wrap tags-wrapper">
-      <Tag v-for="tag in tags" :key="tag.id" :tag="tag" />
+      <Tag v-for="tag in filteredTags" :key="tag.id" :tag="tag" />
     </div>
   </div>
 </template>
@@ -29,7 +29,10 @@ export default {
 
       tags = TagModel.orderTags(tags)
 
-      tags = tags.filter(tag => {
+      return tags
+    },
+    filteredTags(){
+      let tags = this.tags.filter(tag => {
         if (this.settings.hide_tags_without_items && !tag.items.length) return false;
 
         return true;
@@ -39,6 +42,28 @@ export default {
     },
     settings() {
       return Setting.query().first();
+    }
+  },
+  methods: {
+    async HandleUnselectingTagsWithNoActiveTasks(){
+      for (let index = 0; index < this.tags.length; index++) {
+        const tag = this.tags[index];
+
+        if(tag.items.length || !tag.toggled) continue
+
+        tag.toggled = false
+        await tag.$save()
+        
+        console.log(`${tag.name} has no active items`, tag.toggled)
+
+      }
+    }
+  },
+  watch: {
+    tags: {
+      handler: function(newVal){
+        this.HandleUnselectingTagsWithNoActiveTasks()
+      }
     }
   }
 };
