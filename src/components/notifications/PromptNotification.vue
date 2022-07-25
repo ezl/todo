@@ -51,7 +51,7 @@ export default {
   background: #141317;
 }
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 1024px) {
   .vue-notification-group{
     width: 90% !important;
     left: calc(5%) !important;

@@ -14,13 +14,13 @@
       :class="listItemActionsDynamicClasses"
       class="flex-shrink-0 flex justify-between items-center list-item-actions pt-1 w-2/12 flex md:ml-2"
     >
-      <DiscardAction @discard="onDiscard" :plural="selected" :usable="canUseAction('discard')" @begin-action="onActionStart" @end-action="onActionEnd" class="hidden md:inline" />
-      <SnoozeAction @snooze="onSnooze" :plural="selected" :usable="canUseAction('snooze')" @begin-action="onActionStart" @end-action="onActionEnd" class="hidden md:inline" />
+      <DiscardAction @discard="onDiscard" :plural="selected" :usable="canUseAction('discard')" @begin-action="onActionStart" @end-action="onActionEnd" class="hidden lg:inline" />
+      <SnoozeAction @snooze="onSnooze" :plural="selected" :usable="canUseAction('snooze')" @begin-action="onActionStart" @end-action="onActionEnd" class="hidden lg:inline" />
       <SelectAction :selected="selected" @click="onToggleSelection" :usable="canUseAction('select')" @begin-action="onActionStart" @end-action="onActionEnd" class="select-action" />
       <DragAction />
     </div>
 
-    <div :class="{ 'w-full': !editing }" class="md:ml-8 flex items-start py-1">
+    <div :class="{ 'w-full': !editing }" class="ml-2 lg:ml-8 flex items-start py-1">
       <div class="checkbox-wrapper">
         <Checkbox v-model="item.completed" @click="onCompletionStatusChanged" />
       </div>
@@ -55,6 +55,7 @@ import DiscardAction from '@/components/items/actions/DiscardAction';
 import ChangeLogger from '../../sync/ChangeLogger';
 import moment from 'moment';
 import auth from '@/helpers/auth';
+import screenSize from '@/mixins/screen-size';
 
 export default {
   components: {
@@ -94,7 +95,6 @@ export default {
     return {
       editing: false,
       body: this.item.body,
-      isMobile: screen.width <= 768,
       selectedTags: [],
       pendingAction: false,
       pendingActionName: null,
@@ -370,6 +370,7 @@ export default {
       return false;
     };
   },
+  mixins: [screenSize],
   watch: {
     item: {
       handler: function(newVal, oldVal) {
@@ -443,12 +444,12 @@ export default {
   min-width: 78px;
 }
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 1014px) {
   .list-item-actions {
     position: absolute;
-    width: 52px;
+    width: 81px;
     padding: 5px 0px;
-    transform: translateX(calc(-68px));
+    transform: translateX(calc(-93px));
   }
 }
 </style>

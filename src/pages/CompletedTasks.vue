@@ -212,7 +212,7 @@ export default {
   margin-top: 4px;
 }
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 1024px) {
   .group {
     padding: 0 15px;
   }

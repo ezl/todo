@@ -1,12 +1,12 @@
 <template>
   <div class="w-full lg:w-8/12 lg:ml-20 mt-8 md:mt-16">
-    <div v-show="isMobile && selectedItems.length" class="z-50 fixed inset-x-0 top-0 p-4 bg-lotion dark:bg-dark-gunmetal flex justify-end">
+    <div v-show="(isMobile || isTablet) && selectedItems.length" class="z-50 fixed inset-x-0 top-0 p-4 bg-lotion dark:bg-dark-gunmetal flex justify-end">
       <button @click="clearSelectedItems">cancel</button>
     </div>
     <div class="flex px-2">
       <div
         :class="actionLabelsWrapperDynamicClasses"
-        class="list-item-action-labels hidden md:flex flex-shrink-0 justify-between items-center italic dark:text-white text-black h-8"
+        class="list-item-action-labels hidden lg:flex flex-shrink-0 justify-between items-center italic dark:text-white text-black h-8"
       >
         <span class="text-xs text-secondary opacity-60">discard</span>
         <span class="text-xs text-secondary opacity-60">snooze</span>
@@ -16,13 +16,13 @@
         </button>
         <span class="text-xs text-secondary opacity-60 ">drag</span>
       </div>
-      <div :class="{'blur-sm pointer-events-none': isMobile && selectedItems.length}" class="flex relative items-start	w-full ml-0 md:ml-8">
+      <div :class="{'blur-sm pointer-events-none': isMobile && selectedItems.length}" class="flex relative items-start	w-full ml-0 lg:ml-8">
         <SearchInput v-if="shouldShowSearchIcon" v-model="listItemSearchQuery" :results-count="items.length" @toggled="onSearchModeToggled" />
         <TagGroup :class="{'ml-3': shouldShowSearchIcon}" />
       </div>
     </div>
-    <div class="mt-3 md:mt-8 list-items-container  overflow-x-hidden">
-      <ListItemForm v-if="!isMobile && !isTouchDevice" ref="form" :class="{'invisible': inSearchMode}" class="list-item-form px-2 pl-10" />
+    <div class="mt-3 lg:mt-8 list-items-container  overflow-x-hidden">
+      <ListItemForm v-if="isTablet || !isMobile && !isTouchDevice" ref="form" :class="{'invisible': inSearchMode}" class="list-item-form px-2 lg:pl-10" />
       <draggable
         :class="listItemsWrapperDynamicClasses"
         :animation="100"
@@ -63,7 +63,7 @@
         </transition-group>
       </draggable>
     </div>
-    <div v-if="isMobile && selectedItems.length" class="flex items-center fixed inset-x-0 bottom-0 p-4 bg-lotion dark:bg-dark-gunmetal z-40">
+    <div v-if="(isMobile || isTablet) && selectedItems.length" class="flex items-center fixed inset-x-0 bottom-0 p-4 bg-lotion dark:bg-dark-gunmetal z-40">
       <SnoozeAction @snooze="snoozeSelectedItems"/>
       <DiscardAction @discard="discardSelectedItems" class="ml-4"/>
     </div>
@@ -88,6 +88,7 @@ import DiscardAction from '@/components/items/actions/DiscardAction';
 import CloseIcon from 'vue-material-design-icons/Close';
 import ChangeLogger from '../sync/ChangeLogger';
 import { isUtcDateInFuture } from '@/helpers/datetime';
+import screenSize from '@/mixins/screen-size';
 
 export default {
   components: {
@@ -108,7 +109,6 @@ export default {
       selectedTagsIds: [],
       itemBeingEditedId: null,
       listItemSearchQuery: '',
-      isMobile: screen.width <= 768,
       longTouchTimeoutId: null,
       visibleActionsItemId: null,
       showActionLabels: false,
@@ -418,14 +418,14 @@ export default {
         classList.push('invisible');
       }
 
-      if (this.isMobile) {
+      if (this.isMobile || this.isTablet) {
         classList.push('hidden');
       }
 
       return classList;
     },
     slideInActions() {
-      return this.isMobile && this.selectedItems.length;
+      return (this.isMobile || this.isTablet) && this.selectedItems.length;
     },
     isTouchDevice() {
       return 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
@@ -448,7 +448,8 @@ export default {
       itemComponentRef.stopEditing();
       this.itemBeingEditedId = null;
     });
-  }
+  },
+  mixins: [screenSize]
 };
 </script>
 
@@ -480,14 +481,17 @@ export default {
   margin-left: 171px;
 }
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 900px) {
   .slide-in-actions {
     @apply !transition-transform !duration-500;
-    transform: translateX(calc(68px));
+    transform: translateX(calc(79px));
   }
   .slide-out-actions {
     @apply !transition-transform !duration-500;
     transform: translateX(calc(0px));
+  }
+  .list-item-form{
+    margin-left: 0;
   }
 }
 </style>

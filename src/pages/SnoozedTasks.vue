@@ -109,7 +109,7 @@ export default {
   background: #2d2b36;
 }
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 1024px) {
   .unsnooze-btn {
     margin-left: 5px;
   }

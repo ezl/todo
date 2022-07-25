@@ -30,7 +30,7 @@ export default {
   },
   data() {
     return {
-      isMobile: screen.width <= 768
+      isMobile: screen.width <= 888
     };
   },
   methods: {
