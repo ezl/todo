@@ -256,6 +256,7 @@ export default {
     },
     clearSelectedItems() {
       this.selectedItems = [];
+      this.pendingActionItemId = null
     },
     onItemCompletionStatusChanged(item) {
       if (item.completed_at) {
