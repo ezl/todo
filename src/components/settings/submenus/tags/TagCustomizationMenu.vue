@@ -41,7 +41,7 @@ import ContentSaveAlertOutlineIcon from 'vue-material-design-icons/ContentSaveAl
 import AutorenewIcon from 'vue-material-design-icons/Autorenew';
 import DotsVerticalIcon from 'vue-material-design-icons/DotsVertical';
 import ChangeLogger from '@/sync/ChangeLogger';
-import { TAG_COLORS, FALLBACK_TAG_COLOR } from '@/constants';
+import { getTagColorByName } from '@/helpers/tag-colors';
 import TagOptionsPopup from '@/components/settings/submenus/tags/TagOptionsPopup';
 import NestedMenu from '@/components/settings/NestedMenu';
 import CustomTagsOrderMenu from '@/components/settings/submenus/tags/CustomTagsOrderMenu';
@@ -61,7 +61,6 @@ export default {
     return {
       selectedTag: null,
       openTagOptionsPopup: false,
-      colorList: TAG_COLORS,
       menuIds: {
         mainMenu: 'main-menu',
         customOrder: 'custom-order-menu'
@@ -135,12 +134,10 @@ export default {
     },
     tagStyles(tag) {
       const obj = {};
-      // default
-      obj['background-color'] = FALLBACK_TAG_COLOR;
+      const color = getTagColorByName(tag.color)
 
-      if (tag.color) {
-        obj['background-color'] = tag.color;
-      }
+      obj['color'] = color.text
+      obj['background-color'] = color.background
 
       return obj;
     }

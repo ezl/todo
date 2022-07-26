@@ -80,7 +80,7 @@ export default {
       return this.$route.name === routeName
     }
   },
-  mounted() {
+  created() {
     setTheme(this.settings.theme);
   },
   watch: {

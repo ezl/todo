@@ -5,7 +5,7 @@ import Setting from './Setting';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 import ChangeLogger from '../sync/ChangeLogger';
-import { TAG_COLORS } from '@/constants';
+import { getRandomTagColorName } from '@/helpers/tag-colors';
 
 export default class Tag extends BaseModel {
   static get entity() {
@@ -41,8 +41,7 @@ export default class Tag extends BaseModel {
       tag.color = options.color;
     } else {
       // Pick a random color
-      const randomIndex = Math.floor(Math.random() * TAG_COLORS.length);
-      tag.color = TAG_COLORS[randomIndex].hexValue;
+      tag.color = getRandomTagColorName()
     }
 
     await tag.$save();

@@ -3,3 +3,5 @@ export const isEmailValid = email => {
     email
   );
 };
+
+export const getCurrentTheme = () => document.body.classList.contains('dark') ? 'dark' : 'light';

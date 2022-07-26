@@ -14,13 +14,13 @@
     <div>
       <h4 class="mb-1 text-secondary">Colors</h4>
       <div 
-      @click="onChangeColor(color.hexValue)" 
+      @click="onChangeColor(color.name)" 
       v-for="(color, index) in colors" 
       :key="index" 
       class="flex items-center justify-between mt-3 cursor-pointer"
       >
         <div class="flex items-center">
-          <span class="w-5 h-5 block" :style="{ 'background-color': color.hexValue }"></span>
+          <span class="w-5 h-5 block" :style="{ 'background-color': color.background, 'color': color.text }"></span>
           <span class="ml-4">{{ color.name }}</span>
         </div>
         <check-icon v-if="isColorSelected(color)" :size="16" />
@@ -30,7 +30,8 @@
 </template>
 
 <script>
-import { TAG_COLORS, FALLBACK_TAG_COLOR } from '@/constants';
+import { TAG_COLORS } from '@/constants';
+import { getCurrentTheme } from '@/helpers/general';
 import CheckIcon from 'vue-material-design-icons/Check';
 import DeleteOutlineIcon from 'vue-material-design-icons/DeleteOutline';
 
@@ -45,16 +46,28 @@ export default {
       required: true
     }
   },
-  data() {
-    return {
-      colors: TAG_COLORS
-    };
+  computed: {
+    colors(){
+       const theme = getCurrentTheme()
+       const colors = []
+
+       for (const key in TAG_COLORS) {
+         const color = TAG_COLORS[key]
+         if(!color[theme]) continue
+         
+         color.name = key
+         colors.push({
+           ...color[theme],
+           name: key
+         })
+       }
+       
+       return colors
+    }
   },
   methods: {
     isColorSelected(color) {
-      if (this.tag.color) return this.tag.color == color.hexValue;
-
-      return FALLBACK_TAG_COLOR == color.hexValue;
+      return this.tag.color == color.name
     },
     onChangeColor(selectedColor) {
       this.$emit('change-color', selectedColor);

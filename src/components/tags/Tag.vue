@@ -2,7 +2,7 @@
   <span
     @click="onClick"
     :style="styles"
-    :class="{ 'font-bold dark:font-normal': !tag.toggled && interactive, 'cursor-pointer': interactive }"
+    :class="{'font-bold dark:font-normal': !tag.toggled && interactive, 'cursor-pointer': interactive }"
     class="px-3 py-1 mr-2 mb-2 block rounded-full text-black"
   >
     {{ name }}
@@ -11,7 +11,7 @@
 
 <script>
 import Setting from '@/models/Setting';
-import { TAG_COLORS, FALLBACK_TAG_COLOR } from '@/constants';
+import { getTagColorByName } from '@/helpers/tag-colors';
 
 export default {
   props: {
@@ -23,11 +23,6 @@ export default {
       default: true,
       type: Boolean
     }
-  },
-  data() {
-    return {
-      defaultColor: FALLBACK_TAG_COLOR // will be used if tag does not have any color
-    };
   },
   methods: {
     onClick(e) {
@@ -54,14 +49,14 @@ export default {
       const obj = {};
       const selected = this.tag.toggled;
 
-      // default
-      if (selected && this.interactive || !this.interactive) obj['background-color'] = this.defaultColor;
-      if (!selected && this.interactive) obj['color'] = this.defaultColor;
+      const color = getTagColorByName(this.tag.color)
 
-      if (this.tag.color) {
-        if (selected && this.interactive || !this.interactive) obj['background-color'] = this.tag.color;
-        if (!selected && this.interactive) obj['color'] = this.tag.color;
+      if (selected && this.interactive || !this.interactive) {
+        obj['background-color'] = color.background
+        obj['color'] = color.text
       }
+      
+      if (!selected && this.interactive) obj['color'] = color.background;
 
       return obj;
     }
