@@ -56,7 +56,13 @@ export default class LocalStorageHelper {
 
         if (isRunningAsAnExtension()) {
           const obj = {};
-          obj[key] = value;
+
+          if(typeof value === 'object'){
+            obj[key] = JSON.parse(JSON.stringify(value));
+          }else{
+            obj[key] = value;
+          }
+
           await browser.storage.local.set(obj);
         } else {
           localStorage.setItem(key, JSON.stringify(value));
