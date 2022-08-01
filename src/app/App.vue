@@ -7,8 +7,8 @@
             Tasks <span v-if="settings.show_unfinished_tasks_count && itemsCount > 5">({{ itemsCount }})</span>
           </router-link>
         </li>
-        <li class="nav-item-divider"></li>
-        <li class="text-lg cursor-pointer">
+        <li v-if="$route.name == 'tasks.completed'" class="nav-item-divider"></li>
+        <li v-if="$route.name == 'tasks.completed'" class="text-lg cursor-pointer">
           <router-link :to="{ name: 'tasks.completed' }">Completed Tasks</router-link>
         </li>
         <li v-if="$route.name == 'tasks.snoozed'" class="nav-item-divider"></li>
