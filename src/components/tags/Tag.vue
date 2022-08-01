@@ -2,8 +2,8 @@
   <span
     @click="onClick"
     :style="styles"
-    :class="{'font-bold dark:font-normal': !tag.toggled && interactive, 'cursor-pointer': interactive }"
-    class="px-3 py-1 mr-2 mb-2 block rounded-full text-black"
+    :class="{'cursor-pointer': interactive }"
+    class="px-3 py-1 mr-2 mb-2 block rounded-full"
   >
     {{ name }}
   </span>
@@ -56,8 +56,6 @@ export default {
         obj['color'] = color.text
       }
       
-      if (!selected && this.interactive) obj['color'] = color.background;
-
       return obj;
     }
   }
