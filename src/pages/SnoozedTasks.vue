@@ -51,6 +51,7 @@ export default {
         data: {
           actions: [
             {
+              type: 'cancel',
               label: 'Cancel',
               callback: async close => {
                 this.waitingForResponse = false;
@@ -58,6 +59,7 @@ export default {
               }
             },
             {
+              type: 'confirm',
               label: 'Yes',
               callback: close => {
                 this.waitingForResponse = false;

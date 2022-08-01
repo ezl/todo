@@ -49,6 +49,7 @@ export default {
         data: {
           actions: [
             {
+              type: 'cancel',
               label: 'Cancel',
               callback: async close => {
                 close()
@@ -56,6 +57,7 @@ export default {
               }
             },
             {
+              type: 'confirm',
               label: 'Yes',
               callback: close => {
                 close();

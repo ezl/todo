@@ -34,6 +34,7 @@ export default {
         data: {
           actions: [
             {
+              type: 'cancel',
               label: 'Cancel',
               callback: close => {
                 close();
@@ -41,6 +42,7 @@ export default {
               }
             },
             {
+              type: 'confirm',
               label: 'Yes',
               callback: close => {
                 this.$emit('discard');

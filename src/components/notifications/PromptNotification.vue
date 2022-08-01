@@ -1,7 +1,9 @@
 <template>
   <notifications group="prompt" position="bottom center" :duration="-1" width="45%">
     <template slot="body" slot-scope="{ item, close }">
-      <div class="notification flex w-full items-center justify-between h-auto p-4 mb-4 rounded-md border border-red-500 bg-lotion dark:bg-dark-gunmetal">
+      <!-- set is not a special attribute, it is just a placeholder 
+      to help us pass this template’s props to our main component  -->
+      <div :set="setNotificationData(item.data, close)" class="notification flex w-full items-center justify-between h-auto p-4 mb-4 rounded-md border border-red-500 bg-lotion dark:bg-dark-gunmetal">
         <div class="mr-4">
           <BellIcon v-if="!item.data.icon || item.data.icon == 'bell'" class="text-primary" width="30" height="31"/>
           <CheckCircleIcon v-if="item.data.icon == 'check'" class="text-primary" width="28" height="28" />
@@ -35,6 +37,33 @@ export default {
     BellIcon,
     CheckCircleIcon
   },
+  data(){
+    return {
+      actions: [],
+      closeFn: null
+    }
+  },
+  methods: {
+    setNotificationData(data, close){
+      if(Array.isArray(data.actions)) this.actions = data.actions
+      this.closeFn = close
+    }
+  },
+  mounted(){
+    document.body.addEventListener('keyup', (e) => {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        const cancelAction = this.actions.find(a => a.type == 'cancel')
+        if(cancelAction && typeof cancelAction.callback === 'function') cancelAction.callback(this.closeFn)
+      }
+
+      if (e.keyCode === 13) {
+        const confirmAction = this.actions.find(a => a.type == 'confirm')
+        if(confirmAction && typeof confirmAction.callback === 'function') confirmAction.callback(this.closeFn)
+      }
+
+      this.actions = []
+    })
+  }
 };
 </script>
 
