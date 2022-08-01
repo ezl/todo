@@ -13,7 +13,7 @@
       </div>
       <div v-if="tags.length" class="mt-6 overflow-auto list px-4">
         <div v-for="tag in tags" :key="tag.id" class="flex items-center justify-between mt-2">
-          <span :style="tagStyles(tag)" class="px-3 py-1 tag">{{ tag.name }}</span>
+          <span :style="tagStyles(tag)" class="px-3 py-1 tag">{{ tag.name }} ({{ tag.activeItems().length }})</span>
           <div class="flex relative">
             <dots-vertical-icon :size="20" @click="showTagOptionsPopup(tag)" class="tag-options-popup-toggle-btn cursor-pointer text-secondary" />
           </div>

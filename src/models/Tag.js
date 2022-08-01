@@ -6,6 +6,7 @@ import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 import ChangeLogger from '../sync/ChangeLogger';
 import { getRandomTagColorName } from '@/helpers/tag-colors';
+import { isUtcDateInFuture } from '@/helpers/datetime';
 
 export default class Tag extends BaseModel {
   static get entity() {
@@ -102,5 +103,17 @@ export default class Tag extends BaseModel {
     });
 
     return tags;
+  }
+
+  activeItems(){
+    const activeItems = this.items.filter(item => {
+      if(item.completed_at != null) return false
+      if(item.discarded_at != null) return false
+      if(item.snoozed_until != null || isUtcDateInFuture(item.snoozed_until)) return false
+
+      return true
+    });
+
+    return activeItems
   }
 }
