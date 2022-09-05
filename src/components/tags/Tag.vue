@@ -1,11 +1,12 @@
 <template>
   <span
-    @click="onClick"
+    @click.self="onSelect"
     :style="styles"
-    :class="{'cursor-pointer': interactive }"
+    :class="{'cursor-pointer': interactive && !tag.toggled}"
     class="px-3 py-1 mr-2 mb-2 block rounded-full"
   >
     {{ name }}
+    <span v-if="interactive && tag.toggled" @click="onUnselect" class="ml-2 cursor-pointer">x</span>
   </span>
 </template>
 
@@ -25,14 +26,18 @@ export default {
     }
   },
   methods: {
-    onClick(e) {
+    onSelect() {
       if (!this.interactive) return;
 
-      this.tag.toggled = !this.tag.toggled;
+      this.tag.toggled = true;
       this.tag.$save();
-
-      this.$el.classList.remove('hover-state');
     },
+    onUnselect(){
+      if (!this.interactive) return;
+
+      this.tag.toggled = false;
+      this.tag.$save();
+    }
   },
   computed: {
     settings() {

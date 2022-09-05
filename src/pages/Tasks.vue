@@ -16,9 +16,9 @@
         </button>
         <span class="text-xs text-secondary opacity-60 ">drag</span>
       </div>
-      <div :class="{'blur-sm pointer-events-none': isMobile && selectedItems.length}" class="flex relative items-start	w-full ml-0 lg:ml-8">
+      <div :class="{'blur-sm pointer-events-none': isMobile && selectedItems.length}" class="flex relative items-center w-full ml-0 lg:ml-8">
         <SearchInput v-if="shouldShowSearchIcon" v-model="listItemSearchQuery" :results-count="items.length" @toggled="onSearchModeToggled" />
-        <TagGroup :class="{'ml-3': shouldShowSearchIcon}" />
+        <TaskFilterTags :class="{'ml-4': shouldShowSearchIcon}" />
       </div>
     </div>
     <div class="mt-3 lg:mt-8 list-items-container  overflow-x-hidden">
@@ -77,7 +77,6 @@ import ListItemMobileForm from '@/components/items/mobile-form/ListItemMobileFor
 import ListItemMobileFormToggleButton from '@/components/items/mobile-form/ListItemMobileFormToggleButton';
 import ListItemForm from '@/components/items/ListItemForm';
 import ListItem from '@/components/items/ListItem';
-import TagGroup from '@/components/tags/TagGroup';
 import Item from '@/models/Item';
 import Tag from '@/models/Tag';
 import Setting from '@/models/Setting';
@@ -89,6 +88,7 @@ import CloseIcon from 'vue-material-design-icons/Close';
 import ChangeLogger from '../sync/ChangeLogger';
 import { isUtcDateInFuture } from '@/helpers/datetime';
 import screenSize from '@/mixins/screen-size';
+import TaskFilterTags from '../components/task-filters/TaskFilterTags';
 
 export default {
   components: {
@@ -96,12 +96,12 @@ export default {
     ListItemMobileForm,
     ListItemMobileFormToggleButton,
     ListItem,
-    TagGroup,
     draggable,
     SearchInput,
     SnoozeAction,
     DiscardAction,
-    CloseIcon
+    CloseIcon,
+    TaskFilterTags
   },
   data() {
     return {
