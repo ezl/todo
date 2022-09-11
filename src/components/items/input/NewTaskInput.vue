@@ -5,6 +5,7 @@
       :data-placeholder="placeholderText"
       @input="change"
       @keydown="onKeyDown"
+      @keyup="onKeyUp"
       @keypress="onKeyPress"
       @click="onClick"
       ref="input"
@@ -50,6 +51,10 @@ export default {
       type: String,
       required: true
     },
+    item: {
+      type: Object,
+      required: false
+    },
     inputClasses: {},
     placeholderText: {
       type: String
@@ -58,15 +63,17 @@ export default {
   data() {
     return {
       initialInputHeight: null,
-      currentCaretOffset: 0,
       autocomplete: {
         body: '',
         startIndex: null,
         endIndex: null,
-        ignoredStartIndexes: [],
         type: null
       },
       suggestionsPopupCoordinates: null,
+      caretPosition: {
+        nodeIndex: null,
+        endOffset: null
+      }
     };
   },
   methods: {
@@ -74,12 +81,13 @@ export default {
       // We have to keep track of the caret's position to reset it back later,
       // bcause changing contenteditable resets caret position
       this.saveCurrentCaretPosition();
-      this.hideAssignmentGuide();
 
-      this.$emit('input', e.target.textContent);
+      this.publishUpdate()
       this.resize();
-
-      this.$nextTick(this.handleAutoCompletion);
+    },
+    // Notifies parent component about the new changes
+    publishUpdate(){
+      this.$emit('input', this.$refs.input.textContent);
     },
     submit(e) {
       e.preventDefault();
@@ -89,7 +97,6 @@ export default {
       this.$emit('submit');
       this.$refs.input.style.height = this.initialInputHeight;
       this.suggestionsPopupCoordinates = null;
-      this.autocomplete.ignoredStartIndexes = [];
     },
     focus() {
       this.$refs.input.focus();
@@ -103,37 +110,55 @@ export default {
       this.$refs.input.focus();
 
       const selection = window.getSelection();
-      const range = selection.getRangeAt(0);
+      const range = selection.getRangeAt(0)
+      let node
 
-      let node;
-      if (this.$refs.input.childNodes.length) {
-        node = this.$refs.input.childNodes[0];
-      } else {
-        return;
+      // If nodeIndex is not null, this mean the caret was previously within an element and
+      // the user was assigning a tag/someone
+      if(this.caretPosition.nodeIndex != null){
+        node = this.$refs.input.childNodes[this.caretPosition.nodeIndex]
+      }else{
+        if(this.$refs.input.childNodes.length > 1){
+          node = this.$refs.input.childNodes[this.caretPosition.endOffset]
+        }else{
+          node = this.$refs.input.childNodes[0]
+        }
       }
 
-      range.setStart(node, this.currentCaretOffset);
+      if(!node) return
+
+      // If it is an element, we will take its first child (which is expected to be a text node).
+      if(node.nodeType === Node.ELEMENT_NODE){
+      // Note: Entity elements will only contain a single child of type text node
+        node = node.childNodes[0]
+      }
+
+      range.setStart(node, this.caretPosition.endOffset);
 
       selection.removeAllRanges();
       selection.addRange(range);
     },
     saveCurrentCaretPosition() {
-      this.currentCaretOffset = this.getCurrentCaretPosition();
-    },
-    getCurrentCaretPosition() {
       const selection = window.getSelection();
 
       if (selection.rangeCount === 0) return;
 
       const range = selection.getRangeAt(0);
       const preCaretRange = range.cloneRange();
+      // startContainer could be either an element or a text node.
+      let node = range.startContainer
 
-      preCaretRange.selectNodeContents(this.$refs.input);
+      preCaretRange.selectNodeContents(node);
       preCaretRange.setEnd(range.endContainer, range.endOffset);
 
-      const position = preCaretRange.toString().length;
+      if(node.parentElement === this.$refs.input){
+        this.caretPosition.nodeIndex = Array.from(this.$refs.input.childNodes).indexOf(node)
+      }else{
+        this.caretPosition.nodeIndex = Array.from(this.$refs.input.childNodes).indexOf(node.parentElement)
+      }
 
-      return position;
+      this.caretPosition.endOffset = range.endOffset
+      this.caretPosition.node = node
     },
     discardPastedTextFormatting() {
       this.$refs.input.addEventListener('paste', e => {
@@ -142,35 +167,9 @@ export default {
         document.execCommand('insertHTML', false, str);
       });
     },
-    handleAutoCompletion() {
-      // Frequently reset and update the ignored tag indexes
-      this.autocomplete.ignoredStartIndexes = this.autocomplete.ignoredStartIndexes.filter(index => {
-        return index <= this.value.length - 1;
-      });
-
-      const showSuggestions = this.shouldShowSuggestions();
-      const justStartedTypingIt = this.autocomplete.body.length === 1;
-      const shouldBeIgnored = this.autocomplete.ignoredStartIndexes.some(index => index === this.autocomplete.startIndex);
-
-      if (showSuggestions && !shouldBeIgnored) {
-        if (!this.suggestionsPopupCoordinates && justStartedTypingIt) {
-          this.suggestionsPopupCoordinates = this.getCaretAbsolutePosition();
-        }
-
-        if (justStartedTypingIt) {
-          let guideMsg = 'type to add tag or press ESC to cancel'
-          if(this.autocomplete.type == 'mention') guideMsg = 'type an email to assign someone or press ESC to cancel'
-          this.showAssignmentGuide(guideMsg);
-        }
-      } else {
-        this.suggestionsPopupCoordinates = null;
-        this.hideAssignmentGuide();
-      }
-    },
     onTagSelected(tag) {
       this.focus();
-      this.hideAssignmentGuide();
-      this.autoCompleteTagRemainingCharacters(tag.name);
+      this.autoCompleteTagRemainingCharacters(tag.name)
       this.suggestionsPopupCoordinates = null;
 
       this.$emit('tag-selected', {
@@ -182,85 +181,40 @@ export default {
     onUserSelected(user) {
       console.log(user)
       this.focus();
-      this.hideAssignmentGuide();
+
       //Could be just an email if the user doesn’t exist 
       this.autoCompleteTagRemainingCharacters(typeof user === 'string' ? user : user.email);
       this.suggestionsPopupCoordinates = null;
 
       this.$emit('assign-user', user);
     },
-    shouldShowSuggestions() {
-      // retrieve current caret position
-      const currentCaretOffset = this.getCurrentCaretPosition();
-      // get all words that precede current caret position, and ignore words that come after that
-      const words = this.value.substring(0, currentCaretOffset);
-      
-      // extract tags
-      let matches = words.match(/(#[0-9a-zA-Z ]*)$/g );
-      // If what they are not currently typing is not a tag
-      if(!matches){
-        // Check if they are mentioning/assigning a user
-        matches = words.match(/(@([0-9a-zA-Z@.])*)+/g)
-        if(matches) this.autocomplete.type = 'mention'
-      }else{
-        // It's a tag
-        this.autocomplete.type = 'tag'
-      }
-
-      // take the last match
-      let match;
-      if (matches != null) {
-        match = matches[matches.length - 1];
-      }
-
-      const startIndex = match ? currentCaretOffset - match.length : null;
-      const endIndex = match ? currentCaretOffset : null;
-      let showSuggestions = false
-
-      // check if it's a valid tag
-      if (this.autocomplete.type == 'tag' && /^#[0-9a-zA-Z ]*?$/.test(match)) {
-        showSuggestions = true;
-      }
-      // or if it's a valid mention
-      if (this.autocomplete.type == 'mention' && /^@[^\s]*$/.test(match)) {
-        showSuggestions = true;
-      }
-
-      if (showSuggestions) {
-        this.autocomplete.body = match;
-        this.autocomplete.startIndex = startIndex;
-        this.autocomplete.endIndex = endIndex;
-        
-      } else {
-        this.autocomplete.body = '';
-        this.autocomplete.startIndex = null;
-        this.autocomplete.endIndex = null;
-      }
-
-      return showSuggestions;
-    },
-    autoCompleteTagRemainingCharacters(fullString) {
-      // In case what we’re auto completing is an email, the typed str will include a ‘@’ character at the beginning 
-      // while the full str will not. So we should account for the character difference when determine remaining characters 
-      let typedStrLength = this.autocomplete.body.length
-      if(this.autocomplete.type === 'mention') typedStrLength--
-      const remainingCharacters = fullString.slice(typedStrLength) + ' ';
-
-      const selection = window.getSelection();
-      const textNode = document.createTextNode(remainingCharacters);
+    autoCompleteTagRemainingCharacters(str){
+      const selection = document.getSelection();
       const range = selection.getRangeAt(0);
+      const node = range.startContainer;
 
-      range.insertNode(textNode);
+      if(node.nodeType === Node.ELEMENT_NODE) return
 
-      range.collapse(false);
+      if(!node.parentElement.hasAttribute('data-entity-type')) return
 
-      // we need to merge all text nodes into a single node
-      this.$refs.input.normalize();
+      node.nodeValue = str
 
-      this.saveCurrentCaretPosition();
-      this.updateInputValue(this.$refs.input.textContent);
-      this.$emit('input', this.$refs.input.textContent);
-      this.autocomplete.endIndex += remainingCharacters.length;
+      // Add some space by appending a new text node after the entity
+      const whiteSpace = document.createTextNode(' ')
+      node.parentElement.after(whiteSpace)
+
+      this.updateCurrentEntityPosition()
+
+      // Notify parent component about the change 
+      this.publishUpdate()
+
+      // Move the cursor to the end of the newly created text node
+      range.setStart(whiteSpace, 1);
+
+      // selection.removeAllRanges();
+      // selection.addRange(range);
+      this.saveCurrentCaretPosition()
+
     },
     getCaretAbsolutePosition() {
       const selection = document.getSelection();
@@ -298,62 +252,205 @@ export default {
 
       return pos;
     },
-    showAssignmentGuide(label) {
-      if (document.querySelector('#assignment-guide')) return;
-      // Don’t show if the caret is not at the end
-      if (this.getCurrentCaretPosition() !== this.value.length) return;
+    handleDisplayingAssignmentGuide() {
+      const selection = window.getSelection();
+      const range = selection.getRangeAt(0);
+      let node = range.startContainer
 
-      const span = document.createElement('span');
-      span.innerText = `  ${label}`;
-      span.id = 'assignment-guide';
-      span.className = 'dark:text-white text-black opacity-60';
-      this.$refs.input.appendChild(span);
-    },
-    hideAssignmentGuide() {
-      const span = document.querySelector('#assignment-guide');
+      // startContainer could either be a text node or an element.
+      // If it’s an element, get its 1st child (which should be a text node)
+      if(node.nodeType === Node.ELEMENT_NODE) node = node.firstChild
 
-      if (span) {
-        span.parentElement.removeChild(span);
-        this.$emit('input', this.$refs.input.textContent);
+      if(!node) return
+
+      const id = 'assignment-guide'
+      let el = document.querySelector(`#${id}`)  
+
+      if(!node.parentElement.hasAttribute('data-entity-type')){
+        if(el) el.parentElement.removeChild(el);
+        this.publishUpdate()
+        return
+      }
+ 
+      const entityType = node.parentElement.getAttribute('data-entity-type')
+
+      if(entityType != 'tag' && entityType != 'mention') return
+
+      if(node.nodeValue.length > 1 && el){
+        el.parentElement.removeChild(el);
+        this.publishUpdate()
+      }
+
+      let text = 'type to add tag or press ESC to cancel'
+
+      if(entityType ==='mention') text = 'type an email to assign someone or press ESC to cancel'
+      
+      if(node.nodeValue.length === 1 && !el){
+        el = document.createElement('span');
+        el.textContent = `  ${text}`;
+        el.id = id;
+        el.className = 'dark:text-white text-black opacity-60';
+        this.$refs.input.appendChild(el);
       }
     },
-    placeCaretAtTheEnd() {
+    placeCaretAtTheEnd(el) {
       const range = document.createRange();
       const selection = window.getSelection();
 
-      range.selectNodeContents(this.$refs.input);
+      range.selectNodeContents(el);
       range.collapse(false);
 
       selection.removeAllRanges();
       selection.addRange(range);
-    },
-    updateInputValue(value) {
-      this.$refs.input.textContent = value;
-      // place the caret back at its previous position, after changing input value
-      this.restoreCaretPosition();
     },
     onKeyDown(e) {
       // Ignore and disable up/down arrow keys
       if (e.keyCode == 38 || e.keyCode == 40) e.preventDefault();
 
       if (e.key === 'Enter') this.submit(e);
+    },
+    onKeyUp(e) {
+      this.saveCurrentCaretPosition()
+      this.updateCurrentEntityPosition()
+      this.handleDisplayingAssignmentGuide()
+      this.HandleQuittingAssignmentMode(e)
+      this.HandleSuggestionsDropdownVisibility()
+    },
+    // Track and update the position of the tag/username that’s being typed
+    updateCurrentEntityPosition(){
+      const selection = window.getSelection();
+      const range = selection.getRangeAt(0);
+      const node = range.startContainer
 
-      if (e.key === 'Escape' || e.key === 'Esc') {
-        // Blur the input if suggestions are not visible
-        if(!this.suggestionsPopupCoordinates) this.$refs.input.blur()
+      if(node.nodeType === Node.TEXT_NODE && node.parentElement.hasAttribute('data-entity-type')){
+        const nodes = this.$refs.input.childNodes
+        let startIndex = 0
+        let endIndex = 0
+      
+        for (let index = 0; index < nodes.length; index++) {
+          const childNode = nodes[index];
 
-        this.autocomplete.ignoredStartIndexes.push(this.autocomplete.startIndex);
+          if(childNode === node.parentElement){
+            endIndex = startIndex + childNode.textContent.length
+            break
+          }else{
+            startIndex += childNode.textContent.length
+          }
+        }
 
-        this.suggestionsPopupCoordinates = null;
-        this.autocomplete.body = '';
-        this.autocomplete.startIndex = null;
-        this.autocomplete.endIndex = null;
-        this.hideAssignmentGuide();
+        this.autocomplete.startIndex = startIndex
+        this.autocomplete.endIndex = endIndex
+      }else{
+        this.autocomplete.startIndex = null
+        this.autocomplete.endIndex = null
       }
     },
     onKeyPress(e) {
       // Prevent the user from creating tags containing disallowed characters
       this.validateTag(e);
+      this.HandleEntityAssignment(e)
+    },
+    HandleEntityAssignment(e){
+      const typedChar = String.fromCharCode(e.keyCode);
+      const selection = window.getSelection();
+      const range = selection.getRangeAt(0);
+      const node = range.startContainer
+
+      if(node.nodeType === Node.ELEMENT_NODE) return
+      // Make sure we are not already in the middle of assigning tag/user
+      if(node.parentElement.hasAttribute('data-entity-type')) return
+ 
+      let entityType 
+      
+      // Are we about to start assigning a tag or a user?
+      if(typedChar == '#') entityType = 'tag'
+      if(typedChar == '@') entityType = 'mention'
+
+      if(!entityType) return
+
+    // Reaching mean we just started typing an entity (9tag/username)
+      e.preventDefault();
+      
+      const entity = document.createElement('span')
+      entity.className = 'text-primary'
+      entity.setAttribute('data-entity-type', entityType)
+      entity.innerHTML = typedChar
+      
+      // Figure out where we should place the entity within the contenteditable
+      if (this.caretPosition.endOffset > 0 && this.caretPosition.endOffset < node.nodeValue.length) {
+        // The caret is in the middle of this text node. 
+        // We will split it (at the caret’s position) into two text node and place the span between them.
+        const newTextNode = node.splitText(this.caretPosition.endOffset);
+        this.$refs.input.insertBefore(entity, newTextNode)
+      }else if (this.caretPosition.endOffset >= node.nodeValue.length) {
+        // ater
+        this.$refs.input.appendChild(entity)
+      }else {
+        // before
+        this.$refs.input.insertBefore(entity, node)
+      }
+      
+      // Place and move the caret to end of the element we just created
+      this.placeCaretAtTheEnd(entity)
+
+      // Start showing suggestions for corresponding entity
+      this.HandleSuggestionsDropdownVisibility()
+    },
+    createEntityElement(type, content){
+      const entity = document.createElement('span')
+      entity.className = 'text-primary'
+      entity.setAttribute('data-entity-type', type)
+      entity.innerHTML = content
+
+      return entity
+    },
+    HandleSuggestionsDropdownVisibility (){
+      const selection = window.getSelection();
+      const range = selection.getRangeAt(0);
+      let node = range.startContainer
+
+      if(node.nodeType === Node.TEXT_NODE) node = node.parentElement
+
+      if(!node.hasAttribute('data-entity-type')){
+        this.suggestionsPopupCoordinates = null;
+        this.autocomplete.body = '';
+        this.autocomplete.startIndex = null;
+        this.autocomplete.endIndex = null;
+        return
+      }
+
+      // Reaching here means we are assigning either a user or tag.
+
+      // Keep track of what the user is typing
+      this.autocomplete.body = node.textContent
+
+      // Initialize suggestions dropdown, if it is not already
+      if (!this.suggestionsPopupCoordinates) {
+        this.suggestionsPopupCoordinates = this.getCaretAbsolutePosition();
+        this.autocomplete.type = node.getAttribute('data-entity-type')
+      }
+    },
+    // Exits assignment mode and hides suggestions if the user hits ESC while assigning a tag/user
+    HandleQuittingAssignmentMode(e){
+      if (e.key != 'Escape' && e.key != 'Esc') return
+
+      const selection = window.getSelection();
+      const range = selection.getRangeAt(0);
+      let node = range.startContainer
+
+      if(node.nodeType === Node.TEXT_NODE) node = node.parentElement
+
+      if(!node.hasAttribute('data-entity-type')) return
+
+      // We’ll replace the entire entity’s element with a text node, while keeping the content
+      const newTextNode = document.createTextNode(node.textContent)
+
+      node.parentElement.replaceChild(newTextNode, node)
+      // Move the cursor to the end of the new node
+      range.setStart(newTextNode, newTextNode.nodeValue.length);
+
+      // Make sure to hide assignment guide, if it is visible 
+      this.handleDisplayingAssignmentGuide()
     },
     // Checks if user is typing a valid tag
     validateTag(e) {
@@ -371,12 +468,47 @@ export default {
       }
     },
     onClick(e) {
-      //Close tags suggestion popup when the user clicks somewhere on the input
-      this.suggestionsPopupCoordinates = null;
-      this.hideAssignmentGuide();
+      this.handleDisplayingAssignmentGuide()
     },
     isFocused() {
       return document.activeElement === this.$refs.input
+    },
+    // Loops through all entities (if any) within the passed in task’s body, and highlights them
+    highlightExistingEntities (){
+      // Item will only passed in edit mode
+      if(! this.item) return
+
+      const entities = this.item.extractAllEntitiesFromBody()
+      const childNodes = []
+
+      if(! entities.length) return
+      
+      let body = this.item.body
+      for (let index = entities.length - 1; index >= 0; index--) {
+        const entity = entities[index];
+        
+        const precedingCharacters = body.slice(0, entity.startIndex);
+        const followingCharacters = body.slice(entity.endIndex);
+
+        const followingTextNode = document.createTextNode(followingCharacters)
+        childNodes.unshift(followingTextNode)
+
+        const el = this.createEntityElement(entity.type, entity.body)
+        childNodes.unshift(el)
+
+        if (index == 0) {
+          // Once we're done, create a text node for the remaining characters
+          const precedingTextNode = document.createTextNode(precedingCharacters)
+
+          childNodes.unshift(precedingTextNode)
+        } else {
+          body = precedingCharacters;
+        }
+      }
+
+      this.$refs.input.innerHTML = ''
+
+      childNodes.forEach(node => this.$refs.input.appendChild(node));
     }
   },
   computed: {
@@ -416,9 +548,10 @@ export default {
   },
   mounted() {
     this.initialInputHeight = window.getComputedStyle(this.$refs.input, null).getPropertyValue('height');
-    this.$refs.input.textContent = this.value;
+    this.$refs.input.innerHTML = this.value;
     this.discardPastedTextFormatting();
-    this.$nextTick(() => this.placeCaretAtTheEnd());
+    this.$nextTick(() => this.placeCaretAtTheEnd(this.$refs.input));
+    this.highlightExistingEntities()
 
     // close suggestions popup when user clicks somewhere else
     document.body.addEventListener('click', e => {
@@ -426,15 +559,20 @@ export default {
       if (this.$el.contains(e.target)) return;
 
       this.suggestionsPopupCoordinates = null;
-      this.hideAssignmentGuide();
     });
   },
   watch: {
     value: {
       handler: function(newValue, oldVale) {
-        this.updateInputValue(newValue);
+        // We’re sending the value as plain string without HTML to parent component
+        // Override contenteditable’s content only if value did really change
+        if(newValue != this.$refs.input.textContent){
+          this.$refs.input.textContent = newValue;
+          // place the caret back at its previous position, after changing input value
+          this.restoreCaretPosition();
+        }
       }
-    }
+    },
   }
 };
 </script>

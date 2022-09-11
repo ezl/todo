@@ -358,6 +358,50 @@ export default class Item extends BaseModel {
       if(shouldSync) await ChangeLogger.userAssignedToItem(this, user)
     }
   }
+  
+  extractAllEntitiesFromBody(){
+    return [...this.extractTagEntitiesFromBody(), ...this.extractMentionEntitiesFromBody()]
+           .sort((a,b) => a.startIndex - b.startIndex)
+  }
+
+  extractTagEntitiesFromBody(){
+    if (this.tag_positions === null) return [];
+
+    const entities = [];
+
+    this.tag_positions.forEach(tagMeta => {
+      const attached = this.tags.some(tag => tag.name.toLowerCase().trim() === tagMeta.tag.toLowerCase().trim());
+      if (!attached) {
+        return;
+      }
+
+      entities.push({
+        body: tagMeta.tag,
+        startIndex: tagMeta.startIndex,
+        endIndex: tagMeta.endIndex,
+        type: 'tag'
+      });
+    });
+
+    return entities.sort((a, b) => a.startIndex - b.startIndex)
+  }
+
+  extractMentionEntitiesFromBody(){
+    const pattern = /@(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/g;
+    const entities = [];
+
+    let match;
+    while ((match = pattern.exec(this.body)) != null) {
+      const entity = {};
+      entity.body = match[0];
+      entity.startIndex = match[0].startsWith(' ') ? match.index + 1 : match.index;
+      entity.endIndex = entity.startIndex + entity.body.length;
+      entity.type = 'mention';
+      entities.push(entity);
+    }
+
+    return entities;
+  }
 
   set completed(completed) {
     this.completed_at = completed ? moment.utc().format() : null;
