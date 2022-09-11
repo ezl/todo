@@ -18,7 +18,7 @@
       </div>
       <div :class="{'blur-sm pointer-events-none': isMobile && selectedItems.length}" class="flex relative items-center w-full ml-0 lg:ml-8">
         <SearchInput v-if="shouldShowSearchIcon" v-model="listItemSearchQuery" :results-count="items.length" @toggled="onSearchModeToggled" />
-        <TaskFilterTags :class="{'ml-4': shouldShowSearchIcon}" />
+        <TaskFilterTags v-if="!inSearchMode" :class="{'ml-4': shouldShowSearchIcon}" />
       </div>
     </div>
     <div class="mt-3 lg:mt-8 list-items-container  overflow-x-hidden">
