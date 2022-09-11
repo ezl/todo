@@ -9,11 +9,11 @@
     >
       {{ tag.name }}
     </li>
-    <li v-if="showCreationButton" class="suggestion-box-option">
+    <li v-if="showCreationButton" class="suggestion-box-option create">
       <span
         @click="onSelect"
         :class="[...getDynamicClassList(options.length), options.length ? 'border-t border-secondary' : '']"
-        class="px-4 py-1 cursor-pointer flex items-center text-primary text-sym"
+        class="px-4 py-1 cursor-pointer flex items-center "
       >
         <plus-circle-outline-icon :size="19" />
         <span class="block ml-1">create tag "{{ query }}"</span>
@@ -62,5 +62,9 @@ export default {
 #suggestion-popup {
   width: 300px;
   z-index: 999;
+}
+
+.suggestion-box-option.create {
+  color:#00F3C8;
 }
 </style>
